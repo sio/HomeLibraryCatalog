@@ -1,28 +1,21 @@
-/* CONSTANTS */
-var AJAX_URL = "/ajax";
+/*
+ *
+ * CONSTANTS
+ *
+ */
 var INVALID_CLASSNAME = "invalid";
 var ajaxSuggestions = new AjaxHandler(ajaxFillSuggestions);
 
 
-function encodeQueryData(data) {
-    /**
-    Encode get parameters for URL
-    
-    http://stackoverflow.com/a/111545
-    **/
-    var ret = [];
-    var d
-    for (d in data) {
-        ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
-    }
-    return ret.join('&');
-}
-
-
+/*
+ *
+ * AJAX FUNCTIONS
+ *
+ */
 function AjaxHandler(callback) {
     /**
     Ajax object constructor
-    
+
     Properties:
         xhr
             XMLHttpRequest object
@@ -31,7 +24,7 @@ function AjaxHandler(callback) {
             is passed to callback function as the first argument
         delay
             Integer. Minimum time between requests in milliseconds
-        
+
     Methods:
         get(url)
             Perform AJAX request to url. Honors `delay` property
@@ -45,7 +38,7 @@ function AjaxHandler(callback) {
     this.delay = 300;
     this.callback = callback;
     this.xhr.onreadystatechange = function() {
-        if (self.xhr.readyState === 4 && self.xhr.status === 200) { 
+        if (self.xhr.readyState === 4 && self.xhr.status === 200) {
             self.callback(self.xhr);
         };
     };
@@ -59,7 +52,6 @@ function AjaxHandler(callback) {
     };
 };
 
-
 function ajaxGetSuggestions(input) {
     /**
     Get suggestions for input field via AJAX call
@@ -71,7 +63,6 @@ function ajaxGetSuggestions(input) {
         ajaxSuggestions.get(url + "?" + encodeQueryData(params));
     };
 };
-
 
 function ajaxFillSuggestions(xhr) {
     /**
@@ -97,12 +88,30 @@ function ajaxFillSuggestions(xhr) {
     };
 };
 
+function encodeQueryData(data) {
+    /**
+    Encode get parameters for URL
 
+    http://stackoverflow.com/a/111545
+    **/
+    var ret = [];
+    for (var d in data) {
+        ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+    }
+    return ret.join('&');
+}
+
+
+/*
+ *
+ * DOM MANIPULATION
+ *
+ */
 function getDatalist(input) {
     /**
     Return datalist corresponding to input object
     Create new datalist object if necessary
-    
+
     Return null if input object has no `list` attribute
     **/
     var datalist = input.list; // try getting the object directly
@@ -118,7 +127,6 @@ function getDatalist(input) {
     return datalist;
 };
 
-
 function removeChildNodes(node) {
     /**
     Remove all children nodes
@@ -128,10 +136,10 @@ function removeChildNodes(node) {
     };
 };
 
-
-
-
 function cloneAuthor(node) {
+    /**
+    Clone author input node
+    **/
     var newAuthor;
     cloneParent(node);
     newAuthor = node.parentNode.nextSibling.firstChild;
@@ -141,6 +149,9 @@ function cloneAuthor(node) {
 };
 
 function cloneParent(node) {
+    /**
+    Insert a copy parent node after the parent node
+    **/
     var original;
     var copy;
     var container;
@@ -155,14 +166,32 @@ function cloneParent(node) {
     return false;
 };
 
+
+/*
+ *
+ * FIELD VALIDATION
+ *
+ */
+function trimField(field) {
+    field.value = field.value.replace(/^\s+|\s+$/g,""); //trim()
+};
+
 function checkDefaultValue(field) {
+    /**
+    Validation function
+
+    Clears field.value if it was not modified since the page was loaded
+    **/
     trimField(field);
     if (field.value === field.defaultValue) {field.value = ""};
 };
 
 function checkDateField(field) {
     /**
-    Validate the field that has to contain date value in DD.MM.YYYY format
+    Validation function
+
+    Checks if field.value contains the date in DD.MM.YYYY format,
+    invalidates the field otherwise
     **/
     var valid;
     var date_array;
@@ -195,11 +224,14 @@ function checkDateField(field) {
     showFieldValidation(field, valid);
 };
 
-function trimField(field) {
-    field.value = field.value.replace(/^\s+|\s+$/g,""); //trim()
-};
-
 function checkYearField(field) {
+    /**
+    Validation function
+
+    Checks if field.value contains the year YYYY format,
+    invalidates the field otherwise
+    **/
+
     var year;
     var valid;
     trimField(field);
@@ -208,7 +240,7 @@ function checkYearField(field) {
         year = "";
     };
     field.value = year;
-    valid = and(year>=1900, year<=2100);
+    valid = (year>=1900) && (year<=2100);
 
     if (field.value.length === 0) {
         valid = true;
@@ -219,7 +251,10 @@ function checkYearField(field) {
 
 function checkPriceField(field) {
     /**
-    Validate price field. Empty values are allowed
+    Validation function
+
+    Checks if field.value contains valid price or is empty,
+    invalidates the field otherwise
     **/
     var price;
     var valid;
@@ -240,7 +275,10 @@ function checkPriceField(field) {
 
 function checkRequiredField(field) {
     /**
-    Validate the field that has to contain a non-empty string.
+    Validation function
+
+    Checks if field.value contains a non-empty string,
+    invalidates the field otherwise
     **/
     trimField(field);
     var valid = Boolean(field.value);
@@ -248,6 +286,43 @@ function checkRequiredField(field) {
     return valid;
 }
 
+function checkISBN(field) {
+    /**
+    Validate ISBN typed in by user.
+        @param   {object} field - the <input> field on HTML page.
+        @returns {void}
+    **/
+    trimField(field);
+    var isbn = field.value;
+    var validity = (isValidISBN(isbn) || cleanISBN(isbn).length===0);
+    showFieldValidation(field,validity);
+};
+
+function isValidISBN(s) {
+    /**
+    Check if string represents a valid ISBN.
+        @param   {string}  s
+        @returns {boolean}
+    **/
+    var valid = false;
+    var alphanum = cleanISBN(s);
+    if ((alphanum.length === 10 || alphanum.length === 13)) {
+        valid = true;
+    };
+    return valid;
+};
+
+function cleanISBN(s) {
+    /** Clean up ISBN string **/
+    return s.replace(/[^x0-9]/gi,"").toUpperCase();
+};
+
+
+/*
+ *
+ * FORM VALIDATION
+ *
+ */
 function validateBook(form) {
     /**
     Validate new/edit book form. To be called from onAction.
@@ -292,81 +367,4 @@ function showFieldValidation(field, valid) {
             field.className = field.className + " " + INVALID_CLASSNAME;
         };
     };
-};
-
-function fillByISBN(xhttp) {
-    /**
-    Fill input form based on new ISBN entered by user.
-    Callback function for AJAX request.
-        @param  {object} xhttp - XMLHttpRequest object
-        @returns {void}
-    **/
-    var reply = xhttp; //xhttp.responseText; //DEBUG //TODO:switch back to responseText
-    var bookData = JSON.parse(reply);
-    var form = document.forms["edit_book"];
-    for (var key in bookData) {
-        if (form[key]) {
-            form[key].value = bookData[key];
-        };
-    };
-    //TODO: handle base64 thumbnails
-};
-
-function newISBN(field) {
-    /**
-    Process new ISBN entered by user.
-        @param   {object} field - the <input> field on HTML page
-        @returns {void}
-    **/
-    trimField(field);
-    validateISBN(field);
-    if ((field.className.indexOf(INVALID_CLASSNAME) === -1)
-    && cleanISBN(field.value).length) {
-        ajaxLoad(AJAX_URL + "?isbn=" + cleanISBN(field.value), fillByISBN);
-    };
-};
-
-function validateISBN(field) {
-    /**
-    Validate ISBN typed in by user.
-        @param   {object} field - the <input> field on HTML page.
-        @returns {void}
-    **/
-    var isbn = field.value;
-    var validity = (isValidISBN(isbn) || cleanISBN(isbn).length===0);
-    showFieldValidation(field,validity);
-};
-
-function isValidISBN(s) {
-    /**
-    Check if string represents a valid ISBN.
-        @param   {string}  s
-        @returns {boolean}
-    **/
-    var valid = false;
-    var alphanum = cleanISBN(s);
-    if ((alphanum.length === 10 || alphanum.length === 13)) {
-        valid = true;
-    };
-    return valid;
-};
-
-function cleanISBN(s) {
-    /** Clean up ISBN string **/
-    return s.replace(/[^a-z0-9]/gi,"").toUpperCase();
-};
-
-function and() {
-    /**
-    Perform logical AND with all parameters.
-        @returns {boolean}
-    **/
-    result = arguments[0]
-    for (i=1; i<arguments.length; i++) {
-        result = result && arguments[i];
-        if (!(result)) {
-            break;
-        };
-    };
-    return Boolean(result);
 };
