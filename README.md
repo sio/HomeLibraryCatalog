@@ -16,8 +16,14 @@ Consider yourself warned
     * **lxml** - HTML scraping library
 
 
-# Priority tasks
+# What's next?
 * Add book form
+    * thumbnail
+        * upload file
+        * get image by url
+        * auto fetcher
+    * series [+]
+        * multiple inputs in one line: type, name, # of ##
 * Annotations
 * DB clean start
 
