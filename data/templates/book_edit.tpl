@@ -11,7 +11,7 @@ simple_fields = (
  
 <form name="edit_book" class="user_input" method="post" onsubmit="return validateBook(this)">
     <label class="field">ISBN:
-        <input type="text" name="isbn" value="{{book.isbn or ""}}" onchange="newISBN(this)"/>
+        <input type="text" name="isbn" value="{{book.isbn or ""}}" onchange="checkISBN(this)"/>
     </label>
     <label for="author">Автор:</label>
         % for a in authors:
