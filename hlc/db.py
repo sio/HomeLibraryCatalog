@@ -432,7 +432,7 @@ class CatalogueDB(SQLiteDB):
         suggestions = list()
         if bool(beginning.strip()):
             query = """
-                SELECT %s FROM %s
+                SELECT DISTINCT %s FROM %s
                 WHERE simplify(%s) LIKE simplify(?) || "%%"
                 ORDER BY %s
                 LIMIT ?
