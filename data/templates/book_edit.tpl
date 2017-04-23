@@ -29,6 +29,13 @@ simple_fields = (
         <input class="second_of_3" type="text" name="in_type" placeholder="тип поступления" onchange="trimField(this)"/>
         <input class="third_of_3" type="text" name="in_comment" placeholder="комментарий" onchange="trimField(this)"/>
     </div>
+    <label class="field">Выбытие:</label>
+    <div class="field center">
+        <input class="first_of_3" type="text" name="out_date" onchange="checkDateField(this)"/>
+        <input class="second_of_3" type="text" name="out_type" placeholder="тип выбытия" onchange="trimField(this)"/>
+        <input class="third_of_3" type="text" name="out_comment" placeholder="комментарий" onchange="trimField(this)"/>
+    </div>
+
     <!--
     <label class="field">Выбор (например, автора комментария):
         <select><option>one</option><option>two</option></select>

@@ -251,7 +251,10 @@ class WebUI(object):
                       ("price", "price", validate.positive),
                       ("in_date", "in_date", validate.date),
                       ("in_type", "in_type", validate.nonempty),
-                      ("in_comment", "in_comment", validate.nonempty))
+                      ("in_comment", "in_comment", validate.nonempty),
+                      ("out_date", "out_date", validate.date),
+                      ("out_type", "out_type", validate.nonempty),
+                      ("out_comment", "out_comment", validate.nonempty))
 
             for attr, input, func in inputs:
                 valid, value = func(form.get(input))
@@ -333,6 +336,7 @@ class WebUI(object):
         user = User(self.db)
         user.name = username
         user.password = password
+        # todo: add expiration date
         user.save()
         return user
 
