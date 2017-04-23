@@ -44,6 +44,7 @@ Consider yourself warned
 - [ ] save more items to cookie tuple?
 
 #### WebUI:
+- [ ] get rid of __update_info() method?
 - [ ] handle clean start
     - [x] create database
     - [x] create administrator account
