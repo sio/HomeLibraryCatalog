@@ -5,3 +5,6 @@
 *.html
 *.bat
 *.npp
+.bak/
+.tmp/
+.docs/
