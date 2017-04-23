@@ -138,6 +138,13 @@ class WebUI(object):
     """
     def __init__(self, sqlite_file):
         self.__db = CatalogueDB(sqlite_file)
+        self.__persistent_cfg = DBKeyValueStorage(
+            self.db.cursor.connection,
+            "app_config",
+            "option",
+            "value"
+        )
+        self.__clean_init()
         self.__app = Bottle()
         self.__session_manager = SessionManager()
         self.__update_info()
@@ -164,16 +171,11 @@ class WebUI(object):
         suggestions = self.suggest(field, line)
         return json.dumps({field: suggestions})
         
-    def clean_init(self):
+    def __clean_init(self):
         """
         First start. Initialize some database entries
         """
-        options = DBKeyValueStorage(
-            self.db.cursor.connection,
-            "app_config",
-            "option",
-            "value"
-        )
+        options = self.__persistent_cfg
         if not options.get("init_date"):
             # create Group admin
             admins = Group(self.db)
@@ -197,7 +199,7 @@ class WebUI(object):
             
             # show random password to user
             msg = "Created initial administrative account:\n Login: %s\n Password: %s"
-            message(msg % credentials)
+            message(msg % credentials)  # todo: show in web interface
             
             # save application state (first run = passed)
             options["init_date"] = timestamp()
