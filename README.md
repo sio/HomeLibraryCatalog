@@ -62,7 +62,7 @@ Consider yourself warned
     - [ ] narrow pages
     - [ ] stylesheet themes
 - [ ] Forms:
-    - [ ] add user
+    - [ ] add user (set password expiration date)
     - [ ] edit user
     - [ ] add book
     - [ ] edit book
