@@ -38,7 +38,6 @@ def main():
 
     test_dbfile = os.path.join(config.app.data_dir, config.db.filename)
     ui = WebUI(test_dbfile)
-    ui.clean_init()
     ui.start(
         browser=False,
         debug=True,
