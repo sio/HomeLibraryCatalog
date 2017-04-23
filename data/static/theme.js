@@ -1,7 +1,8 @@
 /* CONSTANTS */
 var AJAX_URL = "/ajax";
 var INVALID_CLASSNAME = "invalid";
-var ajax = new AjaxHandler(ajaxTestCallback);
+var ajaxSuggestions = new AjaxHandler(ajaxFillSuggestions);
+
 
 function encodeQueryData(data) {
     /**
@@ -58,34 +59,45 @@ function AjaxHandler(callback) {
     };
 };
 
-function ajaxTest(input) {
+
+function ajaxGetSuggestions(input) {
+    /**
+    Get suggestions for input field via AJAX call
+    **/
     if (input.value.length > 2) {
         var url="/ajax/suggest";
         var params = {"f": input.name, "q": input.value};
-        ajax.get(url + "?" + encodeQueryData(params));
+        input.setAttribute("list", input.name + "_suggestions");
+        ajaxSuggestions.get(url + "?" + encodeQueryData(params));
     };
 };
-function ajaxTestCallback(xhr) {
+
+
+function ajaxFillSuggestions(xhr) {
+    /**
+    Fill datalist with input suggestions
+    Callback function for AjaxHandler object
+    **/
     var result = JSON.parse(xhr.responseText);
     var field
     for (field in result) {
         if (result[field].length > 0) {
-            console.log(field, result[field]);
             var input = document.querySelector('input[name="' + field + '"]');
             var datalist = getDatalist(input);
             if (datalist) {
-                console.log(datalist);
+                removeChildNodes(datalist);
                 var line;
                 for (line in result[field]) {
                     var opt = document.createElement("option");
                     opt.value = result[field][line];
-                    console.log(opt);
                     datalist.appendChild(opt);
                 };
             };
         };
     };
 };
+
+
 function getDatalist(input) {
     /**
     Return datalist corresponding to input object
@@ -106,6 +118,15 @@ function getDatalist(input) {
     return datalist;
 };
 
+
+function removeChildNodes(node) {
+    /**
+    Remove all children nodes
+    **/
+    while (node.lastChild) {
+        node.removeChild(node.lastChild);
+    };
+};
 
 
 
