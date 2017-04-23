@@ -98,3 +98,15 @@ Consider yourself warned
 #### Auto fetcher:
 - [ ] annotations
 - [ ] thumbnails
+
+
+# Localization status
+As of now all user interaction happens in Russian
+
+Localization is not planned in the foreseable future due to the lack of human
+resources
+
+All locale-dependent text is contained in template files (*.tpl). 
+Application supports changing template directory via configuration file, so all 
+locale-specific text can be translated and placed into another directory.
+Proper localizations tools and techniques (gettext et al) are not yet supported
