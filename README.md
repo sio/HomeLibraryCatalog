@@ -9,6 +9,13 @@ even start and if it starts it might do something unexpected and irreversible
 Consider yourself warned
 
 
+# Requirements
+* **python3** with following packages (available via `pip install`
+    * **bottle** - micro web framework with built-in simple web server
+    * **pillow** - image manipulation library
+    * **lxml** - HTML scraping library
+
+
 # Priority tasks
 * Add book form
 * Annotations
