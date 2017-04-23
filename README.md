@@ -1,30 +1,39 @@
 # HomeLibraryCatalog
 Web application for cataloging home books collection
 
+
 # Unfinished project!
 This project is in the early stages of development, most of the time it doesn't 
 even start and if it starts it might do something unexpected and irreversible
 
 Consider yourself warned
 
+
 # Priority tasks
-* AJAX suggestions
 * Annotations
 * DB clean start
 
+
 # To Do
+#### Ajax suggestions:
+- [x] implement input suggestions
+- [ ] support more (all?) form fields
+
 #### Settings:
 - [x] test json without quotes = invalid according to spec
 - [ ] refer to all settings from code
+
 #### Database:
 - [x] more fields in `users` table: name, registration date
 - [x] user pics? = no
 - [x] add field for annotations in `books`
+
 #### SessionManager:
 - [ ] reimplement API
 - [ ] persistent sessions in database?
 - [ ] dictionary cookie->User?
 - [ ] save more items to cookie tuple?
+
 #### WebUI:
 - [ ] handle clean start
     - [x] create database
@@ -69,14 +78,14 @@ Consider yourself warned
     - [ ] authors/series list
     - [ ] login page, handle invalid auth data
     - [ ] thumbnail upload page
-- [ ] Ajax:
-    - [ ] receive request
-    - [ ] send json
+
 #### Deployment
 - [ ] try pyinstall
 - [x] delete SQLite.cursor property? = no, it's used for unusual queries
+
 #### Write unit tests?
 - [ ] mock database object (or in :memory:)
+
 #### Auto fetcher:
 - [ ] annotations
 - [ ] thumbnails
