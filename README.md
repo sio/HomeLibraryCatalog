@@ -10,7 +10,7 @@ Consider yourself warned
 
 
 # Requirements
-* **python3** with following packages (available via `pip install`
+* **python3** with following packages (available via `pip install`)
     * **bottle** - micro web framework with built-in simple web server
     * **pillow** - image manipulation library
     * **lxml** - HTML scraping library
