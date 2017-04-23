@@ -1,0 +1,162 @@
+/* LAYOUT */
+* {
+    margin:0;
+    padding:0;
+}
+body {
+    margin:1em auto;
+    padding:0;
+    min-width:20em;
+    max-width:50em
+}
+.widewrapper {
+    clear:both;
+    min-width:100%;
+}
+#middle {
+    float:left;
+    min-width:100%;
+}
+#page {
+    margin-left:10em; /* #menu width */
+    padding-left:1em;
+}
+#footer {
+    padding:1em;
+}
+
+
+
+/* MENU SIDEBAR */
+#menu {
+    float:left;
+    width:10em;
+}
+#menu ul {
+    list-style-type:none;
+    margin-left:0.5em;
+}
+#menu ul a {
+    display:block;
+    padding:0.4em;
+}
+#menu ul a:hover, .catalogue tr:hover * {
+    color:navy;
+    background-color:#eef;
+}
+
+
+
+/* USER INPUT */
+.user_input {
+    width:100%;
+}
+.user_input .field {
+    width:100%;
+    max-width:100%;
+    display:block;
+    position:relative;
+}
+.user_input .field input,
+.user_input .field select {
+    box-sizing: border-box;
+    border: #999999 solid 1px;
+    background-color:white;
+    padding:0.3em;
+    margin:0.15em 0;
+    min-width:5em;
+    width:100%; 
+    color:#333333;
+}
+.user_input .plus {
+    padding:0.3em;
+    margin:0.15em 0;
+    position:absolute;
+    top:0px;
+    right:0px;
+}
+.user_input .first_of_3,
+.user_input .second_of_3,
+.user_input .third_of_3 {
+    max-width:32%;
+}
+.field.center {
+    text-align:center;
+}
+.first_of_3 {
+    float:left;
+}
+.second_of_3 {
+    margin-left:auto;
+    margin-right:auto;
+    width:10px;
+}
+.third_of_3 {
+    float:right;
+}
+
+.user_input .field input:focus,
+.user_input .field select:focus {
+    outline: none;
+    border-color: navy;
+}
+.user_input .invalid {
+    border-color: #c00000!important;
+    color: #c00000!important;
+}
+
+
+
+/* FORMATTING */
+* {
+    color:#333333;
+    font-family:"Tahoma","Segoe UI","Arial",sans-serif;
+    font-size:100%;
+    font-style:normal;
+    font-weight:normal;
+    text-decoration:none;
+}
+h1 {
+    color:#000000;
+    font-size:125%;
+    font-weight:bold;
+    margin-bottom:0.5em;
+}
+#header h1 {
+    font-size:1.6em;
+}
+p {
+    margin-bottom:0.5em;
+}
+#footer * {
+    font-size:0.8em;
+    text-align:right;
+}
+#menu * {
+    font-size:0.9em;
+}
+a:hover {
+    text-decoration:underline;
+    text-decoration-style:dotted;
+    -webkit-text-decoration-style:dotted;
+}
+
+
+
+/* PRINTING */
+@media print {
+    .no_print {
+        display:none!important;
+        height:0!important;
+    }
+    thead {
+        display:table-header-group;
+    }
+    body {
+        margin:0!important;
+    }
+    #page {
+        margin:0!important;
+        padding:0!important;
+    }
+}
