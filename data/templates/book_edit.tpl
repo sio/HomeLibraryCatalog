@@ -1,10 +1,10 @@
 <%
 rebase("main")
 simple_fields = (
-    ("Название книги", "title", book.name or "", "checkRequiredField(this)"),
-    ("Издательство", "publisher", book.publisher or "", "trimField(this)"),
-    ("Год выпуска", "year", book.year or "", "checkYearField(this)"),
-    ("Цена", "price", book.price or "", "checkPriceField(this)"),
+    ("Название книги", "title", book.name or "", "checkRequiredField(this)", "ajaxGetSuggestions(this)"),
+    ("Издательство", "publisher", book.publisher or "", "trimField(this)", ""),
+    ("Год выпуска", "year", book.year or "", "checkYearField(this)", ""),
+    ("Цена", "price", book.price or "", "checkPriceField(this)", ""),
     )
 %>
 <!--    % ("", "", book., ""), -->
@@ -18,9 +18,9 @@ simple_fields = (
             <span class="field"><input id="author" type="text" name="author" value="{{a.name or ""}}" onchange="trimField(this)"/>
         % end
         <a class="plus" onclick="return cloneAuthor(this);" href="/nojs">[+]</a></span>
-    % for label, name, value, validate in simple_fields:
+    % for label, name, value, validate, keyup in simple_fields:
     <label class="field">{{label}}:
-        <input type="text" name="{{name}}" value="{{value}}" onchange="{{validate}}"/>
+        <input type="text" name="{{name}}" value="{{value}}" onchange="{{validate}}" onkeyup="{{keyup}}"/>
     </label>
     % end
     <label class="field">Поступление:</label>
