@@ -5,6 +5,7 @@ import os
 import sys
 from hlc import WebUI, debug, settings
 
+
 CONFIG_FILE = "hlc.config"
 DEFAULT_CONFIGURATION = {
     "app": {
@@ -17,7 +18,7 @@ DEFAULT_CONFIGURATION = {
         "port": 8888,
         "static_dir": "static",
         "templates_dir": "templates",
-        "cookie_key": "1490794018",
+        "cookie_key": "SET YOUR OWN UNIQUE cookie_key AND id_key IN CONFIG!!!",
         "id_key": 16749726111,
         },
     "db": {
@@ -29,7 +30,6 @@ DEFAULT_CONFIGURATION = {
 def main():
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     config = settings(CONFIG_FILE, DEFAULT_CONFIGURATION)
-
 
     stdout = sys.stdout
     stderr = sys.stderr

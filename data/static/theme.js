@@ -70,12 +70,41 @@ function ajaxTestCallback(xhr) {
     var field
     for (field in result) {
         if (result[field].length > 0) {
-            console.log(result[field]);
-            /*fill datalist*/
+            console.log(field, result[field]);
+            var input = document.querySelector('input[name="' + field + '"]');
+            var datalist = getDatalist(input);
+            if (datalist) {
+                console.log(datalist);
+                var line;
+                for (line in result[field]) {
+                    var opt = document.createElement("option");
+                    opt.value = result[field][line];
+                    console.log(opt);
+                    datalist.appendChild(opt);
+                };
+            };
         };
     };
 };
-
+function getDatalist(input) {
+    /**
+    Return datalist corresponding to input object
+    Create new datalist object if necessary
+    
+    Return null if input object has no `list` attribute
+    **/
+    var datalist = input.list; // try getting the object directly
+    if (!datalist) { // create datalist object if not exists
+        var datalistID;
+        datalistID = input.getAttribute("list");
+        if (datalistID) {
+            datalist = document.createElement("datalist");
+            datalist.id = datalistID;
+            input.parentNode.insertBefore(datalist, input);
+        };
+    };
+    return datalist;
+};
 
 
 
