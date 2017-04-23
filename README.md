@@ -18,6 +18,7 @@ Consider yourself warned
 #### Ajax suggestions:
 - [x] implement input suggestions
 - [ ] support more (all?) form fields
+- [ ] dropdown design with CSS
 
 #### Settings:
 - [x] test json without quotes = invalid according to spec
