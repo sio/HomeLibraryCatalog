@@ -10,6 +10,7 @@ Consider yourself warned
 
 
 # Priority tasks
+* Add book form
 * Annotations
 * DB clean start
 
