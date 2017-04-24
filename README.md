@@ -3,7 +3,7 @@ Web application for cataloging home books collection
 
 
 # Unfinished project!
-This project is in the early stages of development, most of the time it doesn't 
+This project is in the early stages of development, most of the time it doesn't
 even start and if it starts it might do something unexpected and irreversible
 
 Consider yourself warned
@@ -16,7 +16,16 @@ Consider yourself warned
     * **lxml** - HTML scraping library
 
 
-# What's next?
+# Installation and usage
+This application doesn't require installation, just unzip it and start
+
+To start it with default settings launch `HomeLibraryCatalog.py`
+
+Configuration file is named `hlc.config` and is located in the same directory
+as the `HomeLibraryCatalog.py` by default
+
+
+# Top priority todo items
 * Add book form
     * thumbnail
         * upload file
@@ -28,7 +37,7 @@ Consider yourself warned
 * DB clean start
 
 
-# To Do
+# Todo list
 #### Ajax suggestions:
 - [x] implement input suggestions
 - [ ] support more (all?) form fields
@@ -60,7 +69,7 @@ Consider yourself warned
 - [ ] robots.txt file
 - [ ] webbrowser.open() always opens IE, replace with default browser
 - [x] unique cookie secret for every instance of WebUI (or every URL?)
-      = no. Cookie secret is set per app in settings.json    
+      = no. Cookie secret is set per app in settings.json
 - [x] unique scramble_key for every database (filename?) = no. settings
 - [ ] remove bottle.debug
 - [ ] CSS:
@@ -101,6 +110,7 @@ Consider yourself warned
 
 #### Write unit tests?
 - [ ] mock database object (or in :memory:)
+- [ ] setUp method runs once per test method or once per TestCase?
 
 #### Auto fetcher:
 - [ ] annotations
@@ -113,7 +123,25 @@ As of now all user interaction happens in Russian
 Localization is not planned in the foreseable future due to the lack of human
 resources
 
-All locale-dependent text is contained in template files (*.tpl). 
-Application supports changing template directory via configuration file, so all 
+All locale-dependent text is contained in template files (*.tpl).
+Application supports changing template directory via configuration file, so all
 locale-specific text can be translated and placed into another directory.
 Proper localizations tools and techniques (gettext et al) are not yet supported
+
+
+# License and copyright
+Copyright © 2016-2017 Vitaly Potyarkin
+```
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+```
