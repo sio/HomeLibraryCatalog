@@ -2,9 +2,3 @@
 *.sqlite
 *.config
 *.log
-*.html
-*.bat
-*.npp
-.bak/
-.tmp/
-.docs/
