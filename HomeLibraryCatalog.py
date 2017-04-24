@@ -49,6 +49,15 @@ def main():
     sys.stdout = stdout
     sys.stderr = stderr
 
+    
+def test():
+    import hlc.test
+    hlc.test.run()
+    
 
 if __name__ == "__main__":
-    main()
+    args = set(sys.argv)
+    if set.intersection(set(("--tests", "-t")), args):
+        test()
+    else:
+        main()
