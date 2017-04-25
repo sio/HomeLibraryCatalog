@@ -110,7 +110,6 @@ as the `HomeLibraryCatalog.py` by default
 
 #### Write unit tests?
 - [ ] mock database object (or in :memory:)
-- [ ] setUp method runs once per test method or once per TestCase?
 
 #### Auto fetcher:
 - [ ] annotations
