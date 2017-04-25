@@ -7,6 +7,109 @@ var INVALID_CLASSNAME = "invalid";
 var ajaxSuggestions = new AjaxHandler(ajaxFillSuggestions);
 
 
+function switchChildren(node) {
+    var container = node.parentNode;
+    var link = node.getAttribute("data-switch-to");
+    if (link && container) {
+        var i;
+        for (i=0; i<container.childNodes.length; i++) {
+            var child = container.childNodes[i];
+            var anchor;
+            try {
+                anchor = child.getAttribute("data-switch");
+            } catch(err) {};
+            if (anchor) {
+                if (anchor === link) {
+                    child.hidden = false;
+                } else {
+                    child.hidden = true;
+                };
+            };
+        };
+    };
+    return false;
+};
+
+/*
+ *
+ * PRETTIER FILE INPUT
+ *
+ */
+function getFileInput(textInput, multiple=false) {
+    /**
+    Return hidden <input type="file"> node synced with given <input type="text">
+    node. If no such file input field exists it will be created
+
+    Arguments:
+        textInput
+            Existing <input type="text"> node
+        multiple
+            Boolean. Whether to allow selecting multiple files
+
+    textInput has to have attribute "data-file-input" with value "id:name" where
+    id and name are desired attributes of <input type="file">
+    **/
+    var key = textInput.getAttribute("data-file-input");
+    var args = []
+    if (key) {
+        args = key.split(":");
+    };
+    if (args.length === 2) {
+        var id = args[0];
+        var name = args[1];
+
+        // Try existing
+        var fileInput = document.getElementById(id);
+
+        // Create new node if needed
+        if (!fileInput) {
+            fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.name = name;
+            fileInput.id = id;
+            fileInput.multiple = multiple;
+            fileInput.style["display"] = "none";
+            textInput.parentNode.insertBefore(fileInput, textInput);
+        };
+
+        // Sync with textInput
+        fileInput.onchange = function() {
+            textInput.value = filesShow(fileInput.files);
+        };
+        textInput.onfocus = function() {
+            fileInput.click();
+        };
+        textInput.onchange = textInput.onfocus
+        textInput.onkeypress = function() {
+            textInput.onfocus();
+            return false;
+        };
+
+        return fileInput;
+    };
+};
+function filesShow(files) {
+    /**
+    Represent files collection as human-readable string
+    **/
+    var show;
+    if (files.length === 1) {
+        show = files[0].name;
+    } else if (files.length === 0) {
+        show = "";
+    } else {
+        show = files.length + " files: ";
+        var names = [];
+        var i;
+        for (i=0; i<files.length; i++) {
+            names.push(files[i].name);
+        };
+        show += names.join(", ");
+    };
+    return show;
+};
+
+
 /*
  *
  * AJAX FUNCTIONS
@@ -136,15 +239,24 @@ function removeChildNodes(node) {
     };
 };
 
-function cloneAuthor(node) {
+function cloneInputContainer(node) {
     /**
-    Clone author input node
+    Clone node that has <input> fields among children,
+    clear all <input> fields, focus the first of them
     **/
-    var newAuthor;
-    cloneParent(node);
-    newAuthor = node.parentNode.nextSibling.firstChild;
-    newAuthor.value = "";
-    newAuthor.focus();
+    var newNode = cloneParent(node);
+    var focus = false;
+    var i;
+    for (i=0; i<newNode.childNodes.length; i++) {
+        var subNode = newNode.childNodes[i];
+        if (subNode.tagName && subNode.tagName.toLowerCase() === "input") {
+            subNode.value = "";
+            if (!focus) {
+                subNode.focus();
+                focus = true;
+            };
+        };
+    };
     return false;
 };
 
@@ -163,7 +275,7 @@ function cloneParent(node) {
     } else {
         container.insertBefore(copy, original.nextSibling);
     };
-    return false;
+    return copy;
 };
 
 
