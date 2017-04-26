@@ -512,6 +512,22 @@ class Series(TableEntityWithID):
                            "name",
                            "number_books")
 
+    def position(self, book):
+        """Return position of Book object in the Series"""
+        if type(book) is Book:
+            question = book.id
+        else:
+            question = book
+        search = self.database.sql.select(
+            "book_series",
+            where={"series_id": self.id, "book_id": question},
+            what="book_number"
+        )
+        result = search.fetchone()
+        if result:
+            position = result[0]
+            return position
+
 
 class AuthorRating(TableEntityWithID):
     __TableName__ = "author_ratings"
