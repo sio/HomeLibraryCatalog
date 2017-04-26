@@ -314,6 +314,16 @@ class DBKeyValueStorage(SQLBaseWithEscaping):
         params = (value, key)
         self.generic(self.__db, query, args, params, commit=True)
 
+    def __delitem__(self, key):
+        """
+        Delete self[key]
+        """
+        self[key]  # raises KeyError if needed
+        query = "DELETE FROM %s WHERE %s=?"
+        args = (self.__table, self.__keyfield)
+        params = (key,)
+        self.generic(self.__db, query, args, params, commit=True)
+
     def pop(self, key, default=KeyError):
         """
         Return self[key] and delete this entry from storage.
@@ -322,18 +332,12 @@ class DBKeyValueStorage(SQLBaseWithEscaping):
         """
         if key in self:
             value = self[key]
-
-            query = "DELETE FROM %s WHERE %s=?"
-            args = (self.__table, self.__keyfield)
-            params = (key,)
-            self.generic(self.__db, query, args, params, commit=True)
-
+            del self[key]
             return value
+        elif default == KeyError:
+            raise KeyError(key)
         else:
-            if default == KeyError:
-                raise KeyError(key)
-            else:
-                return default
+            return default
 
 
 class SQL(SQLBaseWithEscaping):
