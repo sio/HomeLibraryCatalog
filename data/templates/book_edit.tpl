@@ -10,7 +10,7 @@ simple_fields = (
 %>
 
 <form name="edit_book" class="user_input" method="post"
-onsubmit="return validateBook(this)">
+onsubmit="return validateBook(this)" enctype="multipart/form-data">
     <label class="field">ISBN:
         <input type="text" name="isbn" value="{{book.isbn or ""}}"
         onchange="checkISBN(this)"/>
