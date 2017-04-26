@@ -74,5 +74,13 @@ onsubmit="return validateBook(this)" enctype="multipart/form-data">
         hidden="true"/>
     </span>
     </label>
+    <label class="field">Другие файлы:
+    <span class="field">
+    <input type="text" data-file-input="upload" placeholder="Выберите файл" 
+    onfocus="getFileInput(this); this.onfocus()"/>
+    <a class="plus" onclick="return cloneInputContainer(this);"
+    href="/nojs">[+]</a>
+    </span>
+    </label>
     <input class="field" type="submit" value="OK"/>
 </form>
