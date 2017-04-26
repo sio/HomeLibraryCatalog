@@ -46,27 +46,20 @@ function getFileInput(textInput, multiple=false) {
         multiple
             Boolean. Whether to allow selecting multiple files
 
-    textInput has to have attribute "data-file-input" with value "id:name" where
-    id and name are desired attributes of <input type="file">
+    textInput has to have attribute "data-file-input" with value "name" that
+    will point to <input type="file" name="name">
     **/
-    var key = textInput.getAttribute("data-file-input");
-    var args = []
-    if (key) {
-        args = key.split(":");
-    };
-    if (args.length === 2) {
-        var id = args[0];
-        var name = args[1];
-
+    var name = textInput.getAttribute("data-file-input");
+    if (name) {
         // Try existing
-        var fileInput = document.getElementById(id);
+        var fileInput = textInput.parentNode.querySelector(
+            'input[type="file"][name="' + name + '"]')
 
         // Create new node if needed
         if (!fileInput) {
             fileInput = document.createElement("input");
             fileInput.type = "file";
             fileInput.name = name;
-            fileInput.id = id;
             fileInput.multiple = multiple;
             fileInput.style["display"] = "none";
             textInput.parentNode.insertBefore(fileInput, textInput);
@@ -78,8 +71,8 @@ function getFileInput(textInput, multiple=false) {
         };
         textInput.onfocus = function() {
             fileInput.click();
+            this.blur();
         };
-        textInput.onchange = textInput.onfocus
         textInput.onkeypress = function() {
             textInput.onfocus();
             return false;

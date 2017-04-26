@@ -69,7 +69,7 @@ onsubmit="return validateBook(this)" enctype="multipart/form-data">
         data-switch="url" hidden="true"/>
         <input type="text" name="thumb_filename" placeholder="Выберите файл"
         onfocus="getFileInput(this); this.onfocus()"
-        data-file-input="newfile:thumbnail" data-switch="file"/>
+        data-file-input="thumbnail" data-switch="file"/>
         <input type="text" data-switch="auto" value="ПОКА НЕ РАБОТАЕТ"
         hidden="true"/>
     </span>
