@@ -365,11 +365,20 @@ class SQL(SQLBaseWithEscaping):
         Arguments
             table:  String. The name of the table to be updated
             where:  Dictionary. {field=requirement} pairs
-            what:   String. Optional. Field names to be selected.
+            what:   String or sequence of strings. Optional. Field names
+                    to be selected.
 
         Returns cursor object
         """
-        query_template = 'SELECT %s FROM %s' % self._escape_seq((what, table))
+        fields = list()
+        if type(what) is str:
+            fields.append(what)
+        else:
+            fields += list(what)
+
+        query_template = 'SELECT %s FROM %s' % (
+            ", ".join(self._escape_seq(fields)),
+            self._escape_identifier(table))
 
         if where:
             query_template += " WHERE "
@@ -809,10 +818,10 @@ class CatalogueDB(SQLiteDB):
             """
             CREATE TRIGGER trg_book_count1 AFTER INSERT ON books
             BEGIN
-                UPDATE app_config 
+                UPDATE app_config
                 SET value = (SELECT count(id) FROM books)
                 WHERE option = "book_count";
-                
+
                 INSERT INTO app_config (option, value)
                 SELECT "book_count", (SELECT count(id) FROM books)
                 WHERE changes()=0;
@@ -821,10 +830,10 @@ class CatalogueDB(SQLiteDB):
             """
             CREATE TRIGGER trg_book_count2 AFTER DELETE ON books
             BEGIN
-                UPDATE app_config 
+                UPDATE app_config
                 SET value = (SELECT count(id) FROM books)
                 WHERE option = "book_count";
-                
+
                 INSERT INTO app_config (option, value)
                 SELECT "book_count", (SELECT count(id) FROM books)
                 WHERE changes()=0;
