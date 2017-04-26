@@ -678,6 +678,20 @@ class CatalogueDB(SQLiteDB):
                 SELECT "book_count", (SELECT count(id) FROM books)
                 WHERE changes()=0;
             END
+            """,
+            """
+            CREATE TABLE files (
+                id integer primary key,
+                name text default "unnamed",
+                type text)
+            """,
+            """
+            CREATE TABLE book_files (
+                book_id integer not null,
+                file_id integer not null,
+                primary key (book_id, file_id),
+                foreign key(book_id) references books(id) on delete cascade on update cascade,
+                foreign key(file_id) references files(id) on delete cascade on update cascade)
             """)
         db = self.cursor.connection
         try:
