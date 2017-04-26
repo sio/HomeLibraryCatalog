@@ -4,8 +4,155 @@ Manage database interaction
 
 import sqlite3
 import os
+import re
 from hlc.items import ISBN, Author, Book
 from hlc.util import lowercase, alphanumeric, message, debug, timestamp
+from hashlib import sha224
+
+
+class FSKeyFileStorage(object):
+    """
+    Dictionary-like object for storing key:file pairs in file system
+
+    Methods:
+        get, pop, __contains__, __getitem__, __setitem__
+            Mimic behavior of dict() object
+        open(key, *a, **kw)
+            Execute Python's open function with self[key] as filename
+            and *a, **kw as arguments
+    """
+    __readme = "README"
+
+    def __init__(self, folder_name, max_filesize=None):
+        """
+        Arguments:
+            folder_name
+                Top directory containing stored files
+        """
+        if os.path.isdir(folder_name):
+            self.__dir = os.path.abspath(folder_name)
+            self.__add_readme(self.__readme)
+            if max_filesize is None:
+                self.__max_size = None
+            else:
+                self.__max_size = int(max_filesize)
+        else:
+            raise ValueError("not a valid folder name: %s" % folder_name)
+
+    def __add_readme(self, readme_file):
+        text = "THIS FOLDER IS USED BY AN APPLICATION FOR STORING FILES\n"
+        text += "THIS IS NOT A TEMP FOLDER\n"
+        text += "DO NOT DELETE OR MODIFY ANY FILES MANUALLY\n"
+        readme_file = os.path.join(self.__dir, readme_file)
+        if not os.path.isfile(readme_file):
+            with open(readme_file, "w") as f:
+                f.write(text)
+
+    def __hash(self, key):
+        """Get hash string from a key"""
+        key = str(key).encode()
+        hash = sha224(key).hexdigest()
+        return hash
+
+    def __path(self, key):
+        """Get file path from a key"""
+        hash = self.__hash(key)
+        elements = [hash[:2], hash[2:5], hash[5:]]
+        return os.path.join(self.__dir, *elements)
+
+    def __contains__(self, key):
+        """
+        Handle python `in` operator. Returns True if a file exists that
+        corresponds to key
+        """
+        return os.path.isfile(self.__path(key))
+
+    def __getitem__(self, key):
+        """
+        Return path of stored file corresponding to key
+
+        Raises KeyError if key is not in self
+        """
+        if key in self:
+            return self.__path(key)
+        else:
+            raise KeyError(key)
+
+    def get(self, key, default=None):
+        """
+        Return self[key] or default value if key is not in self
+        """
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    def open(self, key, *a, **kw):
+        """
+        Return file handler object, pass *a and **kw to Python open() function
+        """
+        return open(self[key], *a, **kw)
+
+    def __setitem__(self, key, value):
+        """
+        Store a file corresponding to key. Value has to be a file-like object
+        """
+        if value.readable and value.seekable:
+            path = self.__path(key)
+            dir = os.path.dirname(path)
+
+            mode = value.mode.lower()
+            mode = re.sub("[wrax]", "w", mode)
+            try:
+                enc = value.encoding
+            except AttributeError:
+                enc = None
+
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            with open(path, mode, encoding=enc) as fp:
+                offset = value.tell()
+                chunk_size = 2**16
+                size = 0
+                while True:
+                    buf = value.read(chunk_size)
+                    size += len(buf)
+                    if self.__max_size and size > self.__max_size:
+                        fp.close()
+                        del self[key]
+                        raise ValueError(
+                            "file size exceeds %s bytes" % self.__max_size)
+                        break
+                    if buf:
+                        fp.write(buf)
+                    else:
+                        break
+                value.seek(offset)
+        else:
+            raise ValueError("object has to be readable and seekable")
+
+    def __delitem__(self, key):
+        value = self[key]
+        if os.path.isfile(value):
+            os.remove(value)
+        cur = value
+        del_parent = True
+        while del_parent:
+            cur = os.path.dirname(cur)
+            try:
+                os.rmdir(cur)
+            except (OSError, FileNotFoundError) as e:
+                del_parent = False
+
+    def pop(self, key, default=KeyError):
+        if key in self:
+            value = self[key]
+            del self[key]
+            return value
+        elif default == KeyError:
+            raise KeyError(key)
+        else:
+            return default
 
 
 class SQLBaseWithEscaping(object):
