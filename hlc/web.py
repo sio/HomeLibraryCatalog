@@ -12,88 +12,10 @@ from threading import Timer
 from datetime import datetime, timedelta
 from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
                    template, redirect, static_file
-from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group
-from hlc.db import CatalogueDB, DBKeyValueStorage
+from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group, BookFile
+from hlc.db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
 from hlc.util import LinCrypt, timestamp, debug, random_str, message
-
-
-class validate(object):
-    """
-    A collection of functions for validating user input
-
-    All methods return 2-tuple: boolean status of validation and preprocessed
-    value after validation
-    """
-
-    @staticmethod
-    def nonempty(text):
-        valid = bool(text)
-        try:
-            text = str(text)
-        except Exception:
-            valid = False
-        if valid:
-            text = re.sub("^\s+|\s+$", "", text)
-            valid = len(text) > 0
-        return valid, text
-
-    @staticmethod
-    def date(text):
-        """DD.MM.YYYY format"""
-        text = validate.nonempty(text)[1]
-        valid = False
-        try:
-            delimiter = re.sub("\d", "", text)[0]
-            date_seq = text.split(delimiter)
-            date_seq = [int(x) for x in date_seq]
-        except Exception as e:
-            date_seq = list()
-        if len(date_seq) == 3:
-            try:
-                valid = validate.year(date_seq[-1])[0]
-                text = datetime(date_seq[-1],
-                                date_seq[-2],
-                                date_seq[-3],
-                                12,
-                                0)
-            except Exception as e:
-                valid = False
-        return valid, text
-
-    @staticmethod
-    def year(text):
-        valid, text = validate.nonempty(text)
-        if valid:
-            valid, text = validate.positive(text)
-        if valid:
-            try:
-                text = int(text)
-            except Exception:
-                valid = False
-        if valid:
-            valid = text >= 1900 and text <= 2100
-        return valid, text
-
-    @staticmethod
-    def positive(text):
-        valid, text = validate.nonempty(text)
-        text = text.replace(",", ".")
-        if valid:
-            try:
-                text = float(text)
-            except Exception:
-                valid = False
-        if valid:
-            valid = text > 0
-        return valid, text
-
-    @staticmethod
-    def isbn(text):
-        try:
-            valid = ISBN(text).valid
-        except Exception:
-            valid = False
-        return valid, text
+from hlc.cyrillic import transliterate
 
 
 class WebUI(object):
@@ -136,6 +58,14 @@ class WebUI(object):
         _clbk_thumb
         _clbk_allbooks
     """
+
+    # Add these integers to __scramble_key (obfuscation, not encryption)
+    __scramble_shift = {
+        "thumbnail": 9804,
+        "document": 4893,
+        "user": 1089,
+    }
+
     def __init__(self, sqlite_file):
         self.__db = CatalogueDB(sqlite_file)
         self.__persistent_cfg = DBKeyValueStorage(
@@ -157,6 +87,7 @@ class WebUI(object):
             ("/books", self._clbk_allbooks),
             ("/add", self.__clbk_editbook, ["GET", "POST"]),
             ("/static/<filename:path>", self._clbk_static),
+            ("/file/<hexid>", self._clbk_user_file),
             ("/ajax/suggest", self._clbk_suggestions))
         authorized_routes = (
             ("/", self._clbk_hello),
@@ -165,12 +96,28 @@ class WebUI(object):
         self.__create_routes(routes_for_all)
         self.__create_routes(authorized_routes, self.__uac_user)
 
+    def _clbk_user_file(self, hexid):
+        id = LinCrypt(
+            self.__scramble_key + self.__scramble_shift["document"]
+        ).decode(hexid)
+        link = BookFile(self.db, id)
+        try:
+            name, type = link.name, link.type
+        except ValueError:
+            abort(404, "File not found: %s" % hexid)
+        path = self.__uploads["BookFile:%s" % id]
+        return static_file(
+            os.path.basename(path),
+            root=os.path.dirname(path),
+            download=transliterate(name),  # encoded to iso-8859-1 by wsgiref
+            mimetype=type)
+
     def _clbk_suggestions(self):
         params = request.query.decode()
         line, field = params.get("q"), params.get("f")
         suggestions = self.suggest(field, line)
         return json.dumps({field: suggestions})
-        
+
     def __clean_init(self):
         """
         First start. Initialize some database entries
@@ -181,12 +128,12 @@ class WebUI(object):
             admins = Group(self.db)
             admins.name = "admin"
             admins.save()
-            
+
             # create Group user
             users = Group(self.db)
             users.name = "user"
             users.save()
-            
+
             # create User admin_XXX with random password
             root = User(self.db)
             credentials = (
@@ -196,11 +143,11 @@ class WebUI(object):
             root.name, root.password = credentials
             root.expires_on = datetime.now() + timedelta(days=1)
             root.save()
-            
+
             # show random password to user
             msg = "Created initial administrative account:\n Login: %s\n Password: %s"
             message(msg % credentials)  # todo: show in web interface
-            
+
             # save application state (first run = passed)
             options["init_date"] = timestamp()
 
@@ -275,6 +222,21 @@ class WebUI(object):
                         book.connect(author)
                     except sqlite3.IntegrityError as e:
                         raise e  # todo: handle error
+
+            for upload in request.files.getall("upload"):
+                fo = BookFile(self.db)
+                fo.name = upload.raw_filename
+                fo.type = upload.content_type
+                fo.save()
+                try:
+                    self.__uploads["BookFile:%s" % fo.id] = upload.file
+                except ValueError as e:
+                    raise e  # todo: remove link to file from database if file wasn't saved
+                try:
+                    book.connect(fo)
+                except sqlite3.IntegrityError as e:
+                    raise e  # todo: handle error
+
             redirect("/table/books")  # todo: replace with book page
 
     def booksearch(self, search, sort_keys=None):
@@ -415,11 +377,11 @@ class WebUI(object):
         self.__scramble_key = int(config.id_key)
         self.__cookie_secret = str(config.cookie_key)
         self.__static_location = str(config.static_dir)
-        self.__stpl_location = str(config.templates_dir)
-
+        self.__uploads = FSKeyFileStorage(
+            os.path.join(self.__datadir, str(config.uploads_dir)),
+            max_filesize=10*2**20)
         TEMPLATE_PATH.insert(
-            0, os.path.join(self.__datadir, self.__stpl_location)
-        )
+            0, os.path.join(self.__datadir, str(config.templates_dir)))
 
         if browser:
             if len(a) > 2:
@@ -450,7 +412,9 @@ class WebUI(object):
         """Show thumbnail based on encrypted `hexid`"""
         picture = None
         try:
-            id = LinCrypt(self.__scramble_key).decode(hexid)
+            id = LinCrypt(
+                self.__scramble_key + self.__scramble_shift["thumbnail"]
+                ).decode(hexid)
             picture = Thumbnail(self.db, id).image
         except ValueError:
             abort(404, "Invalid thumnail ID: %s" % hexid)
@@ -498,6 +462,85 @@ class WebUI(object):
                 info=self.info)
         except sqlite3.OperationalError:
             abort(404, "Table `%s` not found in %s" % (table, self.db.filename))
+
+
+class validate(object):
+    """
+    A collection of functions for validating user input
+
+    All methods return 2-tuple: boolean status of validation and preprocessed
+    value after validation
+    """
+
+    @staticmethod
+    def nonempty(text):
+        valid = bool(text)
+        try:
+            text = str(text)
+        except Exception:
+            valid = False
+        if valid:
+            text = re.sub("^\s+|\s+$", "", text)
+            valid = len(text) > 0
+        return valid, text
+
+    @staticmethod
+    def date(text):
+        """DD.MM.YYYY format"""
+        text = validate.nonempty(text)[1]
+        valid = False
+        try:
+            delimiter = re.sub("\d", "", text)[0]
+            date_seq = text.split(delimiter)
+            date_seq = [int(x) for x in date_seq]
+        except Exception as e:
+            date_seq = list()
+        if len(date_seq) == 3:
+            try:
+                valid = validate.year(date_seq[-1])[0]
+                text = datetime(date_seq[-1],
+                                date_seq[-2],
+                                date_seq[-3],
+                                12,
+                                0)
+            except Exception as e:
+                valid = False
+        return valid, text
+
+    @staticmethod
+    def year(text):
+        valid, text = validate.nonempty(text)
+        if valid:
+            valid, text = validate.positive(text)
+        if valid:
+            try:
+                text = int(text)
+            except Exception:
+                valid = False
+        if valid:
+            valid = text >= 1900 and text <= 2100
+        return valid, text
+
+    @staticmethod
+    def positive(text):
+        valid, text = validate.nonempty(text)
+        text = text.replace(",", ".")
+        if valid:
+            try:
+                text = float(text)
+            except Exception:
+                valid = False
+        if valid:
+            valid = text > 0
+        return valid, text
+
+    @staticmethod
+    def isbn(text):
+        try:
+            valid = ISBN(text).valid
+        except Exception:
+            valid = False
+        return valid, text
 
 
 class SessionManager(object):

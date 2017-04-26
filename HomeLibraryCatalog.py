@@ -18,6 +18,7 @@ DEFAULT_CONFIGURATION = {
         "port": 8888,
         "static_dir": "static",
         "templates_dir": "templates",
+        "uploads_dir": "uploads",
         "cookie_key": "SET YOUR OWN UNIQUE cookie_key AND id_key IN CONFIG!!!",
         "id_key": 16749726111,
         },
