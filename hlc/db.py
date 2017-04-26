@@ -285,10 +285,11 @@ class DBKeyValueStorage(SQLBaseWithEscaping):
         args = (self.__valfield, self.__table, self.__keyfield)
         query = "SELECT %s FROM %s WHERE %s=?"
         search = self.generic(self.__db, query, args, (key,))
-        result = search.fetchall()
-        if len(result) == 1:
-            return result[0][0]
-        elif len(result) == 0:
+        result = search.fetchone()
+        second = search.fetchone()
+        if result and not second:
+            return result[0]
+        elif not result and not second:
             raise KeyError(key)
         else:
             raise LookupError("multiple values with key: %s" % key)
