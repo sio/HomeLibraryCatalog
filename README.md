@@ -59,11 +59,6 @@ as the `HomeLibraryCatalog.py` by default
 - [ ] save more items to cookie tuple?
 
 #### WebUI:
-- [ ] get rid of __update_info() method?
-- [ ] handle clean start
-    - [x] create database
-    - [x] create administrator account
-    - [ ] show initial password via webui
 - [ ] check password expiration on login
 - [x] encoding to utf8 in headers? = by default
 - [ ] robots.txt file
