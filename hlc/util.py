@@ -103,6 +103,30 @@ class PassHash(object):
         return hash == cls.get(password, salt)
 
 
+class ReadOnlyDict(object):
+    """Make dict-like object read-only"""
+    def __init__(self, dictionary):
+        self.__dict = dictionary
+    def __getitem__(self, key):
+        return self.__dict[key]
+    def __contains__(self, key):
+        return key in self.__dict
+    def get(self, *a, **kw):
+        return self.__dict.get(*a, **kw)
+    def __eq__(self, other):
+        return self.__dict == other
+    def __iter__(self, *a, **kw):
+        return self.__dict.__iter__(*a, **kw)
+    def __len__(self, *a, **kw):
+        return self.__dict.__len__(*a, **kw)
+    def __repr__(self, *a, **kw):
+        return self.__dict.__repr__(*a, **kw)
+    def __str__(self, *a, **kw):
+        return self.__dict.__str__(*a, **kw)
+    def keys(self, *a, **kw):
+        return self.__dict.keys(*a, **kw)
+
+
 def timestamp():
     """Return current Unix timestamp"""
     return int(datetime.timestamp(datetime.now()))
