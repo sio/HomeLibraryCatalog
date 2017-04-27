@@ -45,7 +45,7 @@ class WebUI(object):
             Dictionary with some basic stats
 
     Access control wrappers:
-        __uac_user
+        __acl_user
 
     Internal functions:
         __create_routes(routes, wrapper)
@@ -66,7 +66,7 @@ class WebUI(object):
         "user": 1089,
     }
 
-    def __init__(self, sqlite_file):
+    def __init__(self, sqlite_file):  # todo: review access control wrappers
         self.__db = CatalogueDB(sqlite_file)
         self.__persistent_cfg = DBKeyValueStorage(
             self.db.cursor.connection,
@@ -96,60 +96,29 @@ class WebUI(object):
         self.__create_routes(routes_for_all)
         self.__create_routes(authorized_routes, self.__uac_user)
 
-    def _clbk_user_file(self, hexid):
-        id = LinCrypt(
-            self.__scramble_key + self.__scramble_shift["document"]
-        ).decode(hexid)
-        link = BookFile(self.db, id)
-        try:
-            name, type = link.name, link.type
-        except ValueError:
-            abort(404, "File not found: %s" % hexid)
-        path = self.__uploads["BookFile:%s" % id]
-        return static_file(
-            os.path.basename(path),
-            root=os.path.dirname(path),
-            download=transliterate(name),  # encoded to iso-8859-1 by wsgiref
-            mimetype=type)
-
-    def _clbk_suggestions(self):
-        params = request.query.decode()
-        line, field = params.get("q"), params.get("f")
-        suggestions = self.suggest(field, line)
-        return json.dumps({field: suggestions})
-
-    def __clean_init(self):
+    def __db_init(self):
         """
-        First start. Initialize some database entries
+        Initialize some database entries and create first administrator account
         """
         options = self.__persistent_cfg
         if not options.get("init_date"):
-            # create Group admin
-            admins = Group(self.db)
-            admins.name = "admin"
-            admins.save()
+            credentials = ("admin_" + random_str(2,4).upper(), random_str(6,8))
+            root = self.adduser(
+                credentials[0],
+                credentials[1],
+                datetime.now() + timedelta(days=1))
 
-            # create Group user
-            users = Group(self.db)
-            users.name = "user"
-            users.save()
+            for name in ("admin", "user"):
+                group = Group(self.db)
+                group.name = name
+                group.save()
+                group.connect(root)
 
-            # create User admin_XXX with random password
-            root = User(self.db)
-            credentials = (
-                "admin_" + random_str(2,4).upper(),
-                random_str(6,8)
-            )
-            root.name, root.password = credentials
-            root.expires_on = datetime.now() + timedelta(days=1)
-            root.save()
-
-            # show random password to user
             msg = "Created initial administrative account:\n Login: %s\n Password: %s"
-            message(msg % credentials)  # todo: show in web interface
+            message(msg % credentials)
 
-            # save application state (first run = passed)
             options["init_date"] = timestamp()
+            options["init_user"] = ":".join(credentials)
 
     def suggest(self, field, input):
         """
@@ -157,7 +126,7 @@ class WebUI(object):
         """
         translate = {
             "title": ("books", "name")
-        }  # form field: (db table, db column)
+        }  # form_field: (db_table, db_column)
         # todo: support more fields
 
         result = list()
@@ -288,7 +257,7 @@ class WebUI(object):
             books_generator = (self.db.getbook(row["id"]) for row in results)
         return count, books_generator
 
-    def adduser(self, username, password):
+    def adduser(self, username, password, expiration=None):
         """
         Create new WebUI user
 
@@ -298,14 +267,10 @@ class WebUI(object):
         user = User(self.db)
         user.name = username
         user.password = password
-        # todo: add expiration date
+        user.group = group
+        user.expires_on = expiration
         user.save()
         return user
-
-    def _clbk_allbooks(self):
-        search = self.db.sql.select("books", what="id")
-        books = (self.db.getbook(row["id"]) for row in search.fetchall())
-        return template("manybooks", books=books, info=self.info)
 
     def __del__(self):
         self.close()
@@ -334,23 +299,17 @@ class WebUI(object):
                 raise ValueError("Invalid route tuple of length=%s" % len(route))
             self.app.route(url, method=method, callback=func)
 
-    def __uac_user(self, func):
+    def __acl_user(self, func):
         """Wrapper for callback functions. Checks authorization for normal users"""
-        def newfunc(*a, **ka):
+        @self.__acl_not_firstrun
+        def with_acl(*a, **ka):
             cookie = request.get_cookie("auth", secret=self.__cookie_secret)
             auth = self.session.valid(cookie)  # todo: add timestamp check, delete old cookies
             if auth:
                 return func(*a, **ka)
             else:
-                abort(403, "You do not have permission to access this page")
-                # replace with proper redirect to login page
-        return newfunc
-
-    def __update_info(self):
-        i = self.__info = dict()
-        i["books_count"] = len(self.db.sql.select("books").fetchall())
-        i["copyright"] = "2016-%s" % datetime.now().year
-        i["date"] = datetime.now().strftime("%d.%m.%Y")
+                redirect("/login")
+        return with_acl
 
     @property
     def db(self):
@@ -429,7 +388,6 @@ class WebUI(object):
         user = form.get("user")
         password = form.get("password")
         if user and password:
-            debug("User: %s\nPassword: %s" % (user, password))
             row = self.db.sql.select("users", {"name": user}).fetchone()
             if row:
                 saved_user = User(self.db, row["id"])
@@ -462,6 +420,34 @@ class WebUI(object):
                 info=self.info)
         except sqlite3.OperationalError:
             abort(404, "Table `%s` not found in %s" % (table, self.db.filename))
+
+    def _clbk_user_file(self, hexid):
+        id = LinCrypt(
+            self.__scramble_key + self.__scramble_shift["document"]
+        ).decode(hexid)
+        link = BookFile(self.db, id)
+        try:
+            name, type = link.name, link.type
+        except ValueError:
+            abort(404, "File not found: %s" % hexid)
+        path = self.__uploads["BookFile:%s" % id]
+        return static_file(
+            os.path.basename(path),
+            root=os.path.dirname(path),
+            download=urllib.parse.quote(name),  # wsgiref encodes to iso-8859-1
+            mimetype=type)
+
+    def _clbk_suggestions(self):
+        """Reply to AJAX requests for input suggestions"""
+        params = request.query.decode()
+        line, field = params.get("q"), params.get("f")
+        suggestions = self.suggest(field, line)
+        return json.dumps({field: suggestions})
+
+    def _clbk_allbooks(self):
+        search = self.db.sql.select("books", what="id")
+        books = (self.db.getbook(row["id"]) for row in search.fetchall())
+        return template("manybooks", books=books, info=self.info)
 
 
 class validate(object):
