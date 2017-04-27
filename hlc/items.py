@@ -589,8 +589,10 @@ class Thumbnail(TableEntityWithID):
             img.thumbnail(self.__MAXSIZE__)
             pic = io.BytesIO()
             img.save(pic, format="jpeg")
+            del img
             pic.seek(0)
             self._changes["image"] = pic.read()
+            del pic
             self._saved = False
         else:
             raise TypeError("self.image has to be %s" % bytes)
