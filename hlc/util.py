@@ -12,30 +12,6 @@ from hashlib import sha512
 import random
 
 
-def random_str(min, max=None):
-    """
-    Return random ASCII string (letters+digits)
-
-    Arguments:
-        min
-            Integer. Minimum string length
-        max
-            Integer, optional. Maximum string length. If both `min` and `max`
-            are specified returned string will be of random length between these
-            two values
-    """
-    ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    length = 0
-    if max is None:
-        length = int(min)
-    elif max >= min:
-        length = random.SystemRandom().randint(int(min), int(max))
-    else:
-        raise ValueError("Invalid minimum and maximum combination: %s, %s" %
-             (min, max))
-    return "".join(random.SystemRandom().choice(ALPHABET) for i in range(length))
-
-
 class LinCrypt(object):
     """
     Simple linear function for obfuscating integers based on integer key
@@ -173,12 +149,28 @@ def debug(*args):
         message(text, 9)
 
 
-# def numeric(string):
-    # """
-    # Return only numeric characters from the string
-    # """
-    # if string:
-        # return re.sub("[^\d]", "", string)
+def random_str(min, max=None):
+    """
+    Return random ASCII string (letters+digits)
+
+    Arguments:
+        min
+            Integer. Minimum string length
+        max
+            Integer, optional. Maximum string length. If both `min` and `max`
+            are specified returned string will be of random length between these
+            two values
+    """
+    ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    length = 0
+    if max is None:
+        length = int(min)
+    elif max >= min:
+        length = random.SystemRandom().randint(int(min), int(max))
+    else:
+        raise ValueError("Invalid minimum and maximum combination: %s, %s" %
+             (min, max))
+    return "".join(random.SystemRandom().choice(ALPHABET) for i in range(length))
 
 
 def lowercase(string):
