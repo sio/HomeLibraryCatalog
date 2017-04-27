@@ -100,9 +100,11 @@ class FSKeyFileStorage(object):
         if value.readable and value.seekable:
             path = self.__path(key)
             dir = os.path.dirname(path)
-
-            mode = value.mode.lower()
-            mode = re.sub("[wrax]", "w", mode)
+            try:
+                mode = value.mode.lower()
+                mode = re.sub("[wrax]", "w", mode)
+            except AttributeError:
+                mode = "wb"
             try:
                 enc = value.encoding
             except AttributeError:
