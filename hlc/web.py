@@ -8,13 +8,15 @@ import json
 import re
 import sys
 import webbrowser
+import urllib.parse
 from threading import Timer
 from datetime import datetime, timedelta
 from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
                    template, redirect, static_file
 from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group, BookFile
 from hlc.db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
-from hlc.util import LinCrypt, timestamp, debug, random_str, message
+from hlc.util import LinCrypt, timestamp, debug, random_str, message, \
+                     DynamicDict, ReadOnlyDict
 from hlc.cyrillic import transliterate
 
 
@@ -49,7 +51,6 @@ class WebUI(object):
 
     Internal functions:
         __create_routes(routes, wrapper)
-        __update_info()
 
     Route callback functions:
         _clbk_hello
@@ -74,27 +75,30 @@ class WebUI(object):
             "option",
             "value"
         )
-        self.__clean_init()
+        self.__info_init()
+        self.__db_init()
+        self.__first_user = self.__persistent_cfg.get("init_user")
         self.__app = Bottle()
         self.__session_manager = SessionManager()
-        self.__update_info()
         self.__datadir = os.path.dirname(os.path.abspath(sqlite_file))
 
-        routes_for_all = (
+        routes_no_acl = (
             ("/login", self._clbk_login, ["GET", "POST"]),
+            ("/static/<filename:path>", self._clbk_static))
+        routes_after_init = (
             ("/logout", self._clbk_logout),
             ("/table/<table>", self._clbk_table),
             ("/books", self._clbk_allbooks),
             ("/add", self.__clbk_editbook, ["GET", "POST"]),
-            ("/static/<filename:path>", self._clbk_static),
             ("/file/<hexid>", self._clbk_user_file),
             ("/ajax/suggest", self._clbk_suggestions))
-        authorized_routes = (
+        routes_for_user = (
             ("/", self._clbk_hello),
             ("/quit", self.close),
             ("/thumbs/<hexid>", self._clbk_thumb))
-        self.__create_routes(routes_for_all)
-        self.__create_routes(authorized_routes, self.__uac_user)
+        self.__create_routes(routes_no_acl)
+        self.__create_routes(routes_after_init, self.__acl_not_firstrun)
+        self.__create_routes(routes_for_user, self.__acl_user)
 
     def __db_init(self):
         """
@@ -311,6 +315,25 @@ class WebUI(object):
                 redirect("/login")
         return with_acl
 
+    def __acl_not_firstrun(self, func):
+        """Wrapper for __acl_* functions that require app initialization"""
+        def with_init(*a, **ka):
+            debug("Checking initialization: %s" % self.__first_user)
+            if not self.__first_user:
+                return func(*a, **ka)
+            else:
+                return template(
+                    "first_run",
+                    credentials=self.__first_user.split(":"),
+                    info=self.info)
+        return with_init
+
+    def __info_init(self):
+        i = self.__info = DynamicDict()
+        i["books_count"] = lambda: self.__persistent_cfg.get("book_count", 0)
+        i["copyright"] = lambda: "2016-%s" % datetime.now().year
+        i["date"] = lambda: datetime.now().strftime("%d.%m.%Y")
+
     @property
     def db(self):
         """CatalogueDB object. Used for storing persistent data"""
@@ -329,7 +352,7 @@ class WebUI(object):
     @property
     def info(self):
         """Access the dictionary with some basic stats and other information"""
-        return self.__info
+        return ReadOnlyDict(self.__info)
 
     def start(self, config, browser=False, *a, **kw):
         """Start WebUI"""
@@ -398,6 +421,8 @@ class WebUI(object):
                         "auth",
                         json.dumps(cookie),
                         secret=self.__cookie_secret)
+                    self.__persistent_cfg["init_user"] = None
+                    self.__first_user = None
                     redirect("/")
             return "Incorrect username or password: %s, %s" % (user, password)  # todo: replace with template
         else:
@@ -407,7 +432,7 @@ class WebUI(object):
         cookie = request.get_cookie("auth", secret=self.__cookie_secret)
         self.session.delete(cookie)
         response.delete_cookie("auth")
-        return "You are now logged out"
+        redirect("/")
 
     def _clbk_static(self, filename):
         return static_file(filename, root=os.path.join(self.__datadir, self.__static_location))
