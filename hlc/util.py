@@ -127,6 +127,51 @@ class ReadOnlyDict(object):
         return self.__dict.keys(*a, **kw)
 
 
+class DynamicDict(dict):
+    """
+    Dictionary that can store values computable upon access
+
+    If value stored in dictionary can be called with zero arguments, it will
+    be called upon accessing and the result will be returned instead of value
+
+    Otherwise, behaves exactly as dict
+    """
+    def __init__(self):
+        dict.__init__(self)
+        self.__fns = set()  # functions of zero args returning dynamic values
+
+    def __getitem__(self, key):
+        value = dict.__getitem__(self, key)
+        if key in self.__fns:
+            return value()
+        else:
+            return value
+
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    def __setitem__(self, key, value):
+        try:
+            value()
+            self.__fns.add(key)
+        except TypeError:  # value not callable or requires arguments
+            try:  # remove function key if it was left behind somehow
+                self.__fns.remove(key)
+            except KeyError:
+                pass
+        dict.__setitem__(self, key, value)
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
+        try:
+            self.__fns.remove(key)
+        except KeyError:
+            pass
+
+
 def timestamp():
     """Return current Unix timestamp"""
     return int(datetime.timestamp(datetime.now()))
