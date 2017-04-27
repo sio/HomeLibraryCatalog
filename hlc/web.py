@@ -139,79 +139,6 @@ class WebUI(object):
             result = self.db.getsuggestions(str(input), table, column)
         return result
 
-    def __clbk_editbook(self, id=None):
-        """
-        Add/edit books
-        """  # todo: unfinished
-        if request.method == "GET":
-            if id:
-                book = self.db.getbook(id=id)
-            else:
-                book = NoneMocker()
-            if book.saved:
-                title = "Редактировать книгу"
-                authors = book.getconnected(Author)
-            else:
-                title = "Новая книга"
-                authors = (NoneMocker(),)
-            return template("book_edit",
-                book=book,
-                authors=authors,
-                title=title,
-                info=self.info)
-        else:
-            form = request.forms.decode()
-            book = self.db.getbook()
-
-            # 3-tuples: attr name, input name, validator function
-            inputs = (("name", "title", validate.nonempty),
-                      ("isbn", "isbn", validate.isbn),
-                      ("publisher", "publisher", validate.nonempty),
-                      ("year", "year", validate.year),
-                      ("price", "price", validate.positive),
-                      ("in_date", "in_date", validate.date),
-                      ("in_type", "in_type", validate.nonempty),
-                      ("in_comment", "in_comment", validate.nonempty),
-                      ("out_date", "out_date", validate.date),
-                      ("out_type", "out_type", validate.nonempty),
-                      ("out_comment", "out_comment", validate.nonempty))
-
-            for attr, input, func in inputs:
-                valid, value = func(form.get(input))
-                if valid:
-                    setattr(book, attr, value)
-
-            try:
-                book.save()
-            except sqlite3.IntegrityError as e:
-                raise e  # todo: handle error
-
-            for name in form.getall("author"):
-                name = name.strip()
-                if name:
-                    author = self.db.getauthor(name)
-                    author.save()
-                    try:
-                        book.connect(author)
-                    except sqlite3.IntegrityError as e:
-                        raise e  # todo: handle error
-
-            for upload in request.files.getall("upload"):
-                fo = BookFile(self.db)
-                fo.name = upload.raw_filename
-                fo.type = upload.content_type
-                fo.save()
-                try:
-                    self.__uploads["BookFile:%s" % fo.id] = upload.file
-                except ValueError as e:
-                    raise e  # todo: remove link to file from database if file wasn't saved
-                try:
-                    book.connect(fo)
-                except sqlite3.IntegrityError as e:
-                    raise e  # todo: handle error
-
-            redirect("/table/books")  # todo: replace with book page
-
     def booksearch(self, search, sort_keys=None):
         """
         Search for string in most important book properties
@@ -473,6 +400,79 @@ class WebUI(object):
         search = self.db.sql.select("books", what="id")
         books = (self.db.getbook(row["id"]) for row in search.fetchall())
         return template("manybooks", books=books, info=self.info)
+
+    def __clbk_editbook(self, id=None):
+        """
+        Add/edit books
+        """  # todo: unfinished
+        if request.method == "GET":
+            if id:
+                book = self.db.getbook(id=id)
+            else:
+                book = NoneMocker()
+            if book.saved:
+                title = "Редактировать книгу"
+                authors = book.getconnected(Author)
+            else:
+                title = "Новая книга"
+                authors = (NoneMocker(),)
+            return template("book_edit",
+                book=book,
+                authors=authors,
+                title=title,
+                info=self.info)
+        else:
+            form = request.forms  # "multipart/form-data" doesn't need .decode()
+            book = self.db.getbook()
+
+            # 3-tuples: attr name, input name, validator function
+            inputs = (("name", "title", validate.nonempty),
+                      ("isbn", "isbn", validate.isbn),
+                      ("publisher", "publisher", validate.nonempty),
+                      ("year", "year", validate.year),
+                      ("price", "price", validate.positive),
+                      ("in_date", "in_date", validate.date),
+                      ("in_type", "in_type", validate.nonempty),
+                      ("in_comment", "in_comment", validate.nonempty),
+                      ("out_date", "out_date", validate.date),
+                      ("out_type", "out_type", validate.nonempty),
+                      ("out_comment", "out_comment", validate.nonempty))
+
+            for attr, input, func in inputs:
+                valid, value = func(form.get(input))
+                if valid:
+                    setattr(book, attr, value)
+
+            try:
+                book.save()
+            except sqlite3.IntegrityError as e:
+                raise e  # todo: handle error
+
+            for name in form.getall("author"):
+                name = name.strip()
+                if name:
+                    author = self.db.getauthor(name)
+                    author.save()
+                    try:
+                        book.connect(author)
+                    except sqlite3.IntegrityError as e:
+                        raise e  # todo: handle error
+
+            for upload in request.files.getall("upload"):
+                fo = BookFile(self.db)
+                fo.name = upload.raw_filename
+                fo.type = upload.content_type
+                fo.save()
+                try:
+                    self.__uploads["BookFile:%s" % fo.id] = upload.file
+                except ValueError as e:
+                    raise e  # todo: remove link to file from database if file wasn't saved
+                try:
+                    book.connect(fo)
+                except sqlite3.IntegrityError as e:
+                    raise e  # todo: handle error
+
+            redirect("/table/books")  # todo: replace with book page
 
 
 class validate(object):
