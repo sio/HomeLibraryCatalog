@@ -598,7 +598,16 @@ class Thumbnail(TableEntityWithID):
             del pic
             self._saved = False
         else:
-            raise TypeError("self.image has to be %s" % bytes)
+            raise TypeError("image has to be bytestring or file-like object")
+
+        img.thumbnail(self.__MAXSIZE__)
+        pic = io.BytesIO()
+        img.save(pic, format="jpeg")
+        del img
+        pic.seek(0)
+        self._changes["image"] = pic.read()
+        del pic
+        self._saved = False
 
 
 class ISBN(object):
