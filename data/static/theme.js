@@ -7,7 +7,7 @@ var INVALID_CLASSNAME = "invalid";
 var ajaxSuggestions = new AjaxHandler(ajaxFillSuggestions);
 
 
-function switchChildren(node) {
+function switchChildren(node, clearInputs=false) {
     var container = node.parentNode;
     var link = node.getAttribute("data-switch-to");
     if (link && container) {
@@ -23,6 +23,11 @@ function switchChildren(node) {
                     child.hidden = false;
                 } else {
                     child.hidden = true;
+                };
+            };
+            if (clearInputs) {
+                if (child.tagName && child.tagName.toLowerCase()==="input") {
+                    child.value = "";
                 };
             };
         };
