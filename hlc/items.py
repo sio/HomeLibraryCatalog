@@ -54,7 +54,6 @@ class TableEntityWithID(object):
         and ((attr == "_data") \
         or  ((attr in type(self).__dict__) \
         and (isinstance(getattr(type(self), attr, None), property)))):
-            debug("Fetching %s id=%s" % (type(self).__name__, getattr_direct(self, "id")))
             getattr_direct(self, "_fetch")()
 
         return getattr_direct(self, attr)
@@ -136,7 +135,6 @@ class TableEntityWithID(object):
         for i in args:
             i = str(i)
             if not hasattr(type(cls), i):
-                # debug("Setattr %s on %s" % (i, type(cls)))
                 setattr(type(cls), i, cls._field_attr(i))
 
     def _date_attr(*args):
