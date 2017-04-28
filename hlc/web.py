@@ -91,11 +91,11 @@ class WebUI(object):
             ("/books", self._clbk_allbooks),
             ("/add", self.__clbk_editbook, ["GET", "POST"]),
             ("/file/<hexid>", self._clbk_user_file),
-            ("/ajax/suggest", self._clbk_suggestions))
+            ("/ajax/suggest", self._clbk_suggestions),
+            ("/thumbs/<hexid>", self._clbk_thumb))
         routes_for_user = (
             ("/", self._clbk_hello),
-            ("/quit", self.close),
-            ("/thumbs/<hexid>", self._clbk_thumb))
+            ("/quit", self.close))
         self.__create_routes(routes_no_acl)
         self.__create_routes(routes_after_init, self.__acl_not_firstrun)
         self.__create_routes(routes_for_user, self.__acl_user)
