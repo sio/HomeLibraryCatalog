@@ -59,11 +59,11 @@ onsubmit="return validateBook(this)" enctype="multipart/form-data">
     </span></label>
     <label class="field">Картинка:
     <span>
-        <a href="/nojs" onclick="return switchChildren(this);"
+        <a href="/nojs" onclick="return switchChildren(this, true);"
         data-switch-to="file">из файла</a>,
-        <a href="/nojs" onclick="return switchChildren(this);"
+        <a href="/nojs" onclick="return switchChildren(this, true);"
         data-switch-to="url">по ссылке</a>,
-        <a href="/nojs" onclick="return switchChildren(this);"
+        <a href="/nojs" onclick="return switchChildren(this, true);"
         data-switch-to="auto">автоматический поиск</a>
         <input type="text" name="thumb_url" placeholder="Адрес в интернет (URL)"
         data-switch="url" hidden="true"/>
