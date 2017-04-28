@@ -589,14 +589,11 @@ class Thumbnail(TableEntityWithID):
     def image(self, data):
         if type(data) is bytes:
             img = Image.open(io.BytesIO(data))
-            img.thumbnail(self.__MAXSIZE__)
-            pic = io.BytesIO()
-            img.save(pic, format="jpeg")
-            del img
-            pic.seek(0)
-            self._changes["image"] = pic.read()
-            del pic
-            self._saved = False
+        elif hasattr(data, "readable") \
+        and hasattr(data, "seekable") \
+        and data.readable() \
+        and data.seekable():
+            img = Image.open(data)
         else:
             raise TypeError("image has to be bytestring or file-like object")
 
