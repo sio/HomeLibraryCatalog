@@ -458,6 +458,18 @@ class WebUI(object):
                     except sqlite3.IntegrityError as e:
                         raise e  # todo: handle error
 
+            pic = request.files.get("thumbnail")
+            if pic: pic = pic.file
+            if not pic:
+                pass  # todo: try autofetch
+            if not pic:
+                pass  # todo: try getting by url
+            if pic:
+                thumb = Thumbnail(self.db)
+                thumb.image = pic
+                thumb.save()
+                thumb.connect(book)
+
             for upload in request.files.getall("upload"):
                 fo = BookFile(self.db)
                 fo.name = upload.raw_filename
