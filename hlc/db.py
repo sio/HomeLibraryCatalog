@@ -6,7 +6,7 @@ import sqlite3
 import os
 import re
 from hlc.items import ISBN, Author, Book
-from hlc.util import lowercase, alphanumeric, message, debug, timestamp
+from hlc.util import lowercase, alphanumeric, debug, timestamp
 from hashlib import sha224
 
 
@@ -534,7 +534,6 @@ class SQLiteDB(object):
 
         self._dbfile = os.path.abspath(filename)
         self._sql = SQL(self._connection)
-        message("SQLite file opened: %s" % self.filename)
 
     def __eq__(self, other):
         try:
@@ -563,7 +562,6 @@ class SQLiteDB(object):
             self._connection.close()
         except AttributeError:
             pass
-        message("SQLite file closed: %s" % self.filename)
 
 
 class CatalogueDB(SQLiteDB):
