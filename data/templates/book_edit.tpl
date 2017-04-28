@@ -50,8 +50,8 @@ onsubmit="return validateBook(this)" enctype="multipart/form-data">
     </div>
     </label>
     <label class="field">Серия/цикл:<span class="field clearfix">
-        <input class="series_type" type="text" name="series_type" placeholder="тип цикла"/>
-        <input class="series_name" type="text" name="series_name" placeholder="цикл"/>
+        <input class="series_type" type="text" name="series_type" placeholder="тип"/>
+        <input class="series_name" type="text" name="series_name" placeholder="наименование"/>
         <input class="number" type="text" name="book_no" placeholder="#"/>
         <input class="number" type="text" name="total" placeholder="##"/>
         <a class="plus" onclick="return cloneInputContainer(this);"
@@ -70,8 +70,8 @@ onsubmit="return validateBook(this)" enctype="multipart/form-data">
         <input type="text" name="thumb_filename" placeholder="Выберите файл"
         onfocus="getFileInput(this); this.onfocus()"
         data-file-input="thumbnail" data-switch="file"/>
-        <input type="text" data-switch="auto" value="ПОКА НЕ РАБОТАЕТ"
-        hidden="true"/>
+        <input type="text" data-switch="auto" placeholder="ПОКА НЕ РАБОТАЕТ"
+        hidden="true" disabled="true"/>
     </span>
     </label>
     <label class="field">Другие файлы:
