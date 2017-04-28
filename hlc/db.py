@@ -184,6 +184,10 @@ class SQLBaseWithEscaping(object):
             esc_chars = self.__escape_chars
 
         text = str(text)
+        if set(text).intersection(set(esc_chars)):
+            # todo: escape vulnerable chars
+            raise ValueError("injection vulnerability: [%s] are not allowed" % ("".join(esc_chars), ))
+
         if text not in special_cases:
             return text.join(esc_chars)
         else:
