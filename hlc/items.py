@@ -282,8 +282,8 @@ class TableEntityWithID(object):
                 data[objects[i].__IDField__] = objects[i].id
 
         search = self.database.sql.select(unity_table, data)
-        rows = search.fetchall()
-        return len(rows) > 0
+        found = search.fetchone()
+        return bool(found)
 
     def getconnected(self, cls):
         """
