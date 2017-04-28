@@ -610,6 +610,39 @@ class CatalogueDB(SQLiteDB):
                     suggestions.append(i[0])
         return suggestions
 
+    def __get_simplified(self, cls, field, value, attr=None):
+        """
+        Get an instance of TableEntityWithID of class `cls` where field=value
+
+        Returns:
+            `cls` instance. If `value` was not found in `field`,
+            returns new instance (not saved)
+        """
+        if attr is None: attr = field
+        if value:
+            query = "SELECT %s FROM %s WHERE simplify(%s)=simplify(?)"
+            search = self.sql.generic(
+                self.connection,
+                query,
+                (cls.__IDField__, cls.__TableName__, field),
+                (value, ))
+            result = search.fetchone()
+            second = search.fetchone()
+            if not result:
+                inst = cls(self)
+                setattr(inst, attr, value)
+            elif result and not second:
+                inst = cls(self, result[0])
+            elif second:
+                raise ValueError("%s contains more than one entry %s" %
+                                 (self.filename, value))
+            else:
+                raise RuntimeError("Impossible branching")
+        else:
+            inst = None
+        return inst
+
+
     def getauthor(self, name):
         """
         Get Author object from database
@@ -618,24 +651,7 @@ class CatalogueDB(SQLiteDB):
             Author() object. If `name` was not found in the database, returns
             new Author() object (not saved)
         """
-        a = None
-        if name:
-            query = "SELECT id FROM authors WHERE simplify(name)=simplify(?)"
-            search = self.cursor.execute(query, (name,))
-            result = search.fetchall()
-            if result is None or len(result) == 0:
-                a = Author(self)
-                a.name = name
-            elif len(result) == 1:
-                a = Author(self, result[0][0])
-            elif len(result) > 1:
-                raise ValueError("%s contains more than one author named %s" %
-                                 (self.filename, name))
-            else:
-                raise RuntimeError("Impossible branching")
-        else:
-            a = None
-        return a
+        return self.__get_simplified(Author, "name", name)
 
     def getbook(self, id=None, isbn=None):
         """
