@@ -477,8 +477,9 @@ class WebUI(object):
                 fo.save()
                 try:
                     self.__uploads["BookFile:%s" % fo.id] = upload.file
-                except ValueError as e:
-                    raise e  # todo: remove link to file from database if file wasn't saved
+                except Exception as e:
+                    fo.delete()
+                    raise e  # todo: handle error
                 try:
                     book.connect(fo)
                 except sqlite3.IntegrityError as e:
