@@ -101,7 +101,6 @@ as the `HomeLibraryCatalog.py` by default
 
 #### Deployment
 - [ ] try pyinstall
-- [x] delete SQLite.cursor property? = no, it's used for unusual queries
 
 #### Write unit tests?
 - [ ] mock database object (or in :memory:)

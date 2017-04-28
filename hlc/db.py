@@ -517,8 +517,8 @@ class SQLiteDB(object):
             Close database connection
 
     Properties:
-        cursor
-            Get a new cursor object. Useful for sophisticated queries
+        connection
+            Get DB API connection
         sql
             SQL() object. Contains methods for performing most popular queries
         filename
@@ -550,8 +550,8 @@ class SQLiteDB(object):
         self.close()
 
     @property
-    def cursor(self):
-        return self._connection.cursor()
+    def connection(self):
+        return self._connection
 
     @property
     def sql(self):
@@ -603,7 +603,7 @@ class CatalogueDB(SQLiteDB):
                 LIMIT ?
                 """
             search = self.sql.generic(
-                self.cursor.connection,
+                self.connection,
                 query,
                 (field, table, field, field),
                 (beginning, count)

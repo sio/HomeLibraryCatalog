@@ -70,7 +70,7 @@ class WebUI(object):
     def __init__(self, sqlite_file):  # todo: review access control wrappers
         self.__db = CatalogueDB(sqlite_file)
         self.__persistent_cfg = DBKeyValueStorage(
-            self.db.cursor.connection,
+            self.db.connection,
             "app_config",
             "option",
             "value"
@@ -181,7 +181,7 @@ class WebUI(object):
         count = 0
         books_generator = ()
         if words:
-            cur = self.db.cursor
+            cur = self.db.connection.cursor()
             cur.execute(query, tuple(words))
             results = cur.fetchall()
             count = len(results)
