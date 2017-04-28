@@ -174,7 +174,6 @@ class TableEntityWithID(object):
         for i in args:
             i = str(i)
             if not hasattr(type(cls), i):
-                # debug("Setattr %s on %s" % (i, type(cls)))
                 setattr(type(cls), i, cls._date_attr(i))
 
     @property
@@ -198,10 +197,6 @@ class TableEntityWithID(object):
             if not self._changes[key]:
                 self._changes.pop(key)
         if not self.saved and len(self._changes) > 0:
-            debug("Saving %s(%s=%s): %s" % (self.__TableName__,
-                                           self.__IDField__,
-                                           self.id,
-                                           tuple(self._changes.keys())))
             if self._new:
                 rowid = self.database.sql.insert(self.__TableName__,
                                    self._changes)

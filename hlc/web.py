@@ -245,7 +245,6 @@ class WebUI(object):
     def __acl_not_firstrun(self, func):
         """Wrapper for __acl_* functions that require app initialization"""
         def with_init(*a, **ka):
-            debug("Checking initialization: %s" % self.__first_user)
             if not self.__first_user:
                 return func(*a, **ka)
             else:
