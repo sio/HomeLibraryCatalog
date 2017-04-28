@@ -97,7 +97,7 @@ class FSKeyFileStorage(object):
         """
         Store a file corresponding to key. Value has to be a file-like object
         """
-        if value.readable and value.seekable:
+        if value.readable() and value.seekable():
             path = self.__path(key)
             dir = os.path.dirname(path)
             try:
