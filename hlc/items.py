@@ -409,6 +409,16 @@ class TableEntityWithID(object):
         elif len(columns) == 1:
             self.database.sql.update_where(unity_table, none_data, where)
 
+    def delete(self):
+        """
+        Delete database entry and make further use of this instance impossible
+        """
+        if self.id is not None:
+            self.database.sql.delete(
+                self.__TableName__,
+                {self.__IDField__: self.id})
+        self.__dict__ = dict()
+
 
 class Book(TableEntityWithID):
     """
