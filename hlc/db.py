@@ -608,10 +608,12 @@ class CatalogueDB(SQLiteDB):
                 (field, table, field, field),
                 (beginning, count)
             )
-            result = search.fetchall()
-            if result:
-                for i in result:
-                    suggestions.append(i[0])
+            while True:
+                result = search.fetchone()
+                if result:
+                    suggestions.append(result[0])
+                else:
+                    break
         return suggestions
 
     def __get_simplified(self, cls, field, value, attr=None):
