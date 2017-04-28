@@ -204,7 +204,7 @@ def message(text, urgency=5):
 
     text = str(text)
 
-    if urgency <= VERBOSITY:
+    if urgency <= VERBOSITY[0]:
         indentation = chr(183) * urgency + " "
         wr = textwrap.TextWrapper(initial_indent=indentation,
                                   subsequent_indent=indentation)

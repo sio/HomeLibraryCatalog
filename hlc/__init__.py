@@ -1,4 +1,4 @@
-VERBOSITY = 9
+VERBOSITY = [9]
 
 __all__ = [
     "WebUI",
