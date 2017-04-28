@@ -256,6 +256,7 @@ class WebUI(object):
 
     def __info_init(self):
         i = self.__info = DynamicDict()
+        self.__info_ro = ReadOnlyDict(self.__info)
         i["books_count"] = lambda: self.__persistent_cfg.get("book_count", 0)
         i["copyright"] = lambda: "2016-%s" % datetime.now().year
         i["date"] = lambda: datetime.now().strftime("%d.%m.%Y")
@@ -278,7 +279,7 @@ class WebUI(object):
     @property
     def info(self):
         """Access the dictionary with some basic stats and other information"""
-        return ReadOnlyDict(self.__info)
+        return self.__info_ro
 
     def start(self, config, browser=False, *a, **kw):
         """Start WebUI"""
