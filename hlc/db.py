@@ -751,7 +751,7 @@ class CatalogueDB(SQLiteDB):
             CREATE TABLE series (
                 id              integer primary key,
                 type            text not null,
-                name            text not null,
+                name            text unique not null,
                 number_books    integer check (number_books>0))
             """,
             """
