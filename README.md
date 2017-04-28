@@ -28,7 +28,6 @@ as the `HomeLibraryCatalog.py` by default
 # Top priority todo items
 * Add book form
     * thumbnail
-        * upload file
         * get image by url
         * auto fetcher
     * series [+]
@@ -39,18 +38,13 @@ as the `HomeLibraryCatalog.py` by default
 
 # Todo list
 #### Ajax suggestions:
-- [x] implement input suggestions
 - [ ] support more (all?) form fields
 - [ ] dropdown design with CSS
 
 #### Settings:
-- [x] test json without quotes = invalid according to spec
 - [ ] refer to all settings from code
 
 #### Database:
-- [x] more fields in `users` table: name, registration date
-- [x] user pics? = no
-- [x] add field for annotations in `books`
 
 #### SessionManager:
 - [ ] reimplement API
@@ -60,13 +54,8 @@ as the `HomeLibraryCatalog.py` by default
 
 #### WebUI:
 - [ ] check password expiration on login
-- [x] encoding to utf8 in headers? = by default
 - [ ] robots.txt file
 - [ ] webbrowser.open() always opens IE, replace with default browser
-- [x] unique cookie secret for every instance of WebUI (or every URL?)
-      = no. Cookie secret is set per app in settings.json
-- [x] unique scramble_key for every database (filename?) = no. settings
-- [ ] remove bottle.debug
 - [ ] CSS:
     - [ ] dark background, light page
     - [ ] no #000000
@@ -97,9 +86,9 @@ as the `HomeLibraryCatalog.py` by default
         - [ ] other books by year
     - [ ] authors/series list
     - [ ] login page, handle invalid auth data
-    - [ ] thumbnail upload page
 
 #### Deployment
+- [ ] remove bottle.debug
 - [ ] try pyinstall
 
 #### Write unit tests?
