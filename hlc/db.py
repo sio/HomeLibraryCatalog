@@ -854,13 +854,12 @@ class CatalogueDB(SQLiteDB):
                 foreign key(book_id) references books(id) on delete cascade on update cascade,
                 foreign key(file_id) references files(id) on delete cascade on update cascade)
             """)
-        db = self.cursor.connection
-        try:
-            for query in new_table_queries:
-                debug(query)
+        db = self.connection
+        for query in new_table_queries:
+            try:
                 db.execute(query)
-        except Exception as e:
-            db.rollback()
-            raise e
+            except Exception as e:
+                debug(query)
+                db.rollback()
+                raise e
         db.commit()
-        message("SQLite file created: %s" % db_filename)
