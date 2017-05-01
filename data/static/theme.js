@@ -260,6 +260,7 @@ function cloneInputContainer(node) {
         var subNode = newNode.childNodes[i];
         if (subNode.tagName && subNode.tagName.toLowerCase() === "input") {
             subNode.value = "";
+            if (subNode.onchange) {subNode.onchange();};
             if (!focus) {
                 subNode.focus();
                 focus = true;
