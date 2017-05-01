@@ -198,7 +198,6 @@ class WebUI(object):
         user = User(self.db)
         user.name = username
         user.password = password
-        user.group = group
         user.expires_on = expiration
         user.save()
         return user
