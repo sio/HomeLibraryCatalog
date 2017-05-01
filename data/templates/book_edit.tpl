@@ -54,9 +54,12 @@ onsubmit="return validateBook(this)" enctype="multipart/form-data">
     </label>
     <label class="field">Серия/цикл:<span class="field one_line clearfix">
         <input class="series_type" type="text" name="series_type" placeholder="тип"/>
-        <input class="series_name" type="text" name="series_name" placeholder="наименование"/>
-        <input class="number" type="text" name="book_no" placeholder="#"/>
+        <input class="series_name" type="text" name="series_name"
+        placeholder="наименование" onchange="showSeriesNumbers(this)"/>
+        <span class="numbers">
+        <input class="number" type="text" name="book_no" placeholder="#"/>  из
         <input class="number" type="text" name="total" placeholder="##"/>
+        </span class="field">
         <a class="plus" onclick="return cloneInputContainer(this);"
         href="/nojs">[+]</a>
     </span></label>
