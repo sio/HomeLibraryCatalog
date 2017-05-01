@@ -7,6 +7,17 @@ var INVALID_CLASSNAME = "invalid";
 var ajaxSuggestions = new AjaxHandler(ajaxFillSuggestions);
 
 
+function showSeriesNumbers(node) {
+    var container = node.parentNode;
+    var numbers = container.querySelector(".numbers")
+    trimField(node);
+    if (node.value) {
+        numbers.style.display = "inline";
+    } else {
+        numbers.style.display = "none";
+    };
+};
+
 function switchChildren(node, clearInputs=false) {
     var container = node.parentNode;
     var link = node.getAttribute("data-switch-to");
