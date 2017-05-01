@@ -441,7 +441,8 @@ class Book(TableEntityWithID):
                            "in_comment",
                            "annotation")
         self._simple_date_attrs("in_date",
-                                "out_date")
+                                "out_date",
+                                "last_edit")
 
     @property
     def isbn(self):

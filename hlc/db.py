@@ -733,8 +733,15 @@ class CatalogueDB(SQLiteDB):
                 out_date    integer,
                 out_type    text,
                 out_comment text,
+                last_edit   integer not null default (cast(strftime('%s','now') as integer)),
                 thumbnail_id integer,
                 foreign key(thumbnail_id) references thumbs(id) on delete cascade on update cascade)
+            """,
+            """
+            CREATE TRIGGER trg_book_mtime BEFORE UPDATE ON books
+            BEGIN
+                UPDATE books SET last_edit = cast(strftime('%s','now') as integer) WHERE _rowid_ = NEW._rowid_;
+            END
             """,
             """
             CREATE TRIGGER trg_isbn_update AFTER UPDATE OF isbn_user ON books
