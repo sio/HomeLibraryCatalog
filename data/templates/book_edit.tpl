@@ -49,7 +49,10 @@ onsubmit="return validateBook(this)" enctype="multipart/form-data">
         placeholder="комментарий" onchange="trimField(this)"/>
     </div>
     </label>
-    <label class="field">Серия/цикл:<span class="field clearfix">
+    <label class="field">Аннотация:
+    <textarea class="field" name="annotation"></textarea>
+    </label>
+    <label class="field">Серия/цикл:<span class="field one_line clearfix">
         <input class="series_type" type="text" name="series_type" placeholder="тип"/>
         <input class="series_name" type="text" name="series_name" placeholder="наименование"/>
         <input class="number" type="text" name="book_no" placeholder="#"/>
