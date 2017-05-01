@@ -534,7 +534,7 @@ class SQLiteDB(object):
         self._connection.create_function("lower", 1, lowercase)
         self._connection.create_function("simplify", 1,
             lambda x: lowercase(alphanumeric(x)))
-        self._connection.create_function("timestamp", 0, timestamp)
+        # self._connection.create_function("timestamp", 0, timestamp)
 
         self._dbfile = os.path.abspath(filename)
         self._sql = SQL(self._connection)
@@ -694,7 +694,7 @@ class CatalogueDB(SQLiteDB):
                 id integer primary key,
                 name text unique not null,
                 fullname text,
-                created_on integer not null default (timestamp()),
+                created_on integer not null default (cast(strftime('%s','now') as integer)),
                 expires_on integer,
                 hash text not null)
             """,
@@ -764,7 +764,7 @@ class CatalogueDB(SQLiteDB):
             CREATE TABLE author_ratings (
                 id          integer primary key,
                 author_id   integer,
-                date        integer not null default (timestamp()),
+                date        integer not null default (cast(strftime('%s','now') as integer)),
                 rated_by    integer not null,
                 value       real,
                 comment     text,
@@ -775,7 +775,7 @@ class CatalogueDB(SQLiteDB):
             CREATE TABLE book_reviews (
                 id          integer primary key,
                 book_id     integer,
-                date        integer not null default (timestamp()),
+                date        integer not null default (cast(strftime('%s','now') as integer)),
                 reviewed_by integer not null,
                 review      text,
                 rating      real,
