@@ -124,7 +124,7 @@ class WebUI(object):
             options["init_date"] = timestamp()
             options["init_user"] = ":".join(credentials)
 
-    def suggest(self, field, input):
+    def suggest(self, field, input, count=10):
         """
         Return suggestions based on user input
         """
@@ -136,7 +136,7 @@ class WebUI(object):
         result = list()
         if field in translate:
             table, column = translate[field]
-            result = self.db.getsuggestions(str(input), table, column)
+            result = self.db.getsuggestions(str(input), table, column, count)
         return result
 
     def booksearch(self, search, sort_keys=None):
