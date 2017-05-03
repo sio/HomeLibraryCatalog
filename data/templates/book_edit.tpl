@@ -2,7 +2,7 @@
 rebase("main")
 simple_fields = (
     ("Название книги", "title", book.name or "", "checkRequiredField(this)",
-        "ajaxGetSuggestions(this)"),
+        "ajaxSuggestions(this)"),
     ("Издательство", "publisher", book.publisher or "", "trimField(this)", ""),
     ("Год выпуска", "year", book.year or "", "checkYearField(this)", ""),
     ("Цена", "price", book.price or "", "checkPriceField(this)", ""),
@@ -53,10 +53,12 @@ onsubmit="return validateBook(this)" enctype="multipart/form-data">
     <textarea class="field" name="annotation"></textarea>
     </label>
     <label class="field">Серия/цикл:<span class="field one_line clearfix">
-        <input class="series_type" type="text" name="series_type" placeholder="тип"/>
+        <input class="series_type" type="text" name="series_type" 
+        placeholder="тип"/>
         <input class="series_name" type="text" name="series_name"
-        placeholder="наименование" onchange="showSeriesNumbers(this)"/>
-        <span class="numbers">
+        placeholder="наименование" onkeyup="showSeriesNumbers(this)"
+        onchange="trimField(this)"/>
+        <span class="numbers field">
         <input class="number" type="text" name="book_no" placeholder="#"/>  из
         <input class="number" type="text" name="total" placeholder="##"/>
         </span class="field">
