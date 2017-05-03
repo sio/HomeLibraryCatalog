@@ -5,6 +5,7 @@
  */
 var INVALID_CLASSNAME = "invalid";
 var ajaxSuggestions = new AjaxHandler(ajaxFillSuggestions);
+var ajaxCSVGuess = new AjaxHandler(ajaxCSVFill);
 
 
 function showSeriesNumbers(node) {
@@ -212,6 +213,50 @@ function encodeQueryData(data) {
     }
     return ret.join('&');
 }
+function ajaxCSV(keypress) {
+    /**Make AJAX request for tag completion**/
+    var input = keypress.target;
+    if (!input.onkeydown) {
+        input.onkeydown = function(onkeydown) {
+            /**Override Tab key behavior if some text is selected**/
+            if ((onkeydown.keyCode === 9) && (input.selectionStart !== input.selectionEnd)) {
+                input.selectionStart = input.value.length;
+                input.selectionEnd = input.selectionStart;
+                return false;
+            };
+        };
+    };
+    if (!input.onblur) {
+        input.onblur = function() {ajaxCSVGuess.xhr.abort()};
+    };
+    ajaxCSVGuess.xhr.abort();
+    var url = "/ajax/complete"
+    var params = {"f": input.name, "q": parseCSV(input.value).slice(-1)}
+    ajaxCSVGuess.get(url + "?" + encodeQueryData(params));
+};
+function ajaxCSVFill(xhr) {
+    /**Complete tag input based on AJAX response**/
+    var result = JSON.parse(xhr.responseText);
+    var field
+    for (field in result) {
+        if (result[field].length > 0) {
+            // identify input by field
+            var input = document.querySelector('input[name="' + field + '"]');
+            
+            // store input.value.length
+            var tags = parseCSV(input.value);
+            var start = tags.join(", ").length
+            
+            // append suggestion
+            var last = tags.pop()
+            if (last && result[field][0].startsWith(last)) {
+                tags.push(result[field][0]);
+                input.value = tags.join(", ")
+                input.setSelectionRange(start, input.value.length)
+            };
+        };
+    };
+};
 
 
 /*
@@ -489,4 +534,15 @@ function showFieldValidation(field, valid) {
             field.className = field.className + " " + INVALID_CLASSNAME;
         };
     };
+};
+function parseCSV(CSV) {
+    /**Turn a single line of comma-separated values into array**/
+    var items = CSV.split(",");
+    var values = [];
+    var i;
+    for (i=0; i<items.length; i++) {
+        var text = items[i].trim();
+        values.push(text);
+    };
+    return values;
 };

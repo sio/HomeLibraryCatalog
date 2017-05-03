@@ -88,5 +88,9 @@ onsubmit="return validateBook(this)" enctype="multipart/form-data">
     href="/nojs">[+]</a>
     </span>
     </label>
+    <label class="field">Теги:
+    <input type="text" name="tags" placeholder="список категорий через запятую"
+    onkeypress="ajaxCSV(event)"/>
+    </label>
     <input class="field" type="submit" value="OK"/>
 </form>
