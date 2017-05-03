@@ -600,15 +600,14 @@ class CatalogueDB(SQLiteDB):
                 SELECT DISTINCT %s FROM %s
                 WHERE simplify(%s) LIKE simplify(?) || "%%"
                 ORDER BY %s
-                LIMIT ?
                 """
             search = self.sql.generic(
                 self.connection,
                 query,
                 (field, table, field, field),
-                (beginning, count)
+                (beginning,)
             )
-            while True:
+            for i in range(count):
                 result = search.fetchone()
                 if result:
                     suggestions.append(result[0])
