@@ -4,48 +4,9 @@
  *
  */
 var INVALID_CLASSNAME = "invalid";
-var ajaxSuggestions = new AjaxHandler(ajaxFillSuggestions);
+var ajaxSuggest = new AjaxHandler(ajaxSuggestionsFill);
 var ajaxCSVGuess = new AjaxHandler(ajaxCSVFill);
 
-
-function showSeriesNumbers(node) {
-    var container = node.parentNode;
-    var numbers = container.querySelector(".numbers")
-    trimField(node);
-    if (node.value) {
-        numbers.style.display = "inline";
-    } else {
-        numbers.style.display = "none";
-    };
-};
-
-function switchChildren(node, clearInputs=false) {
-    var container = node.parentNode;
-    var link = node.getAttribute("data-switch-to");
-    if (link && container) {
-        var i;
-        for (i=0; i<container.childNodes.length; i++) {
-            var child = container.childNodes[i];
-            var anchor;
-            try {
-                anchor = child.getAttribute("data-switch");
-            } catch(err) {};
-            if (anchor) {
-                if (anchor === link) {
-                    child.hidden = false;
-                } else {
-                    child.hidden = true;
-                };
-            };
-            if (clearInputs) {
-                if (child.tagName && child.tagName.toLowerCase()==="input") {
-                    child.value = "";
-                };
-            };
-        };
-    };
-    return false;
-};
 
 /*
  *
@@ -122,7 +83,7 @@ function filesShow(files) {
 
 /*
  *
- * AJAX FUNCTIONS
+ * AJAX REQUESTS
  *
  */
 function AjaxHandler(callback) {
@@ -165,19 +126,16 @@ function AjaxHandler(callback) {
     };
 };
 
-function ajaxGetSuggestions(input) {
-    /**
-    Get suggestions for input field via AJAX call
-    **/
+function ajaxSuggestions(input) {
+    /** Get suggestions for input field via AJAX call **/
     if (input.value.length > 2) {
         var url="/ajax/suggest";
         var params = {"f": input.name, "q": input.value};
         input.setAttribute("list", input.name + "_suggestions");
-        ajaxSuggestions.get(url + "?" + encodeQueryData(params));
+        ajaxSuggest.get(url + "?" + encodeQueryData(params));
     };
 };
-
-function ajaxFillSuggestions(xhr) {
+function ajaxSuggestionsFill(xhr) {
     /**
     Fill datalist with input suggestions
     Callback function for AjaxHandler object
@@ -201,18 +159,6 @@ function ajaxFillSuggestions(xhr) {
     };
 };
 
-function encodeQueryData(data) {
-    /**
-    Encode get parameters for URL
-
-    http://stackoverflow.com/a/111545
-    **/
-    var ret = [];
-    for (var d in data) {
-        ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
-    }
-    return ret.join('&');
-}
 function ajaxCSV(keypress) {
     /**Make AJAX request for tag completion**/
     var input = keypress.target;
@@ -331,6 +277,49 @@ function cloneParent(node) {
         container.insertBefore(copy, original.nextSibling);
     };
     return copy;
+};
+
+
+/*
+ *
+ * DYNAMIC HIDING OF ELEMENTS
+ *
+ */
+function showSeriesNumbers(node) {
+    var numbers = node.parentNode.querySelector(".numbers")
+    if (node.value) {
+        numbers.style.display = "block";
+    } else {
+        numbers.style.display = "none";
+    };
+};
+
+function switchChildren(node, clearInputs=false) {
+    var container = node.parentNode;
+    var link = node.getAttribute("data-switch-to");
+    if (link && container) {
+        var i;
+        for (i=0; i<container.childNodes.length; i++) {
+            var child = container.childNodes[i];
+            var anchor;
+            try {
+                anchor = child.getAttribute("data-switch");
+            } catch(err) {};
+            if (anchor) {
+                if (anchor === link) {
+                    child.hidden = false;
+                } else {
+                    child.hidden = true;
+                };
+            };
+            if (clearInputs) {
+                if (child.tagName && child.tagName.toLowerCase()==="input") {
+                    child.value = "";
+                };
+            };
+        };
+    };
+    return false;
 };
 
 
@@ -535,6 +524,13 @@ function showFieldValidation(field, valid) {
         };
     };
 };
+
+
+/*
+ *
+ * UTILITY FUNCTIONS
+ *
+ */
 function parseCSV(CSV) {
     /**Turn a single line of comma-separated values into array**/
     var items = CSV.split(",");
@@ -546,3 +542,12 @@ function parseCSV(CSV) {
     };
     return values;
 };
+
+function encodeQueryData(data) {
+    /** Encode get parameters for URL http://stackoverflow.com/a/111545 **/
+    var ret = [];
+    for (var d in data) {
+        ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+    }
+    return ret.join('&');
+}
