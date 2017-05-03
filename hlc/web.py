@@ -92,6 +92,7 @@ class WebUI(object):
             ("/add", self.__clbk_editbook, ["GET", "POST"]),
             ("/file/<hexid>", self._clbk_user_file),
             ("/ajax/suggest", self._clbk_suggestions),
+            ("/ajax/complete", self._clbk_complete),
             ("/thumbs/<hexid>", self._clbk_thumb))
         routes_for_user = (
             ("/", self._clbk_hello),
@@ -129,7 +130,8 @@ class WebUI(object):
         Return suggestions based on user input
         """
         translate = {
-            "title": ("books", "name")
+            "title": ("books", "name"),
+            "tags": ("tags", "name")
         }  # form_field: (db_table, db_column)
         # todo: support more fields
 
@@ -394,6 +396,13 @@ class WebUI(object):
         line, field = params.get("q"), params.get("f")
         suggestions = self.suggest(field, line)
         return json.dumps({field: suggestions})
+
+    def _clbk_complete(self):
+        """Reply to AJAX requests for input completion"""
+        params = request.query.decode()
+        line, field = params.get("q"), params.get("f")
+        completion = self.suggest(field, line, 1)
+        return json.dumps({field: completion})
 
     def _clbk_allbooks(self):
         search = self.db.sql.select("books", what="id")
