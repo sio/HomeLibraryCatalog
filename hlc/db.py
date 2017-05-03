@@ -881,6 +881,19 @@ class CatalogueDB(SQLiteDB):
                 primary key (book_id, file_id),
                 foreign key(book_id) references books(id) on delete cascade on update cascade,
                 foreign key(file_id) references files(id) on delete cascade on update cascade)
+            """,
+            """
+            CREATE TABLE tags (
+                id      integer primary key,
+                name    text unique not null)
+            """,
+            """
+            CREATE TABLE book_tags (
+                book_id     integer not null,
+                tag_id   integer not null,
+                primary key (book_id, tag_id),
+                foreign key(book_id) references books(id) on delete cascade on update cascade,
+                foreign key(tag_id) references tags(id) on delete cascade on update cascade)
             """)
         db = self.connection
         for query in new_table_queries:

@@ -254,6 +254,10 @@ class TableEntityWithID(object):
             unity_table = "book_files"
             columns[Book] = "book_id"
             columns[BookFile] = "file_id"
+        elif Book in objects and Tag in objects:
+            unity_table = "book_tags"
+            columns[Book] = "book_id"
+            columns[Tag] = "tag_id"
         else:
             raise TypeError("Incompatible objects: %s, %s" %
                             tuple(objects))
@@ -567,6 +571,15 @@ class BookFile(TableEntityWithID):
         TableEntityWithID.__init__(self, db, id)
         self._simple_attrs("name",
                            "type")
+
+
+class Tag(TableEntityWithID):
+    __TableName__ = "tags"
+    __IDField__ = "id"
+
+    def __init__(self, db, id=None):
+        TableEntityWithID.__init__(self, db, id)
+        self._simple_attrs("name")
 
 
 class Thumbnail(TableEntityWithID):
