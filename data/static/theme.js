@@ -145,6 +145,7 @@ function ajaxSuggestionsFill(xhr) {
     for (field in result) {
         if (result[field].length > 0) {
             var input = document.querySelector('input[name="' + field + '"]');
+            // todo: what about multiple "author" fields??
             var datalist = getDatalist(input);
             if (datalist) {
                 removeChildNodes(datalist);
