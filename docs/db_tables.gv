@@ -28,4 +28,6 @@ graph {
     users -- book_reviews [taillabel=1];
     users -- author_ratings [taillabel=1];
     books -- book_tags -- tags;
+    app_config;
+    books -- book_files -- files;
 }
