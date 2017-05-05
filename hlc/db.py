@@ -5,7 +5,7 @@ Manage database interaction
 import sqlite3
 import os
 import re
-from hlc.items import ISBN, Author, Book
+from hlc.items import ISBN, Author, Book, Series, Tag
 from hlc.util import lowercase, alphanumeric, debug, timestamp
 from hashlib import sha224
 
@@ -647,7 +647,6 @@ class CatalogueDB(SQLiteDB):
             inst = None
         return inst
 
-
     def getauthor(self, name):
         """
         Get Author object from database
@@ -657,7 +656,13 @@ class CatalogueDB(SQLiteDB):
             new Author() object (not saved)
         """
         return self.__get_simplified(Author, "name", name)
-
+    
+    def getseries(self, name):
+        return self.__get_simplified(Series, "name", name)
+    
+    def gettag(self, name):
+        return self.__get_simplified(Tag, "name", name)
+    
     def getbook(self, id=None, isbn=None):
         """
         Get Book object from database
@@ -871,7 +876,7 @@ class CatalogueDB(SQLiteDB):
             """
             CREATE TABLE files (
                 id integer primary key,
-                name text default "unnamed",
+                name text default "untitled",
                 type text)
             """,
             """
