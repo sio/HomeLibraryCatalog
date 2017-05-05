@@ -118,7 +118,7 @@ class TableEntityWithID(object):
                 value = None
             if type(value) is str:
                 value = value.strip()
-                value = re.sub("\s+", " ", value)
+                value = re.sub("[^\S\r\n]+", " ", value)
             if (not self._new and self._data[property_name] != value) \
             or (self._new):
                 self._changes[property_name] = value
