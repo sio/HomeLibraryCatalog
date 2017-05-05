@@ -197,3 +197,10 @@ a:hover {
         padding:0!important;
     }
 }
+
+
+/* BROWSER-SPECIFIC HACKS */
+input::-webkit-calendar-picker-indicator {
+    /* datalist down arrow in chrome */
+    display:none;
+}
