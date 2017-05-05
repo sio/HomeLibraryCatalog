@@ -130,10 +130,18 @@ class WebUI(object):
         Return suggestions based on user input
         """
         translate = {
+            # form_field: (db_table, db_column)
             "title": ("books", "name"),
+            "author": ("authors", "name"),
+            "publisher": ("books", "publisher"),
+            "in_type": ("books", "in_type"),
+            "in_comment": ("books", "in_comment"),
+            "out_type": ("books", "out_type"),
+            "out_comment": ("books", "out_comment"),
+            "series_type": ("series", "type"),
+            "series_name": ("series", "name"),
             "tags": ("tags", "name")
-        }  # form_field: (db_table, db_column)
-        # todo: support more fields
+        }
 
         result = list()
         if field in translate:
