@@ -25,52 +25,26 @@ Configuration file is named `hlc.config` and is located in the same directory
 as the `HomeLibraryCatalog.py` by default
 
 
-# Top priority todo items
-* Add book form
-    * thumbnail
-        * get image by url
-        * auto fetcher
-    * series [+]
-        * multiple inputs in one line: type, name, # of ##
-* Annotations
-* DB clean start
-
-
 # Todo list
-#### Ajax suggestions:
-- [ ] support more (all?) form fields
-- [ ] dropdown design with CSS
-
-#### Settings:
-- [ ] refer to all settings from code
-
-#### Database:
-
-#### SessionManager:
-- [ ] reimplement API
-- [ ] persistent sessions in database?
-- [ ] dictionary cookie->User?
-- [ ] save more items to cookie tuple?
-
 #### WebUI:
-- [ ] check password expiration on login
-- [ ] robots.txt file
-- [ ] webbrowser.open() always opens IE, replace with default browser
-- [ ] CSS:
-    - [ ] dark background, light page
-    - [ ] no #000000
-    - [ ] narrow pages
-    - [ ] stylesheet themes
 - [ ] Forms:
-    - [ ] add user (set password expiration date)
-    - [ ] edit user
-    - [ ] add book
-    - [ ] edit book
-    - [ ] add review
-    - [ ] book not in library anymore
-    - [ ] search box
-    - [ ] advanced search: single field searches
-    - [ ] force password change if expired
+    - [ ] for registered users
+        - [ ] add book
+            - [ ] fetch thumbnail by url
+            - [ ] fill thumbnail url by ISBN autofetcher
+        - [ ] edit book (add book + fill values)
+        - [ ] book review
+        - [ ] author rating
+        - [ ] book not in library anymore
+        - [ ] password change (force if expired)
+    - [ ] for administrators
+        - [ ] add user (set password expiration date)
+        - [ ] edit user
+        - [ ] add/edit groups
+    - [ ] for all visitors
+        - [ ] search box
+        - [ ] advanced search: single field searches
+    - [ ] start page: greetings/newest books/thumbnail gallery?
 - [ ] Pages:
     - [ ] annotated list with previews
         - [ ] all books
@@ -86,17 +60,32 @@ as the `HomeLibraryCatalog.py` by default
         - [ ] other books by year
     - [ ] authors/series list
     - [ ] login page, handle invalid auth data
-
-#### Deployment
-- [ ] remove bottle.debug
-- [ ] try pyinstall
-
-#### Write unit tests?
-- [ ] mock database object (or in :memory:)
+- [ ] CSS:
+    - [ ] dark background, light page
+    - [ ] no #000000
+    - [ ] narrow pages
+    - [ ] stylesheet themes
+- [ ] check password expiration on login
+- [ ] robots.txt file
+- [ ] webbrowser.open() always opens IE, replace with default browser
 
 #### Auto fetcher:
 - [ ] annotations
 - [ ] thumbnails
+- [ ] all book data
+
+#### SessionManager:
+- [ ] reimplement API
+- [ ] persistent sessions in database?
+- [ ] dictionary cookie->User?
+- [ ] save more items to cookie tuple?
+
+#### Deployment:
+- [ ] remove bottle.debug
+- [ ] try pyinstall
+
+#### Unit tests:
+- [ ] mock database object (or in :memory:)
 
 
 # Localization status
