@@ -259,3 +259,14 @@ def alphanumeric(string):
         string = re.sub("\s+", " ", string)
         string = re.sub("[^\d\w ]", "", string)
         return string.strip()
+
+        
+def parse_csv(csv):
+    """
+    Parse comma-separated sequence of values (one line)
+    """
+    items = list()
+    for item in csv.split(","):
+        if item: item = alphanumeric(item).strip()
+        items.append(item)
+    return items
