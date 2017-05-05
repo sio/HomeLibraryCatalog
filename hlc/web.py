@@ -16,7 +16,7 @@ from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
 from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group, BookFile
 from hlc.db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
 from hlc.util import LinCrypt, timestamp, debug, random_str, message, \
-                     DynamicDict, ReadOnlyDict
+                     DynamicDict, ReadOnlyDict, parse_csv
 from hlc.cyrillic import transliterate
 
 
@@ -466,6 +466,12 @@ class WebUI(object):
                     except sqlite3.IntegrityError as e:
                         raise e  # todo: handle error
 
+            for tag in parse_csv(form.get("tags", "")):
+                if tag:
+                    t = self.db.gettag(tag)
+                    t.save()
+                    t.connect(book)
+            
             pic = request.files.get("thumbnail")
             if pic: pic = pic.file
             if not pic:
