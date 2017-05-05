@@ -248,15 +248,14 @@ function cloneInputContainer(node) {
     var newNode = cloneParent(node);
     var focus = false;
     var i;
-    for (i=0; i<newNode.childNodes.length; i++) {
-        var subNode = newNode.childNodes[i];
-        if (subNode.tagName && subNode.tagName.toLowerCase() === "input") {
-            subNode.value = "";
-            if (subNode.onchange) {subNode.onchange();};
-            if (!focus) {
-                subNode.focus();
-                focus = true;
-            };
+    var inputNodes = newNode.querySelectorAll("input")
+    for (i=0; i<inputNodes.length; i++) {
+        var subNode = inputNodes[i];
+        subNode.value = "";
+        if (subNode.onchange) {subNode.onchange();};
+        if (!focus) {
+            subNode.focus();
+            focus = true;
         };
     };
     return false;
