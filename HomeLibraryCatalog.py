@@ -3,7 +3,7 @@
 
 import os
 import sys
-from hlc import WebUI, debug, settings
+from hlc import WebUI, debug, settings, VERBOSITY
 
 
 CONFIG_FILE = "hlc.config"
@@ -31,6 +31,7 @@ DEFAULT_CONFIGURATION = {
 def main():
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     config = settings(CONFIG_FILE, DEFAULT_CONFIGURATION)
+    VERBOSITY[0] = int(config.app.verbosity)
 
     stdout = sys.stdout
     stderr = sys.stderr
@@ -41,8 +42,8 @@ def main():
     ui = WebUI(test_dbfile)
     ui.start(
         browser=False,
-        debug=True,
-        reloader=True,
+        debug=VERBOSITY[0]>8,
+        reloader=VERBOSITY[0]>8,
         host=config.webui.host,
         port=config.webui.port,
         config=config.webui)
