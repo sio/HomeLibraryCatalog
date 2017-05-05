@@ -1,33 +1,45 @@
 # Simplified representation of database schema
-# Rendered with Graphviz (dot -O -Tsvg)
+# Rendered with Graphviz (dot -O -Tpdf)
 
-graph {
+strict graph {
+    label = <<b>CatalogueDB relations</b>>
+    
+    # Layout and style
+    graph [
+        ratio = 1.414  // 297/210
+        rankdir = LR
+        fontname = Tahoma
+        fontsize = 20
+    ]
     node [
-        shape=note
-        margin=0.1
-        color=gray
-        fontname=Tahoma
-        fontsize=20
+        shape = note
+        margin = 0.1
+        color = gray
+        fontname = Tahoma
+        fontsize = 16
+        tooltip = ""
     ]
     edge [
-        headlabel="∞"
-        taillabel="∞"
-        margin=0.1
-        color=gray        
-        fontname=Tahoma
-        fontsize=8
-        fontcolor=navy
+        headlabel = "∞"
+        taillabel = "∞"
+        margin = 0.1
+        color = gray        
+        fontname = Tahoma
+        fontsize = 8
+        fontcolor = navy
+        tooltip = ""
     ]
 
-    books -- book_authors -- authors;
-    authors -- author_ratings [taillabel=1];
-    books -- book_series -- series;
-    books -- thumbs [headlabel=1];
-    books -- book_reviews [taillabel=1];
-    users -- user_groups -- groups;
-    users -- book_reviews [taillabel=1];
-    users -- author_ratings [taillabel=1];
-    books -- book_tags -- tags;
-    app_config;
-    books -- book_files -- files;
+    # Nodes and edges
+    books -- book_authors -- authors
+    authors -- author_ratings [taillabel = 1]
+    books -- book_series -- series
+    books -- thumbs [headlabel = 1]
+    books -- book_reviews [taillabel = 1]
+    users -- user_groups -- groups
+    users -- book_reviews [taillabel = 1]
+    users -- author_ratings [taillabel = 1]
+    books -- book_tags -- tags
+    app_config
+    books -- book_files -- files
 }
