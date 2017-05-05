@@ -127,6 +127,15 @@ body {
     display:none;
 }
 
+/* APPLICATION MESSAGE */
+.info p {
+    margin-bottom:0.7em;
+}
+.info .highlight {
+    font-weight: bold;
+}
+
+
 /* CLEAR FIX */
 .clearfix {
     overflow:auto;
