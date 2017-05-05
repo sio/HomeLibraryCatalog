@@ -429,6 +429,29 @@ function checkPriceField(field) {
     showFieldValidation(field, valid);
 };
 
+function checkPositiveInt(field) {
+    /**
+    Validation function
+
+    Checks if field.value contains positive integer or is empty,
+    invalidates the field otherwise
+    **/
+    var num;
+    var valid;
+    trimField(field);
+    num = parseInt(field.value);
+    if (isNaN(num)) {
+        num = ""
+    };
+    field.value = num;
+    valid = num > 0;
+
+    if (field.value.length === 0) {
+        valid = true;
+    };
+
+    showFieldValidation(field, valid);
+};
 function checkRequiredField(field) {
     /**
     Validation function
