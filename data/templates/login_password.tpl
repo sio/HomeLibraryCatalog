@@ -1,6 +1,10 @@
 % rebase("main", title="Авторизация")
-<form name="auth" method="post">
-    <input name="user" type="text" value="User"></input>
-    <input name="password" type="password" value="Password"></input>
-    <input type="submit" value="OK"/>
+<form class="user_input" name="auth" method="post">
+    <label class="field">Пользователь
+    <input name="user" type="text"></input>
+    </label>
+    <label class="field">Пароль
+    <input name="password" type="password"></input>
+    </label>
+    <input class="field" type="submit" value="OK"/>
 </form>
