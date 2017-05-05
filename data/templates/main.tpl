@@ -13,12 +13,12 @@
 <div id="middle">
     <div id="menu" class="no_print">
         <ul>
-        <li><a href="#">Каталог</a></li>
-        <li><a href="#">Поступление книг</a></li>
+        <li><a href="/table/books">Каталог</a></li>
+        <li><a href="/add">Добавить книгу</a></li>
         <li><a href="#">Выбытие книг</a></li>
-        <li><a href="#">База данных</a></li>
+        <li><a href="/books">База данных</a></li>
         <li><a href="#">MENU5</a></li>
-        <li><a href="#">MENU6</a></li>
+        <li><a href="/login">Войти</a></li>
         </ul>
     </div>
     <div id="page">
