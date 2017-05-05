@@ -13,11 +13,12 @@ strict graph {
     ]
     node [
         shape = note
-        margin = 0.1
+        margin = 0.15
         color = gray
         fontname = Tahoma
         fontsize = 16
         tooltip = ""
+        penwidth = 0.5
     ]
     edge [
         headlabel = "∞"
@@ -28,6 +29,7 @@ strict graph {
         fontsize = 8
         fontcolor = navy
         tooltip = ""
+        penwidth = 0.5
     ]
 
     # Nodes and edges
