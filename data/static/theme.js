@@ -126,8 +126,9 @@ function AjaxHandler(callback) {
     };
 };
 
-function ajaxSuggestions(input) {
+function ajaxSuggestions(keypress) {
     /** Get suggestions for input field via AJAX call **/
+    var input = keypress.target;
     if (input.value.length > 2) {
         var url="/ajax/suggest";
         var params = {"f": input.name, "q": input.value};
@@ -145,7 +146,6 @@ function ajaxSuggestionsFill(xhr) {
     for (field in result) {
         if (result[field].length > 0) {
             var input = document.querySelector('input[name="' + field + '"]');
-            // todo: what about multiple "author" fields??
             var datalist = getDatalist(input);
             if (datalist) {
                 removeChildNodes(datalist);
