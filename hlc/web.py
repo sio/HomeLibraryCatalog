@@ -447,6 +447,7 @@ class WebUI(object):
                       ("publisher", "publisher", validate.nonempty),
                       ("year", "year", validate.year),
                       ("price", "price", validate.positive),
+                      ("annotation", "annotation", validate.nonempty),
                       ("in_date", "in_date", validate.date),
                       ("in_type", "in_type", validate.nonempty),
                       ("in_comment", "in_comment", validate.nonempty),
@@ -468,12 +469,35 @@ class WebUI(object):
                 name = name.strip()
                 if name:
                     author = self.db.getauthor(name)
-                    author.save()
-                    try:
-                        book.connect(author)
-                    except sqlite3.IntegrityError as e:
-                        raise e  # todo: handle error
+                    if author:
+                        author.save()
+                        try:
+                            book.connect(author)
+                        except sqlite3.IntegrityError as e:
+                            raise e  # todo: handle error
 
+            for type, name, num, total in zip(
+                form.getall("series_type"),
+                form.getall("series_name"),
+                form.getall("book_no"),
+                form.getall("total")
+            ):
+                series = self.db.getseries(name)
+                if series:
+                    valid_type, type = validate.nonempty(type)
+                    if valid_type and not series.saved:
+                        series.type = type
+                    valid_total, total = validate.positive(total)
+                    if valid_total and total:
+                        series.number_books = total
+                    valid_num, num = validate.positive(num)
+                    try:
+                        series.save()
+                    except sqlite3.IntegrityError as e:
+                        raise e  # todo: handle exception
+                    if not valid_num: num = None
+                    book.connect(series, num)
+            
             for tag in parse_csv(form.get("tags", "")):
                 if tag:
                     t = self.db.gettag(tag)
