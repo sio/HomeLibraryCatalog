@@ -18,7 +18,6 @@ from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group, BookFile
 from hlc.db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
 from hlc.util import LinCrypt, timestamp, debug, random_str, message, \
                      DynamicDict, ReadOnlyDict, parse_csv
-from hlc.cyrillic import transliterate
 
 
 class WebUI(object):
@@ -92,8 +91,8 @@ class WebUI(object):
             ("/books", self._clbk_allbooks),
             ("/add", self.__clbk_editbook, ["GET", "POST"]),
             ("/file/<hexid>", self._clbk_user_file),
-            ("/ajax/suggest", self._clbk_suggestions),
-            ("/ajax/complete", self._clbk_complete),
+            ("/ajax/suggest", self._clbk_ajax_suggestions),
+            ("/ajax/complete", self._clbk_ajax_complete),
             ("/thumbs/<hexid>", self._clbk_thumb))
         routes_for_user = (
             ("/", self._clbk_hello),
@@ -372,7 +371,9 @@ class WebUI(object):
         redirect("/")
 
     def _clbk_static(self, filename):
-        return static_file(filename, root=os.path.join(self.__datadir, self.__static_location))
+        return static_file(
+            filename, 
+            root=os.path.join(self.__datadir, self.__static_location))
 
     def _clbk_table(self, table):
         try:
@@ -399,14 +400,14 @@ class WebUI(object):
             download=urllib.parse.quote(name),  # wsgiref encodes to iso-8859-1
             mimetype=type)
 
-    def _clbk_suggestions(self):
+    def _clbk_ajax_suggestions(self):
         """Reply to AJAX requests for input suggestions"""
         params = request.query.decode()
         line, field = params.get("q"), params.get("f")
         suggestions = self.suggest(field, line)
         return json.dumps({field: suggestions})
 
-    def _clbk_complete(self):
+    def _clbk_ajax_complete(self):
         """Reply to AJAX requests for input completion"""
         params = request.query.decode()
         line, field = params.get("q"), params.get("f")
@@ -527,6 +528,9 @@ class WebUI(object):
                 thumb.image = pic
                 thumb.save()
                 thumb.connect(book)
+                debug("thumbnail saved: http://localhost:8080/thumbs/%s" % LinCrypt(
+                    self.__scramble_key + self.__scramble_shift["thumbnail"]
+                    ).encode(thumb.id))
 
             for upload in request.files.getall("upload"):
                 fo = BookFile(self.db)
