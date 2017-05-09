@@ -603,10 +603,10 @@ class Thumbnail(TableEntityWithID):
     def image(self, data):
         if type(data) is bytes:
             img = Image.open(io.BytesIO(data))
-        elif hasattr(data, "readable") \
-        and hasattr(data, "seekable") \
-        and data.readable() \
-        and data.seekable():
+        elif hasattr(data, "read") \
+        and hasattr(data, "readable") \
+        and hasattr(data, "tell") \
+        and data.readable():
             img = Image.open(data)
         else:
             raise TypeError("image has to be bytestring or file-like object")
