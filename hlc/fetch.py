@@ -130,3 +130,76 @@ class BookInfoFetcher(object):
         else:
             return name
 
+
+class Fantlab(BookInfoFetcher):
+    _url_pattern = "http://fantlab.ru/searchmain?searchstr=%s"
+
+    def get(self, key=None):
+        """Scrape website for information about the book"""
+        result = dict()
+        book = result[self._isbn] = dict()
+
+        # search results page
+        root = self.parse(self.url)
+        true_url = ""
+        if root is not None:
+            for anchor in root.cssselect("div.one a"):
+                if "edition" in anchor.get("href"):
+                    true_url = anchor.get("href")
+                    break
+
+        # edition page
+        root = None
+        if true_url:
+            root = self.parse(true_url)
+        if root is not None:
+            title_nodes = root.cssselect('*[itemprop="name"]')
+            if len(title_nodes):
+                book["title"] = title_nodes[0].text_content()
+
+            authors = list()
+            for a in root.cssselect('*[itemprop="author"] a'):
+                authors.append(self.reverse_name(a.text_content()))
+            if authors: book["authors"] = authors
+
+            publ_nodes = root.cssselect('*[itemprop="publisher"] a')
+            if len(publ_nodes):
+                book["publisher"] = publ_nodes[0].text_content()
+
+            year_nodes = root.cssselect('*[itemprop="copyrightYear"]')
+            if len(year_nodes):
+                book["year"] = year_nodes[0].text_content()
+
+            series_nodes = root.xpath('//div[contains(@class,"main-info-block-detail")]//a[contains(@href,"series")]')
+            series_nodes += root.xpath('//div[contains(@class,"main-info-block-detail")]//a[contains(@data-href,"series")]')
+            series = list()
+            for node in series_nodes:
+                series.append(("издательская серия", node.text_content()))
+            description = root.xpath(
+                '//p[b[contains(text(),"Описание:")]]/following-sibling::*[1]//a[contains(@href, "work")]'
+            )
+            for work in description:
+                series.append((
+                    "цикл",
+                    re.sub("""['"«»]""", "", work.text_content())
+                ))
+            if series: book["series"] = series
+
+            thumb_nodes = root.cssselect('img[itemprop="image"]')
+            if len(thumb_nodes):
+                book["thumbnail"] = thumb_nodes[0].get("src")
+
+            book_url = str()
+            url_nodes = root.xpath('//div[contains(@class,"main-info-block-detail")]//a[contains(@href,"work")]')
+            for node in url_nodes:
+                if fuzzy_str_eq(node.text_content(), book.get("title")):
+                    book_url = node.get("href")
+                    break
+            if book_url:
+                root = self.parse(book_url)
+                if root is not None:
+                    annotation_nodes = root.cssselect('*[itemprop="description"]')
+                    if len(annotation_nodes):
+                        book["annotation"] = annotation_nodes[0].text_content()
+        self._info = result
+        return result
