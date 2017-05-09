@@ -18,6 +18,7 @@ from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group, BookFile
 from hlc.db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
 from hlc.util import LinCrypt, timestamp, debug, random_str, message, \
                      DynamicDict, ReadOnlyDict, parse_csv
+from hlc.fetch import book_info
 
 
 class WebUI(object):
@@ -93,6 +94,7 @@ class WebUI(object):
             ("/file/<hexid>", self._clbk_user_file),
             ("/ajax/suggest", self._clbk_ajax_suggestions),
             ("/ajax/complete", self._clbk_ajax_complete),
+            ("/ajax/fill", self._clbk_ajax_info),
             ("/thumbs/<hexid>", self._clbk_thumb))
         routes_for_user = (
             ("/", self._clbk_hello),
@@ -414,6 +416,12 @@ class WebUI(object):
         completion = self.suggest(field, line, 1)
         return json.dumps({field: completion})
 
+    def _clbk_ajax_info(self):
+        """Reply to AJAX requests for full book info"""
+        params = request.query.decode()
+        isbn = params.get("isbn")
+        return json.dumps(book_info(isbn))
+        
     def _clbk_allbooks(self):
         search = self.db.sql.select("books", what="id")
         books = (self.db.getbook(row["id"]) for row in search.fetchall())
