@@ -186,8 +186,11 @@ class Fantlab(BookInfoFetcher):
             if series: book["series"] = series
 
             thumb_nodes = root.cssselect('img[itemprop="image"]')
-            if len(thumb_nodes):
-                book["thumbnail"] = thumb_nodes[0].get("src")
+            thumb_urls = list()
+            for node in thumb_nodes:
+                thumb_urls.append(node.get("src"))
+            if thumb_urls:
+                book["thumbnail"] = thumb_urls
 
             book_url = str()
             url_nodes = root.xpath('//div[contains(@class,"main-info-block-detail")]//a[contains(@href,"work")]')
