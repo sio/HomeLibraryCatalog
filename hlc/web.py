@@ -9,6 +9,7 @@ import re
 import sys
 import webbrowser
 import urllib.parse
+import urllib.request
 from threading import Timer
 from datetime import datetime, timedelta
 from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
@@ -507,9 +508,20 @@ class WebUI(object):
             pic = request.files.get("thumbnail")
             if pic: pic = pic.file
             if not pic:
-                pass  # todo: try autofetch
-            if not pic:
-                pass  # todo: try getting by url
+                url = form.get("thumb_url")
+                if url:
+                    try:
+                        req = urllib.request.Request(
+                            url,
+                            data=None,
+                            headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36"}
+                        )
+                        pic = urllib.request.urlopen(req)
+                        if not pic.headers.get_content_maintype() == "image":
+                            debug("not an image: %s" % url)
+                            pic = None
+                    except Exception as e:
+                        raise e  # todo: notify user that fetching failed
             if pic:
                 thumb = Thumbnail(self.db)
                 thumb.image = pic
