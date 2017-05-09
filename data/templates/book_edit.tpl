@@ -14,7 +14,7 @@ simple_fields = (
 onsubmit="return validateBook(this)" enctype="multipart/form-data">
     <label class="field">ISBN:
         <input type="text" name="isbn" value="{{book.isbn or ""}}"
-        onchange="checkISBN(this)"/>
+        onchange="checkISBN(this); ajaxISBN(this)"/>
     </label>
     <label for="author" class="field">Автор:
     % for a in authors:

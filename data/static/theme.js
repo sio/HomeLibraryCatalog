@@ -6,6 +6,7 @@
 var INVALID_CLASSNAME = "invalid";
 var ajaxSuggestionHandler = new AjaxHandler(ajaxSuggestionsFill);
 var ajaxCSVHandler = new AjaxHandler(ajaxCSVFill);
+var ajaxISBNHandler = new AjaxHandler(ajaxISBNFill);
 
 
 /*
@@ -204,6 +205,95 @@ function ajaxCSVFill(xhr) {
         };
     };
 };
+function ajaxISBN(input) {
+    var title = document.querySelector('input[name="title"]');
+    if (isValidISBN(input.value) && title.value.trim().length===0) {
+        var url="/ajax/fill";
+        var params = {"isbn": input.value};
+        ajaxISBNHandler.get(url + "?" + encodeQueryData(params));
+    };
+};
+function ajaxISBNFill(xhr) {
+    var result = JSON.parse(xhr.responseText);
+    var isbn = document.querySelector('input[name="isbn"]');
+    var data = result[cleanISBN(isbn.value)]
+    if (data) {
+        var field;
+        
+        // thumbnail
+        // authors
+        var author_inputs = document.querySelectorAll('input[name="author"]');
+        var author_no = 0;
+        var input_no = 0;
+        if (data["authors"]) {
+            for (author_no = 0; author_no < data["authors"].length; author_no++) {
+                if (input_no < author_inputs.length) {
+                    field = author_inputs[input_no];
+                    input_no++;
+                } else {
+                    cloneInputContainer(author_inputs[0]);
+                    field = document.querySelectorAll('input[name="author"]')[1];
+                };
+                field.value = data["authors"][author_no] || ""
+            };
+            for (input_no; input_no<author_inputs.length; input_no++) {
+                var container = author_inputs[input_no].parentNode;
+                container.parentNode.removeChild(container);
+            };
+        };
+        
+        // title
+        field = document.querySelector('input[name="title"]');
+        if (field) {field.value = data["title"] || ""};
+
+        // publisher
+        field = document.querySelector('input[name="publisher"]');
+        if (field) {field.value = data["publisher"] || ""};
+
+        // year
+        field = document.querySelector('input[name="year"]');
+        if (field) {field.value = data["year"] || ""};
+
+        // annotation
+        field = document.querySelector('textarea[name="annotation"]');
+        if (field) {field.value = data["annotation"] || ""};
+        
+        // series
+        var series_inputs = document.querySelectorAll('input[name="series_name"]');
+        for (var i=0; i<series_inputs.length; i++) {
+            if (i===0) {
+                cloneInputContainer(series_inputs[i]);
+            };
+            var container = series_inputs[i].parentNode;
+            container.parentNode.removeChild(container);
+        };
+        if (data["series"]) {
+            for (var i=0; i<data["series"].length; i++) {
+                if (i>0) {
+                    series_inputs = document.querySelectorAll('input[name="series_name"]');
+                    cloneInputContainer(series_inputs[series_inputs.length-1]);
+                    series_inputs = document.querySelectorAll('input[name="series_name"]');
+                    container = series_inputs[series_inputs.length-1].parentNode;
+                } else {
+                    container = document.querySelector('input[name="series_name"]').parentNode
+                };
+                if (container) {
+                    var ordered = ["series_type", "series_name", "book_no", "total"]
+                    for (var f=0; f<ordered.length; f++) {
+                        field = container.querySelector('input[name="'+ordered[f]+'"');
+                        if (field) {
+                            field.value = data["series"][i][f] || "";
+                            if (ordered[f]==="series_name") {
+                                showSeriesNumbers(field)
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    }
+};
+
 
 
 /*
