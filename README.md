@@ -13,7 +13,7 @@ Consider yourself warned
 * **python3** with following packages (available via `pip install`)
     * **bottle** - micro web framework with built-in simple web server
     * **pillow** - image manipulation library
-    * **lxml** - HTML scraping library
+    * **lxml** with **cssselect** - HTML scraping library
 
 
 # Installation and usage
@@ -30,7 +30,6 @@ as the `HomeLibraryCatalog.py` by default
 - [ ] Forms:
     - [ ] for registered users
         - [ ] add book
-            - [ ] fetch thumbnail by url
             - [ ] fill thumbnail url by ISBN autofetcher
         - [ ] edit book (add book + fill values)
         - [ ] book review
