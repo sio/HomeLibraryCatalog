@@ -374,7 +374,7 @@ class WebUI(object):
 
     def _clbk_static(self, filename):
         return static_file(
-            filename, 
+            filename,
             root=os.path.join(self.__datadir, self.__static_location))
 
     def _clbk_table(self, table):
@@ -421,7 +421,7 @@ class WebUI(object):
         params = request.query.decode()
         isbn = params.get("isbn")
         return json.dumps(book_info(isbn))
-        
+
     def _clbk_allbooks(self):
         search = self.db.sql.select("books", what="id")
         books = (self.db.getbook(row["id"]) for row in search.fetchall())
@@ -507,13 +507,13 @@ class WebUI(object):
                         raise e  # todo: handle exception
                     if not valid_num: num = None
                     book.connect(series, num)
-            
+
             for tag in parse_csv(form.get("tags", "")):
                 if tag:
                     t = self.db.gettag(tag)
                     t.save()
                     t.connect(book)
-            
+
             pic = request.files.get("thumbnail")
             if pic: pic = pic.file
             if not pic:
