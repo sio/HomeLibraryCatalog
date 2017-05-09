@@ -190,11 +190,11 @@ function ajaxCSVFill(xhr) {
         if (result[field].length > 0) {
             // identify input by field
             var input = document.querySelector('input[name="' + field + '"]');
-            
+
             // store input.value.length
             var tags = parseCSV(input.value);
             var start = tags.join(", ").length
-            
+
             // append suggestion
             var last = tags.pop()
             if (last && result[field][0].startsWith(last)) {
@@ -219,8 +219,10 @@ function ajaxISBNFill(xhr) {
     var data = result[cleanISBN(isbn.value)]
     if (data) {
         var field;
-        
+
         // thumbnail
+
+
         // authors
         var author_inputs = document.querySelectorAll('input[name="author"]');
         var author_no = 0;
@@ -241,7 +243,7 @@ function ajaxISBNFill(xhr) {
                 container.parentNode.removeChild(container);
             };
         };
-        
+
         // title
         field = document.querySelector('input[name="title"]');
         if (field) {field.value = data["title"] || ""};
