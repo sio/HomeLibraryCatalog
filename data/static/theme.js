@@ -4,8 +4,8 @@
  *
  */
 var INVALID_CLASSNAME = "invalid";
-var ajaxSuggest = new AjaxHandler(ajaxSuggestionsFill);
-var ajaxCSVGuess = new AjaxHandler(ajaxCSVFill);
+var ajaxSuggestionHandler = new AjaxHandler(ajaxSuggestionsFill);
+var ajaxCSVHandler = new AjaxHandler(ajaxCSVFill);
 
 
 /*
@@ -133,7 +133,7 @@ function ajaxSuggestions(keypress) {
         var url="/ajax/suggest";
         var params = {"f": input.name, "q": input.value};
         input.setAttribute("list", input.name + "_suggestions");
-        ajaxSuggest.get(url + "?" + encodeQueryData(params));
+        ajaxSuggestionHandler.get(url + "?" + encodeQueryData(params));
     };
 };
 function ajaxSuggestionsFill(xhr) {
@@ -174,12 +174,12 @@ function ajaxCSV(keypress) {
         };
     };
     if (!input.onblur) {
-        input.onblur = function() {ajaxCSVGuess.xhr.abort()};
+        input.onblur = function() {ajaxCSVHandler.xhr.abort()};
     };
-    ajaxCSVGuess.xhr.abort();
+    ajaxCSVHandler.xhr.abort();
     var url = "/ajax/complete"
     var params = {"f": input.name, "q": parseCSV(input.value).slice(-1)}
-    ajaxCSVGuess.get(url + "?" + encodeQueryData(params));
+    ajaxCSVHandler.get(url + "?" + encodeQueryData(params));
 };
 function ajaxCSVFill(xhr) {
     /**Complete tag input based on AJAX response**/
