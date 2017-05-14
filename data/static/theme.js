@@ -224,10 +224,10 @@ function ajaxISBNFill(xhr) {
 
 
         // authors
-        var author_inputs = document.querySelectorAll('input[name="author"]');
-        var author_no = 0;
-        var input_no = 0;
         if (data["authors"]) {
+            var author_inputs = document.querySelectorAll('input[name="author"]');
+            var author_no = 0;
+            var input_no = 0;
             for (author_no = 0; author_no < data["authors"].length; author_no++) {
                 if (input_no < author_inputs.length) {
                     field = author_inputs[input_no];
@@ -245,31 +245,39 @@ function ajaxISBNFill(xhr) {
         };
 
         // title
-        field = document.querySelector('input[name="title"]');
-        if (field) {field.value = data["title"] || ""};
+        if (data["title"]) {
+            field = document.querySelector('input[name="title"]');
+            if (field) {field.value = data["title"]};
+        };
 
         // publisher
-        field = document.querySelector('input[name="publisher"]');
-        if (field) {field.value = data["publisher"] || ""};
+        if (data["publisher"]) {
+            field = document.querySelector('input[name="publisher"]');
+            if (field) {field.value = data["publisher"]};
+        };
 
         // year
-        field = document.querySelector('input[name="year"]');
-        if (field) {field.value = data["year"] || ""};
+        if (data["year"]) {
+            field = document.querySelector('input[name="year"]');
+            if (field) {field.value = data["year"]};
+        };
 
         // annotation
-        field = document.querySelector('textarea[name="annotation"]');
-        if (field) {field.value = data["annotation"] || ""};
-        
-        // series
-        var series_inputs = document.querySelectorAll('input[name="series_name"]');
-        for (var i=0; i<series_inputs.length; i++) {
-            if (i===0) {
-                cloneInputContainer(series_inputs[i]);
-            };
-            var container = series_inputs[i].parentNode;
-            container.parentNode.removeChild(container);
+        if (data["annotation"]) {
+            field = document.querySelector('textarea[name="annotation"]');
+            if (field) {field.value = data["annotation"]};
         };
+
+        // series
         if (data["series"]) {
+            var series_inputs = document.querySelectorAll('input[name="series_name"]');
+            for (var i=0; i<series_inputs.length; i++) {
+                if (i===0) {
+                    cloneInputContainer(series_inputs[i]);
+                };
+                var container = series_inputs[i].parentNode;
+                container.parentNode.removeChild(container);
+            };
             for (var i=0; i<data["series"].length; i++) {
                 if (i>0) {
                     series_inputs = document.querySelectorAll('input[name="series_name"]');
