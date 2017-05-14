@@ -221,7 +221,11 @@ function ajaxISBNFill(xhr) {
         var field;
 
         // thumbnail
-
+        if (data["thumbnail"]) {
+            for (var i=0; i<data["thumbnail"].length; i++) {
+                addRadioThumbnail(data["thumbnail"][i]);
+            };
+        };
 
         // authors
         if (data["authors"]) {
@@ -303,7 +307,41 @@ function ajaxISBNFill(xhr) {
         };
     }
 };
+function addRadioThumbnail(url) {
+    /** Add new radio button for selecting from auto-fetched thumbnails **/
+    var container = document.querySelector('*[data-switch="auto"]');
+    
+    do {
+        var id = "thumbnail-" + Math.floor(Math.random()*1000);
+        console.log(id);
+    } while (document.getElementById(id));
+    
+    var label = document.createElement("label");
+    label.style.backgroundImage = "url("+url+")";
+    label.className = "thumbnail-radio";
+    label.htmlFor = id;
+    
+    var dimensions = document.createElement("span");
+    dimensions.className = "thumbnail-size";
+    
+    var img = new Image();
+    img.src = url;
+    img.onload = function() {
+        dimensions.innerHTML = img.width + "x" + img.height;
+    };
+    
+    var radiobutton = document.createElement("input");
+    radiobutton.type = "radio";
+    radiobutton.name = "thumb_radio";
+    radiobutton.value = url;
+    radiobutton.id = id;
 
+    label.appendChild(dimensions);
+    container.appendChild(radiobutton);
+    container.appendChild(label);
+    
+    return container;
+};
 
 
 /*

@@ -126,6 +126,45 @@ body {
     margin-left:6.3em;
     display:none;
 }
+.thumbnail-select input[type="radio"] {
+    margin:0;
+    padding:0;
+    -webkit-appearance:none;
+       -moz-appearance:none;
+            appearance:none;
+    display:none;
+}
+.thumbnail-select .thumbnail-radio {
+    cursor:pointer;
+    background-size:contain;
+    background-repeat:no-repeat;
+    display:inline-block;
+    width:150px;
+    height:200px;
+    text-align:right;
+    -webkit-filter: opacity(.7);
+       -moz-filter: opacity(.7);
+            filter: opacity(.7);
+}
+.thumbnail-radio:hover{
+    -webkit-filter: opacity(.9);
+       -moz-filter: opacity(.9);
+            filter: opacity(.9);
+}
+.thumbnail-select input:active + .thumbnail-radio,
+.thumbnail-select input:checked + .thumbnail-radio {
+    -webkit-filter: none;
+       -moz-filter: none;
+            filter: none;
+}
+.thumbnail-select .thumbnail-size {
+    color: white;
+    font-size: 60%;
+    font-weight: bold;
+    background: grey;
+    margin: 0.5em;
+    padding: 0.25em;
+}
 
 /* APPLICATION MESSAGE */
 .info p {

@@ -518,6 +518,8 @@ class WebUI(object):
             if pic: pic = pic.file
             if not pic:
                 url = form.get("thumb_url")
+                if not url:
+                    url = form.get("thumb_radio")
                 if url:
                     try:
                         req = urllib.request.Request(
