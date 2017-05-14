@@ -161,7 +161,7 @@ class BookInfoFetcher(object):
 class Fantlab(BookInfoFetcher):
     _url_pattern = "http://fantlab.ru/searchmain?searchstr=%s"
 
-    def get(self, key=None):
+    def get(self):
         """Scrape website for information about the book"""
         result = dict()
         book = result[self._isbn] = dict()
