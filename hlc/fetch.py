@@ -41,6 +41,33 @@ class BookInfoFetcher(object):
     (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36"
     _page_encoding = "utf-8"  # default encoding for HTML pages
 
+    def get():
+        """
+        This method has to be provided by child classes.
+        
+        get() is meant to return a dictionary of data corresponding to a book
+        If any of the fields is not available, such key must not be included in 
+        the returned dictionary
+        
+        Dictionary structure:
+        {
+            <isbn>: {
+                "title": <string>,
+                "authors": [<string>, <string>, ...],
+                "publisher": <string>,
+                "year": <string>,
+                "series": [
+                    (<type:string>, <name:string>, <#:string>, <##:string>),
+                    (<another series tuple>),
+                    ...
+                ],
+                "thumbnail": [<url1:string>, <url2:string>, ...]
+                "annotation": <string>,
+            }
+        }
+        """
+        pass
+    
     def __init__(self, isbn):
         self._info = None
         i = ISBN(isbn)
