@@ -233,3 +233,18 @@ class Fantlab(BookInfoFetcher):
                         book["annotation"] = annotation_nodes[0].text_content()
         self._info = result
         return result
+
+        
+class FantlabThumb(Fantlab):
+    """Fetch only thumbnail from Fantlab (less http requests)"""
+    def get(self):
+        result = dict()
+        book = result[self._isbn] = dict()
+
+        root = self.parse(self.url)
+        if root is not None:
+            images = root.cssselect("div.one img")
+            for img in images:
+                if "small" in img.get("src"):
+                    book["thumbnail"] = [img.get("src").replace("small", "big"),]
+        return result
