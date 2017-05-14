@@ -44,11 +44,11 @@ class BookInfoFetcher(object):
     def get():
         """
         This method has to be provided by child classes.
-        
+
         get() is meant to return a dictionary of data corresponding to a book
-        If any of the fields is not available, such key must not be included in 
+        If any of the fields is not available, such key must not be included in
         the returned dictionary
-        
+
         Dictionary structure:
         {
             <isbn>: {
@@ -67,7 +67,7 @@ class BookInfoFetcher(object):
         }
         """
         pass
-    
+
     def __init__(self, isbn):
         self._info = None
         i = ISBN(isbn)
@@ -234,7 +234,7 @@ class Fantlab(BookInfoFetcher):
         self._info = result
         return result
 
-        
+
 class FantlabThumb(Fantlab):
     """Fetch only thumbnail from Fantlab (less http requests)"""
     def get(self):
