@@ -266,6 +266,8 @@ class FantlabThumb(Fantlab):
             images = root.cssselect("div.one img")
             for img in images:
                 if "small" in img.get("src"):
-                    book["thumbnail"] = [img.get("src").replace("small", "big"),]
+                    img_url = img.get("src").replace("small", "big")
+                    img_url = img_url.replace("//data.fantlab.ru", "//fantlab.ru")
+                    book["thumbnail"] = [img_url,]
                     break
         return result
