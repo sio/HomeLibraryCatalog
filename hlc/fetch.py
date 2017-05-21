@@ -271,3 +271,26 @@ class FantlabThumb(Fantlab):
                     book["thumbnail"] = [img_url,]
                     break
         return result
+
+
+class AmazonThumb(BookInfoFetcher):
+    _url_pattern = "https://www.amazon.com/gp/search/ref=sr_adv_b/?search-alias=stripbooks&field-isbn=%s"
+
+    @staticmethod
+    def img_urlfix(url):
+        filename = url.split("/")[-1]
+        newname = re.sub(r"\.[^\.]*(\.[^\.]*$)", r"\1", filename)
+        return url[:url.rfind(filename)] + newname
+
+    def get(self):
+        result = dict()
+        book = result[self._isbn] = dict()
+
+        root = self.parse(self.url)
+        if root is not None:
+            img = root.cssselect(".s-item-container img.s-access-image")
+            if img is not None:
+                img_url = img[0].get("src")
+                img_url = self.img_urlfix(img_url)
+                book["thumbnail"] = [img_url,]
+        return result
