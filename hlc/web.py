@@ -63,9 +63,10 @@ class WebUI(object):
 
     # Add these integers to __scramble_key (obfuscation, not encryption)
     __scramble_shift = {
-        "thumbnail": 9804,
-        "document": 4893,
+        "thumb": 9804,
+        "doc": 4893,
         "user": 1089,
+        "book": 8266
     }
 
     def __init__(self, sqlite_file):  # todo: review access control wrappers
@@ -316,6 +317,12 @@ class WebUI(object):
         TEMPLATE_PATH.insert(
             0, os.path.join(self.__datadir, str(config.templates_dir)))
 
+        self.id = object()
+        for key in self.__scramble_shift:
+            setattr(self.id, key, LinCrypt(
+                self.__scramble_key + self.__scramble_shift[key]
+            ))
+            
         if browser:
             if len(a) > 2:
                 host = a[2]
@@ -345,9 +352,7 @@ class WebUI(object):
         """Show thumbnail based on encrypted `hexid`"""
         picture = None
         try:
-            id = LinCrypt(
-                self.__scramble_key + self.__scramble_shift["thumbnail"]
-                ).decode(hexid)
+            id = self.id.thumb.decode(hexid)
             picture = Thumbnail(self.db, id).image
         except ValueError:
             abort(404, "Invalid thumnail ID: %s" % hexid)
@@ -409,9 +414,7 @@ class WebUI(object):
             abort(404, "Table `%s` not found in %s" % (table, self.db.filename))
 
     def _clbk_user_file(self, hexid):
-        id = LinCrypt(
-            self.__scramble_key + self.__scramble_shift["document"]
-        ).decode(hexid)
+        id = self.id.doc.decode(hexid)
         link = BookFile(self.db, id)
         try:
             name, type = link.name, link.type
@@ -564,9 +567,8 @@ class WebUI(object):
                 thumb.image = pic
                 thumb.save()
                 thumb.connect(book)
-                debug("thumbnail saved: http://localhost:8080/thumbs/%s" % LinCrypt(
-                    self.__scramble_key + self.__scramble_shift["thumbnail"]
-                    ).encode(thumb.id))
+                debug("thumbnail saved: http://localhost:8080/thumbs/%s" % 
+                    self.id.thumb.encode(thumb.id))
 
             for upload in request.files.getall("upload"):
                 fo = BookFile(self.db)
