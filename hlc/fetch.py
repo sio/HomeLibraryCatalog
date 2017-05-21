@@ -28,6 +28,27 @@ def book_info(isbn):
     return result
 
 
+def book_thumbs(isbn):
+    """
+    Try to fetch as many thumbnails as possible
+    """
+    fetchers = (FantlabThumb, AmazonThumb)
+    result = dict()
+    for fetcher in fetchers:
+        f = fetcher(isbn)
+        if not result:
+            result = f.info
+        else:
+            old, new = result[f.isbn], f.info[f.isbn]
+            for k in new.keys():
+                if k not in old:
+                    old[k] = new[k]
+                elif type(new[k]) is list and type(old[k]) is list:
+                    old[k] += new[k]
+    return result
+
+
+
 class FetcherInvalidPageError(ValueError):
     """Raised when fetched page is not suitable for further parsing"""
     pass
