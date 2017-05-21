@@ -311,37 +311,40 @@ function addRadioThumbnail(url) {
     /** Add new radio button for selecting from auto-fetched thumbnails **/
     var container = document.querySelector('*[data-switch="auto"]');
 
-    do {
-        var id = "thumbnail-" + Math.floor(Math.random()*1000);
-        console.log(id);
-    } while (document.getElementById(id));
+    var repeatSelector = '*[style^="background-image:"][style*="'+url+'"]'
+    var repeat = container.querySelector(repeatSelector)
 
-    var label = document.createElement("label");
-    label.style.backgroundImage = "url("+url+")";
-    label.className = "thumbnail-radio";
-    label.htmlFor = id;
+    if (!repeat) {
+        do {
+            var id = "thumbnail-" + Math.floor(Math.random()*1000);
+        } while (document.getElementById(id));
 
-    var dimensions = document.createElement("span");
-    dimensions.className = "thumbnail-size";
+        var label = document.createElement("label");
+        label.style.backgroundImage = "url("+url+")";
+        label.className = "thumbnail-radio";
+        label.htmlFor = id;
 
-    var img = new Image();
-    img.src = url;
-    img.onload = function() {
-        dimensions.innerHTML = img.width + "x" + img.height;
-    };
+        var dimensions = document.createElement("span");
+        dimensions.className = "thumbnail-size";
 
-    var radiobutton = document.createElement("input");
-    radiobutton.type = "radio";
-    radiobutton.name = "thumb_radio";
-    radiobutton.value = url;
-    radiobutton.id = id;
+        var img = new Image();
+        img.src = url;
+        img.onload = function() {
+            dimensions.innerHTML = img.width + "x" + img.height;
+        };
 
-    label.appendChild(dimensions);
-    container.appendChild(radiobutton);
-    container.appendChild(label);
+        var radiobutton = document.createElement("input");
+        radiobutton.type = "radio";
+        radiobutton.name = "thumb_radio";
+        radiobutton.value = url;
+        radiobutton.id = id;
 
-    showMoreThumbsLink(container);
+        label.appendChild(dimensions);
+        container.appendChild(radiobutton);
+        container.appendChild(label);
 
+        showMoreThumbsLink(container);
+    }
     return container;
 };
 
