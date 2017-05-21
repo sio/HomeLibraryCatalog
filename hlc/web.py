@@ -358,30 +358,39 @@ class WebUI(object):
         return "Hello World!"
 
     def _clbk_login(self):  # todo: stub
-        form = request.forms.decode()
-        user = form.get("user")
-        password = form.get("password")
-        if user and password:
-            row = self.db.sql.select("users", {"name": user}).fetchone()
-            if row:
-                saved_user = User(self.db, row["id"])
-                if saved_user.check(password):
-                    cookie = (saved_user.id, timestamp())
-                    self.session.new(cookie)
-                    response.set_cookie(
-                        "auth",
-                        json.dumps(cookie),
-                        secret=self.__cookie_secret)
-                    self.__persistent_cfg["init_user"] = None
-                    self.__first_user = None
-                    redirect("/")
-            return "Incorrect username or password: %s, %s" % (user, password)  # todo: replace with template
+        valid, cookie = self.read_cookie()
+        if valid:
+            redirect("/")
         else:
-            return template("login_password", info=self.info)
+            err_status = False
+            form = request.forms.decode()
+            user = form.get("user")
+            password = form.get("password")
+            if user and password:
+                row = self.db.sql.select("users", {"name": user}).fetchone()
+                if row:
+                    saved_user = User(self.db, row["id"])
+                    if saved_user.check(password):
+                        cookie = self.session.new([saved_user.id, timestamp()])
+                        response.set_cookie(
+                            "auth",
+                            cookie,
+                            secret=self.__cookie_secret)
+                        self.__persistent_cfg["init_user"] = None
+                        self.__first_user = None
+                        redirect("/")
+                else:
+                    err_status = True
+            elif request.method == "POST":
+                err_status = True
+            return template("login_password", info=self.info, error=err_status)
 
     def _clbk_logout(self):  # todo: stub
         cookie = request.get_cookie("auth", secret=self.__cookie_secret)
-        self.session.delete(cookie)
+        try:
+            self.session.pop(cookie)
+        except KeyError:
+            pass
         response.delete_cookie("auth")
         redirect("/")
 
