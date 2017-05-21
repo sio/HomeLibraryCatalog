@@ -310,26 +310,26 @@ function ajaxISBNFill(xhr) {
 function addRadioThumbnail(url) {
     /** Add new radio button for selecting from auto-fetched thumbnails **/
     var container = document.querySelector('*[data-switch="auto"]');
-    
+
     do {
         var id = "thumbnail-" + Math.floor(Math.random()*1000);
         console.log(id);
     } while (document.getElementById(id));
-    
+
     var label = document.createElement("label");
     label.style.backgroundImage = "url("+url+")";
     label.className = "thumbnail-radio";
     label.htmlFor = id;
-    
+
     var dimensions = document.createElement("span");
     dimensions.className = "thumbnail-size";
-    
+
     var img = new Image();
     img.src = url;
     img.onload = function() {
         dimensions.innerHTML = img.width + "x" + img.height;
     };
-    
+
     var radiobutton = document.createElement("input");
     radiobutton.type = "radio";
     radiobutton.name = "thumb_radio";
@@ -339,10 +339,33 @@ function addRadioThumbnail(url) {
     label.appendChild(dimensions);
     container.appendChild(radiobutton);
     container.appendChild(label);
-    
+
+    showMoreThumbsLink(container);
+
     return container;
 };
 
+function showMoreThumbsLink(container) {
+    var linkClassname = "more-thumbs"
+    if (container.childNodes.length < 4
+    && !container.querySelector("."+linkClassname)) {
+        var linkNode = document.createElement("a");
+        linkNode.className = linkClassname;
+        linkNode.href = "/nojs";
+        linkNode.innerHTML = "[+]";
+        linkNode.onclick = function() {
+            /*todo: add ajax call here*/
+            showMoreThumbsLink(container);
+            return false;
+        };
+        container.appendChild(linkNode);
+    } else {
+        var linkNode = container.querySelector("."+linkClassname)
+        if (linkNode) {
+            linkNode.parentNode.removeChild(linkNode);
+        };
+    };
+};
 
 /*
  *
