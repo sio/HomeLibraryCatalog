@@ -166,14 +166,21 @@ body {
     padding: 0.25em;
 }
 
-/* APPLICATION MESSAGE */
+/* APPLICATION MESSAGES */
 .info p {
     margin-bottom:0.7em;
 }
 .info .highlight {
     font-weight: bold;
 }
-
+.info.error {
+    border: solid 1px darkred;
+    background-color: #ffeeee;
+    color: darkred;
+    font-size: 70%;
+    padding: .75em .2em;
+    margin-bottom: 1em;
+}
 
 /* CLEAR FIX */
 .clearfix {
