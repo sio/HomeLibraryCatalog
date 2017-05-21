@@ -357,7 +357,10 @@ function showMoreThumbsLink(container) {
         linkNode.href = "/nojs";
         linkNode.innerHTML = "[+]";
         linkNode.onclick = function() {
-            /*todo: add ajax call here*/
+            var url = "/ajax/fill";
+            var params = {"isbn":document.querySelector('input[name="isbn"]').value,
+                          "thumbs":true}
+            ajaxISBNHandler.get(url + "?" + encodeQueryData(params));
             showMoreThumbsLink(container);
             return false;
         };
