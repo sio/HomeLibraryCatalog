@@ -111,7 +111,7 @@ body {
 }
 .user_input .series_type {
     max-width:6em;
-    
+
 }
 .user_input .series_name {
     overflow:hidden;
@@ -139,8 +139,8 @@ body {
     background-size:contain;
     background-repeat:no-repeat;
     display:inline-block;
-    width:150px;
-    height:200px;
+    width:10.5em;
+    height:14em;
     text-align:right;
     -webkit-filter: opacity(.7);
        -moz-filter: opacity(.7);
