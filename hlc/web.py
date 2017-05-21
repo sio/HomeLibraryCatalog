@@ -241,13 +241,26 @@ class WebUI(object):
                 raise ValueError("Invalid route tuple of length=%s" % len(route))
             self.app.route(url, method=method, callback=func)
 
+    def read_cookie(self, name="auth"):
+        COOKIE_MAX_AGE = 2*24*60*60  # seconds
+
+        cookie = request.get_cookie(name, secret=self.__cookie_secret)
+        data = self.session.get(cookie)
+
+        valid = self.session.valid(cookie)
+        valid_age = valid and data[1] + COOKIE_MAX_AGE > timestamp()
+        if valid and not valid_age:
+            self.session.pop(cookie)
+            response.delete_cookie(name)
+
+        return valid and valid_age, data
+
     def __acl_user(self, func):
         """Wrapper for callback functions. Checks authorization for normal users"""
         @self.__acl_not_firstrun
         def with_acl(*a, **ka):
-            cookie = request.get_cookie("auth", secret=self.__cookie_secret)
-            auth = self.session.valid(cookie)  # todo: add timestamp check, delete old cookies
-            if auth:
+            valid, session = self.read_cookie()
+            if valid:
                 return func(*a, **ka)
             else:
                 redirect("/login")
@@ -640,36 +653,40 @@ class validate(object):
 
 
 class SessionManager(object):
-    """Manage sessions for WebUI. Draft API implementation"""  # todo
+    """
+    Manage sessions for WebUI
+
+    Sessions are stored as cookie:data pairs of strings.
+    cookie
+        Unique random string
+    data
+        JSON formatted session data. Data structure should be kept as simple
+        as possible to avoid unexpected serialization errors
+    """
     def __init__(self):
-        self.__sessions = set()  # set of tuples (user_id, unix_timestamp)
+        self._sessions = dict()
+        # _sessions object should be a key-value storage for strings,
+        # for example dict() or DBKeyValueStorage()
 
-    def __call__(self, cookie):
-        """Turn JSON cookie into a tuple"""
-        if cookie:
-            if type(cookie) is str:
-                cookie = json.loads(cookie)
-                return tuple(cookie)
-            else:
-                raise ValueError(
-                    "expected string, but got %s" %
-                    type(cookie))
+    def get(self, cookie, default=None):
+        """Get data corresponding to a cookie"""
+        try:
+            return json.loads(self._sessions[cookie])
+        except KeyError:
+            return default
 
-    def new(self, item):
-        """Save new session represented by tuple"""
-        if type(item) is tuple:
-            self.__sessions.add(item)
-        else:
-            raise ValueError("expected tuple, but got %s" % type(item))
+    def new(self, data):
+        """Save new session. Return corresponding cookie string"""
+        while True:  # make sure key never repeats accidentally
+            key = random_str(16, 32)
+            if key not in self._sessions: break
+        self._sessions[key] = json.dumps(data)
+        return key
 
-    def delete(self, cookie):
+    def pop(self, cookie):
         """Remove stored session represented by JSON string"""
-        if self.valid(cookie):
-            self.__sessions.remove(self(cookie))  # todo: stub
+        return self._sessions.pop(cookie)
 
     def valid(self, cookie):
-        """Check if a cookie JSON string represents a valid session"""
-        try:
-            return self(cookie) in self.__sessions
-        except (TypeError, ValueError):
-            return False
+        """Check if a cookie string represents a valid session"""
+        return cookie in self._sessions
