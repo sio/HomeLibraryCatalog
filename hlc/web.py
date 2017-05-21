@@ -48,10 +48,10 @@ class WebUI(object):
             Dictionary with some basic stats
 
     Access control wrappers:
-        __acl_user
+        _acl_user
 
     Internal functions:
-        __create_routes(routes, wrapper)
+        _create_routes(routes, wrapper)
 
     Route callback functions:
         _clbk_hello
@@ -61,8 +61,8 @@ class WebUI(object):
         _clbk_allbooks
     """
 
-    # Add these integers to __scramble_key (obfuscation, not encryption)
-    __scramble_shift = {
+    # Add these integers to _scramble_key (obfuscation, not encryption)
+    _scramble_shift = {
         "thumb": 9804,
         "doc": 4893,
         "user": 1089,
@@ -70,19 +70,19 @@ class WebUI(object):
     }
 
     def __init__(self, sqlite_file):  # todo: review access control wrappers
-        self.__db = CatalogueDB(sqlite_file)
-        self.__persistent_cfg = DBKeyValueStorage(
+        self._db = CatalogueDB(sqlite_file)
+        self._persistent_cfg = DBKeyValueStorage(
             self.db.connection,
             "app_config",
             "option",
             "value"
         )
-        self.__info_init()
-        self.__db_init()
-        self.__first_user = self.__persistent_cfg.get("init_user")
-        self.__app = Bottle()
-        self.__session_manager = SessionManager()
-        self.__datadir = os.path.dirname(os.path.abspath(sqlite_file))
+        self._info_init()
+        self._db_init()
+        self._first_user = self._persistent_cfg.get("init_user")
+        self._app = Bottle()
+        self._session_manager = SessionManager()
+        self._datadir = os.path.dirname(os.path.abspath(sqlite_file))
 
         routes_no_acl = (
             ("/login", self._clbk_login, ["GET", "POST"]),
@@ -91,7 +91,7 @@ class WebUI(object):
             ("/logout", self._clbk_logout),
             ("/table/<table>", self._clbk_table),
             ("/books", self._clbk_allbooks),
-            ("/add", self.__clbk_editbook, ["GET", "POST"]),
+            ("/add", self._clbk_editbook, ["GET", "POST"]),
             ("/file/<hexid>", self._clbk_user_file),
             ("/ajax/suggest", self._clbk_ajax_suggestions),
             ("/ajax/complete", self._clbk_ajax_complete),
@@ -100,15 +100,15 @@ class WebUI(object):
         routes_for_user = (
             ("/", self._clbk_hello),
             ("/quit", self.close))
-        self.__create_routes(routes_no_acl)
-        self.__create_routes(routes_after_init, self.__acl_not_firstrun)
-        self.__create_routes(routes_for_user, self.__acl_user)
+        self._create_routes(routes_no_acl)
+        self._create_routes(routes_after_init, self._acl_not_firstrun)
+        self._create_routes(routes_for_user, self._acl_user)
 
-    def __db_init(self):
+    def _db_init(self):
         """
         Initialize some database entries and create first administrator account
         """
-        options = self.__persistent_cfg
+        options = self._persistent_cfg
         if not options.get("init_date"):
             credentials = ("admin_" + random_str(2,4).upper(), random_str(6,8))
             root = self.adduser(
@@ -218,7 +218,7 @@ class WebUI(object):
     def __del__(self):
         self.close()
 
-    def __create_routes(self, routes, wrapper=None):
+    def _create_routes(self, routes, wrapper=None):
         """
         Create multiple routes at once. Decorate callback functions in wrapper
         if needed
@@ -245,7 +245,7 @@ class WebUI(object):
     def read_cookie(self, name="auth"):
         COOKIE_MAX_AGE = 2*24*60*60  # seconds
 
-        cookie = request.get_cookie(name, secret=self.__cookie_secret)
+        cookie = request.get_cookie(name, secret=self._cookie_secret)
         data = self.session.get(cookie)
 
         valid = self.session.valid(cookie)
@@ -256,9 +256,9 @@ class WebUI(object):
 
         return valid and valid_age, data
 
-    def __acl_user(self, func):
+    def _acl_user(self, func):
         """Wrapper for callback functions. Checks authorization for normal users"""
-        @self.__acl_not_firstrun
+        @self._acl_not_firstrun
         def with_acl(*a, **ka):
             valid, session = self.read_cookie()
             if valid:
@@ -267,60 +267,60 @@ class WebUI(object):
                 redirect("/login")
         return with_acl
 
-    def __acl_not_firstrun(self, func):
-        """Wrapper for __acl_* functions that require app initialization"""
+    def _acl_not_firstrun(self, func):
+        """Wrapper for _acl_* functions that require app initialization"""
         def with_init(*a, **ka):
-            if not self.__first_user:
+            if not self._first_user:
                 return func(*a, **ka)
             else:
                 return template(
                     "first_run",
-                    credentials=self.__first_user.split(":"),
+                    credentials=self._first_user.split(":"),
                     info=self.info)
         return with_init
 
-    def __info_init(self):
-        i = self.__info = DynamicDict()
-        self.__info_ro = ReadOnlyDict(self.__info)
-        i["books_count"] = lambda: self.__persistent_cfg.get("book_count", 0)
+    def _info_init(self):
+        i = self._info = DynamicDict()
+        self._info_ro = ReadOnlyDict(self._info)
+        i["books_count"] = lambda: self._persistent_cfg.get("book_count", 0)
         i["copyright"] = lambda: "2016-%s" % datetime.now().year
         i["date"] = lambda: datetime.now().strftime("%d.%m.%Y")
 
     @property
     def db(self):
         """CatalogueDB object. Used for storing persistent data"""
-        return self.__db
+        return self._db
 
     @property
     def app(self):
         """Bottle application"""
-        return self.__app
+        return self._app
 
     @property
     def session(self):
         """SessionManager() object"""
-        return self.__session_manager
+        return self._session_manager
 
     @property
     def info(self):
         """Access the dictionary with some basic stats and other information"""
-        return self.__info_ro
+        return self._info_ro
 
     def start(self, config, browser=False, *a, **kw):
         """Start WebUI"""
-        self.__scramble_key = int(config.id_key)
-        self.__cookie_secret = str(config.cookie_key)
-        self.__static_location = str(config.static_dir)
-        self.__uploads = FSKeyFileStorage(
-            os.path.join(self.__datadir, str(config.uploads_dir)),
+        self._scramble_key = int(config.id_key)
+        self._cookie_secret = str(config.cookie_key)
+        self._static_location = str(config.static_dir)
+        self._uploads = FSKeyFileStorage(
+            os.path.join(self._datadir, str(config.uploads_dir)),
             max_filesize=10*2**20)
         TEMPLATE_PATH.insert(
-            0, os.path.join(self.__datadir, str(config.templates_dir)))
+            0, os.path.join(self._datadir, str(config.templates_dir)))
 
         self.id = object()
-        for key in self.__scramble_shift:
+        for key in self._scramble_shift:
             setattr(self.id, key, LinCrypt(
-                self.__scramble_key + self.__scramble_shift[key]
+                self._scramble_key + self._scramble_shift[key]
             ))
             
         if browser:
@@ -380,9 +380,9 @@ class WebUI(object):
                         response.set_cookie(
                             "auth",
                             cookie,
-                            secret=self.__cookie_secret)
-                        self.__persistent_cfg["init_user"] = None
-                        self.__first_user = None
+                            secret=self._cookie_secret)
+                        self._persistent_cfg["init_user"] = None
+                        self._first_user = None
                         redirect("/")
                 else:
                     err_status = True
@@ -391,7 +391,7 @@ class WebUI(object):
             return template("login_password", info=self.info, error=err_status)
 
     def _clbk_logout(self):  # todo: stub
-        cookie = request.get_cookie("auth", secret=self.__cookie_secret)
+        cookie = request.get_cookie("auth", secret=self._cookie_secret)
         try:
             self.session.pop(cookie)
         except KeyError:
@@ -402,7 +402,7 @@ class WebUI(object):
     def _clbk_static(self, filename):
         return static_file(
             filename,
-            root=os.path.join(self.__datadir, self.__static_location))
+            root=os.path.join(self._datadir, self._static_location))
 
     def _clbk_table(self, table):
         try:
@@ -420,7 +420,7 @@ class WebUI(object):
             name, type = link.name, link.type
         except ValueError:
             abort(404, "File not found: %s" % hexid)
-        path = self.__uploads["BookFile:%s" % id]
+        path = self._uploads["BookFile:%s" % id]
         return static_file(
             os.path.basename(path),
             root=os.path.dirname(path),
@@ -456,7 +456,7 @@ class WebUI(object):
         books = (self.db.getbook(row["id"]) for row in search.fetchall())
         return template("manybooks", books=books, info=self.info)
 
-    def __clbk_editbook(self, id=None):
+    def _clbk_editbook(self, id=None):
         """
         Add/edit books
         """  # todo: unfinished
@@ -576,7 +576,7 @@ class WebUI(object):
                 fo.type = upload.content_type
                 fo.save()
                 try:
-                    self.__uploads["BookFile:%s" % fo.id] = upload.file
+                    self._uploads["BookFile:%s" % fo.id] = upload.file
                 except Exception as e:
                     fo.delete()
                     raise e  # todo: handle error
