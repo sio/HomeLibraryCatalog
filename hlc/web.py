@@ -317,7 +317,9 @@ class WebUI(object):
         TEMPLATE_PATH.insert(
             0, os.path.join(self._datadir, str(config.templates_dir)))
 
-        self.id = object()
+        class IDReader(object):
+            pass
+        self.id = IDReader()
         for key in self._scramble_shift:
             setattr(self.id, key, LinCrypt(
                 self._scramble_key + self._scramble_shift[key]
