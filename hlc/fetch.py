@@ -247,4 +247,5 @@ class FantlabThumb(Fantlab):
             for img in images:
                 if "small" in img.get("src"):
                     book["thumbnail"] = [img.get("src").replace("small", "big"),]
+                    break
         return result
