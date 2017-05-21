@@ -30,7 +30,7 @@ as the `HomeLibraryCatalog.py` by default
 - [ ] Forms:
     - [ ] for registered users
         - [ ] add book
-            - [ ] fill thumbnail url by ISBN autofetcher
+            - [ ] more thumbnails link
         - [ ] edit book (add book + fill values)
         - [ ] book review
         - [ ] author rating
@@ -69,19 +69,16 @@ as the `HomeLibraryCatalog.py` by default
 - [ ] webbrowser.open() always opens IE, replace with default browser
 
 #### Auto fetcher:
-- [ ] annotations
-- [ ] thumbnails
-- [ ] all book data
-
-#### SessionManager:
-- [ ] reimplement API
-- [ ] persistent sessions in database?
-- [ ] dictionary cookie->User?
-- [ ] save more items to cookie tuple?
+- [ ] more sources:
+    - [ ] Wordcat
+    - [ ] Ozon
+    - [ ] Amazon
+    - [ ] Google Books?
 
 #### Deployment:
 - [ ] remove bottle.debug
 - [ ] try pyinstall
+- [ ] persistent sessions in database?
 
 #### Unit tests:
 - [ ] mock database object (or in :memory:)
