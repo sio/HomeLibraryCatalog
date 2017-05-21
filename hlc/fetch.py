@@ -140,7 +140,7 @@ class BookInfoFetcher(object):
     @property
     def info(self):
         if self._info is None:
-            self.get()
+            self._info = self.get()
         return self._info
 
     def isfull(self, input=None):
@@ -252,7 +252,6 @@ class Fantlab(BookInfoFetcher):
                     annotation_nodes = root.cssselect('*[itemprop="description"]')
                     if len(annotation_nodes):
                         book["annotation"] = annotation_nodes[0].text_content()
-        self._info = result
         return result
 
 
