@@ -330,7 +330,7 @@ class WebUI(object):
             setattr(self.id, key, LinCrypt(
                 self._scramble_key + self._scramble_shift[key]
             ))
-            
+
         if browser:
             if len(a) > 2:
                 host = a[2]
@@ -462,7 +462,19 @@ class WebUI(object):
     def _clbk_allbooks(self):
         search = self.db.sql.select("books", what="id")
         books = (self.db.getbook(row["id"]) for row in search.fetchall())
-        return template("manybooks", books=books, info=self.info)
+        return template("manybooks", books=books, info=self.info, id=self.id.book)
+
+    def _clbk_book(self, hexid):
+        id = self.id.book.decode(hexid)
+        book = self.db.getbook(id)
+        if book and book.saved:
+            return template(
+                "book",
+                info=self.info,
+                book=book,
+                id=self.id)
+        else:
+            abort(404, "Invalid book id: %s" % hexid)
 
     def _clbk_editbook(self, id=None):
         """
