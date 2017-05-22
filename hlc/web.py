@@ -106,6 +106,9 @@ class WebUI(object):
         self._create_routes(routes_after_init, self._acl_not_firstrun)
         self._create_routes(routes_for_user, self._acl_user)
 
+        for code in [404,]:
+            self.app.error(code)(self._error_page)
+
     def _db_init(self):
         """
         Initialize some database entries and create first administrator account
@@ -590,6 +593,9 @@ class WebUI(object):
                     raise e  # todo: handle error
 
             redirect("/table/books")  # todo: replace with book page
+
+    def _error_page(self, error):
+        return template("error_http", info=self.info, error=error)
 
 
 class validate(object):
