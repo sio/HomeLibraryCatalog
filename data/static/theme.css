@@ -45,6 +45,30 @@ body {
 }
 
 
+/* BOOK PAGE */
+.library_card {
+    display:table;
+}
+.library_card .item {
+    display:table-row;
+}
+.library_card .item .label,
+.library_card .item .value {
+    display:table-cell;
+}
+.library_card .item .label {
+    font-weight:bold;
+    padding-right:.4em;
+}
+.library_card .item .value {
+    padding-bottom:.5em;
+}
+img.thumbnail {
+    float:left;
+    margin: 0 1em 1em 0;
+    max-width: 10em;
+}
+
 /* USER INPUT */
 .user_input {
     width:100%;
@@ -166,6 +190,7 @@ body {
     padding: 0.25em;
 }
 
+
 /* APPLICATION MESSAGES */
 .info p {
     margin-bottom:0.7em;
@@ -182,6 +207,7 @@ body {
     margin-bottom: 1em;
 }
 
+
 /* CLEAR FIX */
 .clearfix {
     overflow:auto;
@@ -193,7 +219,7 @@ body {
 
 /* FORMATTING */
 * {
-    color:#333333;
+    color:#393939;
     font-family:"Tahoma","Segoe UI","Arial",sans-serif;
     font-size:100%;
     font-style:normal;
