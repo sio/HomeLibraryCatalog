@@ -64,9 +64,11 @@ class WebUI(object):
     # Add these integers to _scramble_key (obfuscation, not encryption)
     _scramble_shift = {
         "thumb": 9804,
-        "doc": 4893,
+        "file": 4893,
         "user": 1089,
-        "book": 8266
+        "book": 8266,
+        "author": 4987,
+        "series": 19910,
     }
 
     def __init__(self, sqlite_file):  # todo: review access control wrappers
@@ -416,7 +418,7 @@ class WebUI(object):
             abort(404, "Table `%s` not found in %s" % (table, self.db.filename))
 
     def _clbk_user_file(self, hexid):
-        id = self.id.doc.decode(hexid)
+        id = self.id.file.decode(hexid)
         link = BookFile(self.db, id)
         try:
             name, type = link.name, link.type
@@ -569,7 +571,7 @@ class WebUI(object):
                 thumb.image = pic
                 thumb.save()
                 thumb.connect(book)
-                debug("thumbnail saved: http://localhost:8080/thumbs/%s" % 
+                debug("thumbnail saved: http://localhost:8080/thumbs/%s" %
                     self.id.thumb.encode(thumb.id))
 
             for upload in request.files.getall("upload"):
