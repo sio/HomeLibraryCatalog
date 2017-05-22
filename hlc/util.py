@@ -18,6 +18,8 @@ class LinCrypt(object):
 
     Returns string containing hexademical integer
     """
+    PADDING = "="
+    
     def __sum_digits(number):
         """Return sum of digits in integer"""
         number = int(number)
@@ -39,10 +41,15 @@ class LinCrypt(object):
         return int((number - self.__c)/self.__b)
 
     def encode(self, number):
-        return hex(self.int_encode(number)).upper()[2:][::-1]
+        hex_string = hex(self.int_encode(number)).upper()[2:][::-1]
+        b32_string = base64.b32encode(hex_string.encode()).decode()
+        return b32_string.replace(self.PADDING, "")
 
     def decode(self, string):
-        return self.int_decode(int("0x" + string[::-1], base=16))
+        pad = self.PADDING * (8 - len(string) % 8)
+        b32_string = base64.b32decode((string + pad).encode()).decode()
+        int_number = self.int_decode(int("0x" + b32_string[::-1], base=16))
+        return int_number
 
 
 class PassHash(object):
