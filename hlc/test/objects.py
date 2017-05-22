@@ -4,7 +4,20 @@ Unit tests for HomeLibraryCatalog
 
 import unittest
 
-import hlc.util
+
+from hlc.util import LinCrypt
+import random
+class testLinCrypt(unittest.TestCase):
+    def test_reversable(self):
+        for i in range(100):
+            number = random.randint(0, 2**32)
+            key = random.randint(0, 2**32)
+            with self.subTest(number=number, key=key):
+                self.assertEqual(
+                    number,
+                    LinCrypt(key).decode(LinCrypt(key).encode(number))
+                    )
+                
 
 from hlc.web import ISBN
 class testISBN(unittest.TestCase):
