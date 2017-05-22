@@ -95,6 +95,7 @@ class WebUI(object):
             ("/books", self._clbk_allbooks),
             ("/add", self._clbk_editbook, ["GET", "POST"]),
             ("/file/<hexid>", self._clbk_user_file),
+            ("/book/<hexid>", self._clbk_book),
             ("/ajax/suggest", self._clbk_ajax_suggestions),
             ("/ajax/complete", self._clbk_ajax_complete),
             ("/ajax/fill", self._clbk_ajax_info),
