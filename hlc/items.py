@@ -152,7 +152,8 @@ class TableEntityWithID(object):
 
         def date_get(self):
             if self._data:
-                return unix2time(self._data[property_name])
+                if self._data[property_name]:
+                    return unix2time(self._data[property_name])
 
         def date_set(self, value):
             if value:
