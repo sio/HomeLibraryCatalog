@@ -296,10 +296,13 @@ class TableEntityWithID(object):
         Returns a generator of objects
         """
         ids = self.getconnected_id(cls)
-        def connections():
-            for id in ids:
-                yield cls(self.database, id)
-        return connections()
+        if ids:
+            def connections():
+                for id in ids:
+                    yield cls(self.database, id)
+            return connections()
+        else:
+            return list()  # boolean value is False
 
     def getconnected_id(self, cls):
         """
