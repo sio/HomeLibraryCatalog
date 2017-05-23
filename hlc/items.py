@@ -606,9 +606,6 @@ class Thumbnail(TableEntityWithID):
 
     @property
     def image(self):
-        """
-        Read/write BLOB image file
-        """
         if self._data:
             return self._data["image"]
 
