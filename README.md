@@ -81,6 +81,9 @@ as the `HomeLibraryCatalog.py` by default
 #### Unit tests:
 - [ ] mock database object (or in :memory:)
 
+#### Database:
+- [ ] add garbage collector method (delete orphaned thumbnails, authors, etc.)
+
 
 # Localization status
 As of now all user interaction happens in Russian
