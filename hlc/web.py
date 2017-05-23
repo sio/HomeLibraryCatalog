@@ -375,7 +375,7 @@ class WebUI(object):
     def _clbk_hello(self):
         return "Hello World!"
 
-    def _clbk_login(self):  # todo: stub
+    def _clbk_login(self):
         valid, cookie = self.read_cookie()
         if valid:
             redirect("/")
@@ -403,7 +403,7 @@ class WebUI(object):
                 err_status = True
             return template("login_password", info=self.info, error=err_status)
 
-    def _clbk_logout(self):  # todo: stub
+    def _clbk_logout(self):
         cookie = request.get_cookie("auth", secret=self._cookie_secret)
         try:
             self.session.pop(cookie)
