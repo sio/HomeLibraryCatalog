@@ -20,7 +20,7 @@ DEFAULT_CONFIGURATION = {
         "templates_dir": "templates",
         "uploads_dir": "uploads",
         "cookie_key": "SET YOUR OWN UNIQUE cookie_key AND id_key IN CONFIG!!!",
-        "id_key": 16749726111,
+        "id_key": 72911,
         },
     "db": {
         "filename": "database.sqlite",

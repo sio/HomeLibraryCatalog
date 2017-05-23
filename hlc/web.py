@@ -61,14 +61,14 @@ class WebUI(object):
         _clbk_allbooks
     """
 
-    # Add these integers to _scramble_key (obfuscation, not encryption)
     _scramble_shift = {
+        # added_scramble_key (obfuscation, not encryption)
         "thumb": 9804,
         "file": 4893,
         "user": 1089,
         "book": 8266,
         "author": 4987,
-        "series": 19910,
+        "series": 1991,
     }
 
     def __init__(self, sqlite_file):  # todo: review access control wrappers
