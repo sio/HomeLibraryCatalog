@@ -13,11 +13,20 @@ from datetime import datetime
 
 class NoneMocker(object):
     """
-    Mock object that returns None for all attributes
+    Mock object that mimics None but with callable attributes
     """
     def __getattribute__(self, attr):
+        return self
+    def __call__(self, *a, **kw):
         return None
-
+    def __bool__(self):
+        return bool()
+    def __str__(self):
+        return str()
+    def __int__(self):
+        return int()
+    def __len__(self):
+        return 0
 
 class TableEntityWithID(object):
     """
