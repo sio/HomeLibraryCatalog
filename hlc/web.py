@@ -88,21 +88,25 @@ class WebUI(object):
 
         routes_no_acl = (
             ("/login", self._clbk_login, ["GET", "POST"]),
-            ("/static/<filename:path>", self._clbk_static))
+            ("/static/<filename:path>", self._clbk_static),
+        )
         routes_after_init = (
-            ("/logout", self._clbk_logout),
-            ("/table/<table>", self._clbk_table),
-            ("/books", self._clbk_allbooks),
-            ("/add", self._clbk_editbook, ["GET", "POST"]),
-            ("/file/<hexid>", self._clbk_user_file),
-            ("/book/<hexid>", self._clbk_book),
-            ("/ajax/suggest", self._clbk_ajax_suggestions),
             ("/ajax/complete", self._clbk_ajax_complete),
             ("/ajax/fill", self._clbk_ajax_info),
-            ("/thumbs/<hexid>", self._clbk_thumb))
+            ("/ajax/suggest", self._clbk_ajax_suggestions),
+            ("/book/<hexid>", self._clbk_book),
+            ("/book/<hexid>/edit", self._clbk_editbook, ["GET", "POST"]),
+            ("/books", self._clbk_allbooks),
+            ("/books/add", self._clbk_editbook, ["GET", "POST"]),
+            ("/file/<hexid>", self._clbk_user_file),
+            ("/logout", self._clbk_logout),
+            ("/table/<table>", self._clbk_table),
+            ("/thumbs/<hexid>", self._clbk_thumb),
+        )
         routes_for_user = (
             ("/", self._clbk_hello),
-            ("/quit", self.close))
+            ("/quit", self.close),
+        )
         self._create_routes(routes_no_acl)
         self._create_routes(routes_after_init, self._acl_not_firstrun)
         self._create_routes(routes_for_user, self._acl_user)
