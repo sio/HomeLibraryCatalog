@@ -5,13 +5,33 @@ Unit tests for HomeLibraryCatalog
 import unittest
 
 
-from hlc.util import LinCrypt
+from hlc.util import LinCrypt, random_str
 import random
 class testLinCrypt(unittest.TestCase):
+    def test_mangle(self):
+        for i in range(100):
+            word = random_str(5,50)
+            streams = random.randint(2,10)
+            with self.subTest(word=word):
+                self.assertEqual(
+                    LinCrypt.unmangle(LinCrypt.mangle(word, streams), streams),
+                    word)
+
+    def test_consistent(self):
+        for i in range(10):
+            key = random.randint(0, 2**32)
+            number = random.randint(0, 2**32)
+            hidden = LinCrypt(key).encode(number)
+            for repeat in range(10):
+                with self.subTest(k=key, n=number, v=hidden):
+                    self.assertEqual(
+                        hidden,
+                        LinCrypt(key).encode(number))
+
     def test_reversable(self):
         for i in range(100):
             number = random.randint(0, 2**32)
-            key = random.randint(0, 2**32)
+            key = random.randint(2**10, 2**32)
             with self.subTest(number=number, key=key):
                 self.assertEqual(
                     number,
