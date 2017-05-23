@@ -677,6 +677,13 @@ function cleanISBN(s) {
  * FORM VALIDATION
  *
  */
+function validatePage(body) {
+    /**Wrapper to be called from onload**/
+    for (var i=0; i<document.forms.length; i++) {
+        var form = document.forms[i];
+        validateBook(form);
+    };
+}
 function validateBook(form) {
     /**
     Validate new/edit book form. To be called from onAction.
