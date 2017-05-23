@@ -470,7 +470,11 @@ class WebUI(object):
         return template("manybooks", books=books, info=self.info, id=self.id.book)
 
     def _clbk_book(self, hexid):
-        id = self.id.book.decode(hexid)
+        try:
+            id = self.id.book.decode(hexid)
+        except ValueError:
+            abort(404, "Invalid book id: %s" % hexid)
+
         book = self.db.getbook(id)
         if book and book.saved:
             return template(
