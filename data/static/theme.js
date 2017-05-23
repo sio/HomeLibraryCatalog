@@ -347,7 +347,6 @@ function addRadioThumbnail(url) {
     }
     return container;
 };
-
 function showMoreThumbsLink(container) {
     var linkClassname = "more-thumbs"
     if (container.childNodes.length < 4
@@ -459,6 +458,15 @@ function showSeriesNumbers(node) {
     } else {
         numbers.style.display = "none";
     };
+};
+
+function showThumbnailInputs(anchor) {
+    var container = anchor.parentNode.parentNode;
+    var hide = container.querySelector(".thumbnail_previous")
+    var show = container.querySelector(".thumbnail_inputs")
+    hide.style.display = "none";
+    show.style.display = "inline";
+    return false;
 };
 
 function switchChildren(node, clearInputs=false) {
