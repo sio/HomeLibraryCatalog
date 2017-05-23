@@ -7,49 +7,90 @@ import os
 import re
 import textwrap
 import base64
+import random
 from datetime import datetime
 from hashlib import sha512
-import random
 
 
 class LinCrypt(object):
     """
     Simple linear function for obfuscating integers based on integer key
+    Returns string (url safe)
 
-    Returns string containing hexademical integer
+    This is not cryptographically safe! It should be used only for obfuscating
+    non-sensitive data, i.e. generating non-sequential IDs
     """
-    PADDING = "="
-    
-    def __sum_digits(number):
+    def __init__(self, key):
+        # for int operations
+        key = int(key)
+        k = (7, 3, 17, 4)
+        self._b = 2 + key % k[0]
+        self._c = sum((k[1] * (key % k[2]),
+                       k[3] * self.sum_digits(key),
+                       key * self._b))
+
+        # for str operations
+        in_chr  = "_0123456789ABCDEF"
+        out_chr = "LZQUOXKVYGNSWJRHT"
+        shift = self.sum_digits(key) % len(out_chr)
+        out_chr = out_chr[shift:] + out_chr[:shift]
+        first = "L"  # looks better (it occurs more often in resulting IDs)
+        out_chr = first + out_chr.replace(first, "")
+        self.charmap = str.maketrans(in_chr+out_chr, out_chr+in_chr)
+
+    def int_encode(self, number):
+        return int(self._b * number + self._c)
+
+    def int_decode(self, number):
+        return int((number - self._c)/self._b)
+
+    def encode(self, number):
+        hex_string = hex(self.int_encode(number)).upper()[2:][::-1]
+        enc_string = self.mangle(hex_string).translate(self.charmap)
+        return enc_string
+
+    def decode(self, string):
+        hex_string = self.unmangle(string.translate(self.charmap))
+        int_number = self.int_decode(int("0x" + hex_string[::-1], base=16))
+        return int_number
+
+    @staticmethod
+    def sum_digits(number):
         """Return sum of digits in integer"""
         number = int(number)
         if number > 0:
             return sum(int(d) for d in str(number))
 
-    def __init__(self, key):
-        key = int(key)
-        k = (7, 3, 17, 4)
-        self.__b = 2 + key % k[0]
-        self.__c = sum((k[1] * (key % k[2]),
-                        k[3] * type(self).__sum_digits(key),
-                        key))
+    @staticmethod
+    def mangle(text, streams=3, padding="_"):
+        """Mix characters in a string in a reversable way"""
+        if streams < 2:
+            streams = 2
+        if len(text) % streams:
+            text = padding * (streams - len(text) % streams) + text
 
-    def int_encode(self, number):
-        return int(self.__b * number + self.__c)
+        words = [str(),] * streams
+        for pos, char in enumerate(text):
+            words[pos % streams] += char
+        return "".join(words)
 
-    def int_decode(self, number):
-        return int((number - self.__c)/self.__b)
+    @staticmethod
+    def unmangle(text, streams=3, padding="_"):
+        """Reverse string produced by mangle() method to original"""
+        if streams < 2:
+            streams = 2
+        if len(text) % streams:
+            raise ValueError("incorrect padding: %s" % text)
 
-    def encode(self, number):
-        hex_string = hex(self.int_encode(number)).upper()[2:][::-1]
-        b32_string = base64.b32encode(hex_string.encode()).decode()
-        return b32_string.replace(self.PADDING, "")
+        pieces = list()
+        piece_len = int(len(text) / streams)
+        for s in range(streams):
+            pieces.append(text[s*piece_len:(s+1)*piece_len])
 
-    def decode(self, string):
-        pad = self.PADDING * (8 - len(string) % 8)
-        b32_string = base64.b32decode((string + pad).encode()).decode()
-        int_number = self.int_decode(int("0x" + b32_string[::-1], base=16))
-        return int_number
+        readable = str()
+        for chars in zip(*pieces):
+            readable += "".join(chars)
+        return readable.strip(padding)
 
 
 class PassHash(object):
