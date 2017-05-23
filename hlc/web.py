@@ -290,7 +290,8 @@ class WebUI(object):
         self._info_ro = ReadOnlyDict(self._info)
         i["books_count"] = lambda: self._persistent_cfg.get("book_count", 0)
         i["copyright"] = lambda: "2016-%s" % datetime.now().year
-        i["date"] = lambda: datetime.now().strftime("%d.%m.%Y")
+        i["date_format"] = "%d.%m.%Y"
+        i["date"] = lambda: datetime.now().strftime(i["date_format"])
 
     @property
     def db(self):

@@ -1,5 +1,5 @@
 % rebase("main", title=book.name)
-% DATE_FORMAT = "%d.%m.%Y"
+% DATE_FORMAT = info["date_format"]
 % from hlc.items import Series, Author, Thumbnail, Tag, BookFile
 
 
