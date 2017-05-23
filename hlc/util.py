@@ -98,8 +98,8 @@ class PassHash(object):
     A group of methods to create and validate password hashes with random salt
     Hashing function is easy to redefine
     """
-    __delimiter = ":"  # separates hash and salt, must not occur in either one
-    __salt_size = 512  # bytes
+    _delimiter = ":"  # separates hash and salt, must not occur in either one
+    _salt_size = 512  # bytes
 
     @staticmethod
     def function(bytestring):
@@ -122,7 +122,7 @@ class PassHash(object):
                 To be used only internally to validate previously created hashes
         """
         if salt is None:
-            salt = base64.urlsafe_b64encode(os.urandom(cls.__salt_size))
+            salt = base64.urlsafe_b64encode(os.urandom(cls._salt_size))
 
         if type(password) is str:
             password = password.encode()
@@ -132,7 +132,7 @@ class PassHash(object):
         if type(salt) is not bytes:
             raise TypeError("expected bytes, but got %s" % type(salt))
 
-        return cls.function(salt + password) + cls.__delimiter + salt.decode()
+        return cls.function(salt + password) + cls._delimiter + salt.decode()
 
     @classmethod
     def check(cls, password, hash):
@@ -145,9 +145,9 @@ class PassHash(object):
             hash
                 String. A hash of valid password
         """
-        if hash.count(cls.__delimiter) != 1:
+        if hash.count(cls._delimiter) != 1:
             raise ValueError("unable to separate salt and hash")
-        salt = hash.split(cls.__delimiter)[1].encode()
+        salt = hash.split(cls._delimiter)[1].encode()
         return hash == cls.get(password, salt)
 
 
@@ -317,8 +317,8 @@ def fuzzy_str_eq(one, two):
     return (
         one == two or simplify(one) == simplify(two)
     )
-        
-        
+
+
 def parse_csv(csv):
     """
     Parse comma-separated sequence of values (one line)
