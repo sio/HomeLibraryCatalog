@@ -20,6 +20,7 @@ body {
 #page {
     margin-left:10em; /* #menu width */
     padding-left:1em;
+    position:relative;
 }
 #footer {
     padding:1em;
@@ -68,6 +69,11 @@ img.thumbnail {
     margin: 0 1em 1em 0;
     max-width: 10em;
 }
+a.edit_book {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
 
 /* USER INPUT */
 .user_input {
@@ -80,7 +86,9 @@ img.thumbnail {
     position:relative;
     overflow:hidden;
 }
-.user_input .field input,
+.user_input .field input[type="text"],
+.user_input .field input[type="password"],
+.user_input .field input[type="submit"],
 .user_input .field textarea,
 .user_input .field select {
     box-sizing: border-box;
@@ -149,6 +157,28 @@ img.thumbnail {
 .user_input .numbers {
     margin-left:6.3em;
     display:none;
+}
+.user_input .file.field {
+    padding:0.35em 0;
+    vertical-align:middle;
+}
+.user_input a.file {
+    padding-left:.4em;
+}
+.user_input .file.field label {
+    float:right;
+}
+.user_input .thumbnail_previous {
+    display:block;
+    position:relative;
+}
+.user_input .thumbnail_previous a {
+    position:absolute;
+    top:calc(50% - 2em / 2);
+    line-height:2em;
+}
+.user_input .thumbnail_previous img {
+    height:15em;
 }
 .thumbnail-select input[type="radio"] {
     margin:0;
