@@ -14,7 +14,8 @@ from threading import Timer
 from datetime import datetime, timedelta
 from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
                    template, redirect, static_file
-from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group, BookFile
+from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group, Series,\
+                      BookFile, Tag
 from hlc.db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
 from hlc.util import LinCrypt, timestamp, debug, random_str, message, \
                      DynamicDict, ReadOnlyDict, parse_csv
@@ -485,29 +486,32 @@ class WebUI(object):
         else:
             abort(404, "Invalid book id: %s" % hexid)
 
-    def _clbk_editbook(self, id=None):
-        """
-        Add/edit books
-        """  # todo: unfinished
+    def _clbk_editbook(self, hexid=None):
+        book = NoneMocker()
+        if hexid:
+            b = self.db.getbook(id=self.id.book.decode(hexid))
+            if b.saved: book = b
+
         if request.method == "GET":
-            if id:
-                book = self.db.getbook(id=id)
-            else:
-                book = NoneMocker()
-            if book.saved:
-                title = "Редактировать книгу"
-                authors = book.getconnected(Author)
-            else:
-                title = "Новая книга"
-                authors = (NoneMocker(),)
-            return template("book_edit",
+            conn = dict()
+            conn["authors"] = book.getconnected(Author)
+            conn["series"] = book.getconnected(Series)
+            for item in conn:
+                if not conn[item]:
+                    conn[item] = [NoneMocker(),]
+            conn["files"] = book.getconnected(BookFile) or []
+            conn["tags"] = book.getconnected(Tag) or []
+            conn["thumbnail"] = list(book.getconnected(Thumbnail) or [])
+
+            return template(
+                "book_edit",
                 book=book,
-                authors=authors,
-                title=title,
+                conn=conn,
+                id=self.id,
                 info=self.info)
         else:
+            if not book: book = self.db.getbook()
             form = request.forms  # "multipart/form-data" doesn't need .decode()
-            book = self.db.getbook()
 
             # 3-tuples: attr name, input name, validator function
             inputs = (("name", "title", validate.nonempty),
@@ -533,6 +537,8 @@ class WebUI(object):
             except sqlite3.IntegrityError as e:
                 raise e  # todo: handle error
 
+            for author in book.getconnected(Author):
+                book.disconnect(author)
             for name in form.getall("author"):
                 name = name.strip()
                 if name:
@@ -544,6 +550,8 @@ class WebUI(object):
                         except sqlite3.IntegrityError as e:
                             raise e  # todo: handle error
 
+            for s in book.getconnected(Series):
+                book.disconnect(s)
             for type, name, num, total in zip(
                 form.getall("series_type"),
                 form.getall("series_name"),
@@ -566,12 +574,15 @@ class WebUI(object):
                     if not valid_num: num = None
                     book.connect(series, num)
 
+            for t in book.getconnected(Tag):
+                book.disconnect(t)
             for tag in parse_csv(form.get("tags", "")):
                 if tag:
                     t = self.db.gettag(tag)
                     t.save()
                     t.connect(book)
 
+            url = None
             pic = request.files.get("thumbnail")
             if pic: pic = pic.file
             if not pic:
@@ -592,13 +603,17 @@ class WebUI(object):
                     except Exception as e:
                         raise e  # todo: notify user that fetching failed
             if pic:
+                for old_pic in book.getconnected(Thumbnail):
+                    book.disconnect(old_pic)
                 thumb = Thumbnail(self.db)
+                if url: thumb.url = url
                 thumb.image = pic
                 thumb.save()
                 thumb.connect(book)
-                debug("thumbnail saved: http://localhost:8080/thumbs/%s" %
-                    self.id.thumb.encode(thumb.id))
 
+            for file_hex in form.getall("delete_file"):
+                file = BookFile(self.db, self.id.file.decode(file_hex))
+                book.disconnect(file)
             for upload in request.files.getall("upload"):
                 fo = BookFile(self.db)
                 fo.name = upload.raw_filename

@@ -8,6 +8,7 @@
 <a href="{{img_url}}"><img class="thumbnail" src="{{img_url}}"></img></a>
 % end
 
+<a href="/book/{{id.book.encode(book.id)}}/edit" class="edit_book">[изменить]</a>
 
 <div class="library_card">
 
