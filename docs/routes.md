@@ -5,7 +5,7 @@ This document describes the intended list of routes to be served by hlc
 
 ### Always available
 ###### /login
-###### /static/<filename:path>
+###### /static/`<filename:path>`
 
 ### Available after application initialization
 
@@ -15,20 +15,22 @@ This document describes the intended list of routes to be served by hlc
 ###### /ajax/complete
 ###### /ajax/fill
 ###### /ajax/suggest
-###### /book/<hexid>
+###### /book/`<hexid>`
+###### /book/`<hexid>`/edit
 ###### /books
-###### /file/<hexid>
+###### /books/add
+###### /file/`<hexid>`
 ###### /logout
-###### /thumbs/<hexid>
+###### /thumbs/`<hexid>`
 
 ### Administrative routes
 ###### /quit
-###### /table/<table>
+###### /table/`<table>`
 
 ## Not implemented yet
 ### Available after login
-###### /author/<hexid>
-###### /series/<hexid>
-###### /tag/<name>
+###### /author/`<hexid>`
+###### /series/`<hexid>`
+###### /tag/`<name>`
 
 ### Administrative routes
