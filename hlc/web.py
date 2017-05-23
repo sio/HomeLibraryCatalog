@@ -610,7 +610,7 @@ class WebUI(object):
                 except sqlite3.IntegrityError as e:
                     raise e  # todo: handle error
 
-            redirect("/table/books")  # todo: replace with book page
+            redirect("/book/%s" % self.id.book.encode(book.id))
 
     def _error_page(self, error):
         return template("error_http", info=self.info, error=error)
