@@ -1,20 +1,23 @@
+<%
+app_name = "Библиотека"
+%>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{title}}</title>
+    <title>{{"%s [%s]" % (title, app_name)}}</title>
     <meta charset="UTF-8"/>
     <link rel="stylesheet" type="text/css" href="/static/theme.css"/>
     <script src="/static/theme.js"></script>
 </head>
-<body>
+<body onload="{{get('onload') or ''}}">
 <div id="header" class="widewrapper no_print">
-    <h1>Домашняя библиотека</h1>
+    <a href="/"><h1>{{app_name}}</h1></a>
 </div>
 <div id="middle">
     <div id="menu" class="no_print">
         <ul>
         <li><a href="/table/books">Каталог</a></li>
-        <li><a href="/add">Добавить книгу</a></li>
+        <li><a href="/books/add">Добавить книгу</a></li>
         <li><a href="#">Выбытие книг</a></li>
         <li><a href="/books">База данных</a></li>
         <li><a href="#">MENU5</a></li>
