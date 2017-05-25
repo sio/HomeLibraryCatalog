@@ -469,9 +469,36 @@ class WebUI(object):
             return json.dumps(book_info(isbn))
 
     def _clbk_allbooks(self):
-        search = self.db.sql.select("books", what="id")
-        books = (self.db.getbook(row["id"]) for row in search.fetchall())
-        return template("manybooks", books=books, info=self.info, id=self.id.book)
+        MAX_PAGE_SIZE = 100
+        DEFAULT_PAGE_SIZE = 3
+
+        params = request.query.decode()
+        pagenum, pagesize = params.get("p", 0), params.get("ps", DEFAULT_PAGE_SIZE)
+
+        pagenum = max(0, int(pagenum))
+        pagesize = min(MAX_PAGE_SIZE, int(pagesize))
+        offset = pagenum * pagesize
+
+        query = "SELECT id FROM books ORDER BY last_edit DESC LIMIT ? OFFSET ?"
+        search = self.db.sql.generic(
+                    self.db.connection,
+                    query,
+                    params=(pagesize, offset))
+
+        return self._page_book_list(
+            search,
+            "Все книги",
+            pg_info=[pagenum, pagesize])
+
+    def _page_book_list(self, search, title, pg_info):
+        return template(
+            "book_list",
+            books=(self.db.getbook(row[0]) \
+                   for row in self.db.sql.iterate(search)),
+            title=title,
+            pg_info=pg_info,
+            info=self.info,
+            id=self.id)
 
     def _clbk_book(self, hexid):
         try:
