@@ -309,8 +309,6 @@ a.edit_book {
     color:#393939;
     font-family:"Tahoma","Segoe UI","Arial",sans-serif;
     font-size:100%;
-    font-style:normal;
-    font-weight:normal;
     text-decoration:none;
 }
 h1 {
@@ -318,6 +316,12 @@ h1 {
     font-size:125%;
     font-weight:bold;
     margin-bottom:0.5em;
+}
+h2 {
+    color:#000000;
+    font-size:115%;
+    font-weight:bold;
+    margin-bottom:0.3em;
 }
 #header h1 {
     font-size:1.6em;
@@ -334,8 +338,6 @@ p {
 }
 a:hover {
     text-decoration:underline;
-    text-decoration-style:dotted;
-    -webkit-text-decoration-style:dotted;
 }
 
 
