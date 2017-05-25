@@ -29,7 +29,6 @@ as the `HomeLibraryCatalog.py` by default
 #### WebUI:
 - [ ] Forms:
     - [ ] for registered users
-        - [ ] edit book (add book + fill values)
         - [ ] book review
         - [ ] author rating
         - [ ] book not in library anymore
