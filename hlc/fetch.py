@@ -105,8 +105,7 @@ class BookInfoFetcher(object):
         req = urllib.request.Request(
             url,
             data=None,
-            headers={"User-Agent": self.USER_AGENT}
-        )
+            headers={"User-Agent": self.USER_AGENT})
         opened = None
         try:
             opened = urllib.request.urlopen(req)
@@ -224,13 +223,11 @@ class Fantlab(BookInfoFetcher):
             for node in series_nodes:
                 series.append(("издательская серия", node.text_content()))
             description = root.xpath(
-                '//p[b[contains(text(),"Описание:")]]/following-sibling::*[1]//a[contains(@href, "work")]'
-            )
+                '//p[b[contains(text(),"Описание:")]]/following-sibling::*[1]//a[contains(@href, "work")]')
             for work in description:
                 series.append((
                     "цикл",
-                    re.sub("""['"«»]""", "", work.text_content())
-                ))
+                    re.sub("""['"«»]""", "", work.text_content())))
             if series: book["series"] = series
 
             thumb_nodes = root.cssselect('img[itemprop="image"]')

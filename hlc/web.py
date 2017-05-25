@@ -78,8 +78,7 @@ class WebUI(object):
             self.db.connection,
             "app_config",
             "option",
-            "value"
-        )
+            "value")
         self._info_init()
         self._db_init()
         self._first_user = self._persistent_cfg.get("init_user")
@@ -334,8 +333,7 @@ class WebUI(object):
         self.id = IDReader()
         for key in self._scramble_shift:
             setattr(self.id, key, LinCrypt(
-                self._scramble_key + self._scramble_shift[key]
-            ))
+                self._scramble_key + self._scramble_shift[key]))
 
         if browser:
             if len(a) > 2:
@@ -594,8 +592,7 @@ class WebUI(object):
                         req = urllib.request.Request(
                             url,
                             data=None,
-                            headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36"}
-                        )
+                            headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36"})
                         pic = urllib.request.urlopen(req)
                         if not pic.headers.get_content_maintype() == "image":
                             debug("not an image: %s" % url)

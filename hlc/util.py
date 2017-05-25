@@ -308,15 +308,14 @@ def alphanumeric(string):
         string = re.sub("[^\d\w ]", "", string)
         return string.strip()
 
+
 def fuzzy_str_eq(one, two):
     """
     Check if two strings are _kinda_ the same
     """
     def simplify(text):
         return re.sub("[^\d\w]", "", text).lower()
-    return (
-        one == two or simplify(one) == simplify(two)
-    )
+    return (one == two or simplify(one) == simplify(two))
 
 
 def parse_csv(csv):

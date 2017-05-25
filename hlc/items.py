@@ -542,8 +542,7 @@ class Series(TableEntityWithID):
         search = self.database.sql.select(
             "book_series",
             where={"series_id": self.id, "book_id": question},
-            what="book_number"
-        )
+            what="book_number")
         result = search.fetchone()
         if result:
             position = result[0]

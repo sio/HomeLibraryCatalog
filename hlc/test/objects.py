@@ -35,9 +35,8 @@ class testLinCrypt(unittest.TestCase):
             with self.subTest(number=number, key=key):
                 self.assertEqual(
                     number,
-                    LinCrypt(key).decode(LinCrypt(key).encode(number))
-                    )
-                
+                    LinCrypt(key).decode(LinCrypt(key).encode(number)))
+
 
 from hlc.web import ISBN
 class testISBN(unittest.TestCase):

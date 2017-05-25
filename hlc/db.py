@@ -176,9 +176,7 @@ class SQLBaseWithEscaping(object):
     def _escape_identifier(self, text, esc_chars=None):
         """Return escaped database identifier (field, table)"""
         # do not escape some special cases
-        special_cases = set(
-            "*",
-        )
+        special_cases = set(("*",))
 
         if esc_chars is None:
             esc_chars = self.__escape_chars
@@ -198,8 +196,7 @@ class SQLBaseWithEscaping(object):
         return tuple(map(
             self._escape_identifier,
             identifiers,
-            (esc_chars for i in iter(int, 1))
-        ))
+            (esc_chars for i in iter(int, 1))))
 
     def generic(self, connection, query, fields=(), params=(), commit=False):
         """
@@ -390,8 +387,7 @@ class SQL(SQLBaseWithEscaping):
         if where:
             query_template += " WHERE "
             where_clause = " AND ".join(
-                tuple(str(x) + "=?" for x in self._escape_seq(where.keys()))
-            )
+                tuple(str(x) + "=?" for x in self._escape_seq(where.keys())))
             query_template += where_clause
 
         cursor = self.__dbapi.cursor()
@@ -414,8 +410,7 @@ class SQL(SQLBaseWithEscaping):
         if where:
             query_template += " WHERE "
             where_clause = " AND ".join(
-                tuple(str(x) + "=?" for x in self._escape_seq(where.keys()))
-            )
+                tuple(str(x) + "=?" for x in self._escape_seq(where.keys())))
             query_template += where_clause
 
         cursor = self.__dbapi.cursor()
@@ -471,8 +466,7 @@ class SQL(SQLBaseWithEscaping):
         if where:
             query_template += " WHERE "
             where_clause = " AND ".join(
-                tuple(str(x) + "=?" for x in self._escape_seq(where.keys()))
-            )
+                tuple(str(x) + "=?" for x in self._escape_seq(where.keys())))
             query_template += where_clause
 
         query_template = query_template.replace(
@@ -656,13 +650,13 @@ class CatalogueDB(SQLiteDB):
             new Author() object (not saved)
         """
         return self.__get_simplified(Author, "name", name)
-    
+
     def getseries(self, name):
         return self.__get_simplified(Series, "name", name)
-    
+
     def gettag(self, name):
         return self.__get_simplified(Tag, "name", name)
-    
+
     def getbook(self, id=None, isbn=None):
         """
         Get Book object from database
@@ -846,8 +840,7 @@ class CatalogueDB(SQLiteDB):
                 option text unique not null,
                 value text,
                 help text,
-                primary key(option)
-            )
+                primary key(option))
             """,
             """
             CREATE TRIGGER trg_book_count1 AFTER INSERT ON books
