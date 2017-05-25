@@ -483,6 +483,23 @@ class SQL(SQLBaseWithEscaping):
         cursor.connection.commit()
         return cursor.rowcount
 
+    @staticmethod
+    def iterate(cursor, limit=-1, arraysize=1000):
+        """Use this generator to efficiently iterate over cursor results"""
+        # todo: find out if OFFSET is possible without altering query
+        row_number = 0
+        exit = False
+        while not exit:
+            chunk = cursor.fetchmany(arraysize)
+            if not chunk:
+                break
+            for row in chunk:
+                if limit >= 0 and row_number >= limit:
+                    exit = True
+                    break
+                row_number += 1
+                yield row
+
     def table2text(self, table):
         """
         Return SQL table represented as string. Useful for debugging purposes
@@ -492,13 +509,10 @@ class SQL(SQLBaseWithEscaping):
         """
         select = self.select(table)
         text = str()
-        c = True
-        while c:
-            c = select.fetchone()
-            if c:
-                if len(text) == 0:
-                    text += str(c.keys())
-                text += "\n" + str(tuple(c))
+        for row in self.iterate(select):
+            if len(text) == 0:
+                text += str(row.keys())
+            text += "\n" + str(tuple(row))
         return text
 
 
@@ -599,14 +613,9 @@ class CatalogueDB(SQLiteDB):
                 self.connection,
                 query,
                 (field, table, field, field),
-                (beginning,)
-            )
-            for i in range(count):
-                result = search.fetchone()
-                if result:
-                    suggestions.append(result[0])
-                else:
-                    break
+                (beginning,))
+            for result in self.sql.iterate(search, count):
+                suggestions.append(result[0])
         return suggestions
 
     def __get_simplified(self, cls, field, value, attr=None):
