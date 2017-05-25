@@ -179,23 +179,26 @@ class WebUI(object):
         """
         # sqlite's fts3,fts4,fts5 are much more superior, but Python's default
         # build of this library does not support those extensions
+        WILDCARD = "*"  # single char
 
-        wildcard = "*"  # single char
+        #limit, offset = int(limit), int(offset)  # todo: add support for this
 
-        search = re.sub("\s+", " ", search).strip()
-        search = re.sub("[^\d\w %s]" % wildcard, "", search).lower()
-        words = search.split(" ")
-        for i in range(len(words)):
-            new_word = words[i]
-            if new_word[0] != wildcard:
-                new_word = " " + new_word
-            if words[i][-1] != wildcard:
-                new_word = new_word + " "
-            words[i] = new_word.replace(wildcard, "")
+        search = re.sub(r"\s+", " ", search).strip()
+        search = re.sub(r"[^\d\w %s]" % WILDCARD, "", search).lower()
+        old_words = search.split(" ")
+        words = list()
+        for i in range(len(old_words)):
+            new_word = old_words[i]
+            if new_word:
+                if new_word[0] != WILDCARD:
+                    new_word = " " + new_word
+                if new_word[-1] != WILDCARD:
+                    new_word = new_word + " "
+                words.append(new_word.strip(WILDCARD))
         where_clause = " AND ".join("instr(info, ?)>0" for w in words)
 
         if not sort_keys:
-            sort_keys = ("in_date",)
+            sort_keys = ("in_date DESC",)
         order_clause = ", ".join(sort_keys)
 
         query = "SELECT DISTINCT id FROM search_books WHERE %s ORDER BY %s" % (
