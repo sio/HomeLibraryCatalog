@@ -207,8 +207,10 @@ class WebUI(object):
         count = 0
         books_generator = ()
         if words:
-            cur = self.db.connection.cursor()
-            cur.execute(query, tuple(words))
+            cur = self.db.sql.generic(
+                self.db.connection,
+                query,
+                params=tuple(words))
             results = cur.fetchall()
             count = len(results)
             books_generator = (self.db.getbook(row["id"]) for row in results)
