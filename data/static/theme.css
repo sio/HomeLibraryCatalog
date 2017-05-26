@@ -148,21 +148,28 @@ a.edit_book {
 .user_input .field input[type="text"],
 .user_input .field input[type="password"],
 .user_input .field input[type="submit"],
+.user_input .field input[type="button"],
 .user_input .field textarea,
 .user_input .field select {
     box-sizing: border-box;
-    border: #999999 solid 1px;
-    background-color:white;
+    width:100%;
     padding:0.3em;
     margin:0.15em 0;
-    width:100%;
+}
+.user_input .field input[type="text"],
+.user_input .field input[type="password"],
+.user_input .field textarea,
+.user_input .field select {
+    border: #999999 solid 1px;
+    background-color:white;
     color:#333333;
 }
 .user_input textarea {
     height:10em;
     resize:none;
 }
-.user_input .field input:focus,
+.user_input .field input[type="text"]:focus,
+.user_input .field input[type="password"]:focus,
 .user_input .field textarea:focus,
 .user_input .field select:focus {
     outline: none;
