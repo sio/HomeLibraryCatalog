@@ -523,6 +523,18 @@ class WebUI(object):
             if b.saved: book = b
 
         if request.method == "GET":
+            params = request.query.decode()
+            input_isbn = params.get("isbn")
+            prefill = None
+            if input_isbn and not book:
+                isbn = ISBN(input_isbn)
+                if isbn.valid:
+                    input_book = self.db.getbook(isbn=isbn.number)
+                    if input_book.saved:
+                        redirect("/book/%s" % self.id.book.encode(input_book.id))
+                    else:
+                        prefill = isbn.number
+
             conn = dict()
             conn["authors"] = book.getconnected(Author)
             conn["series"] = book.getconnected(Series)
@@ -538,6 +550,7 @@ class WebUI(object):
                 book=book,
                 conn=conn,
                 id=self.id,
+                prefill=prefill,
                 info=self.info)
         else:
             if not book: book = self.db.getbook()

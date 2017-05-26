@@ -5,6 +5,9 @@ if book:
 else:
     title = "Добавить книгу"
 end
+if prefill:
+    onload = "ajaxISBN(document.querySelector('input[name=isbn]'))"
+end
 
 rebase("main")
 
@@ -31,7 +34,7 @@ end
     <label class="field">ISBN:
         <input type="text"
                name="isbn"
-               value="{{book.isbn or ""}}"
+               value="{{book.isbn or prefill or ""}}"
                onkeydown="return keydownISBN(event)"
                onchange="checkISBN(this); ajaxISBN(this)"/>
     </label>
