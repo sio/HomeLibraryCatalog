@@ -315,6 +315,9 @@ function ajaxISBNFill(xhr, json, force) {
                 };
             };
         };
+        if (data["title"]) {
+            scrollIntoViewIfNeeded(isbn.parentNode);
+        }
     }
 };
 function keydownISBN(event) {
@@ -771,4 +774,12 @@ function encodeQueryData(data) {
         ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
     }
     return ret.join('&');
+}
+
+function scrollIntoViewIfNeeded(element) {
+    /* Vertical scroll only */
+    var box = element.getBoundingClientRect();
+    if (box.top < 0 || box.bottom > window.innerHeight) {
+        element.scrollIntoView();
+    }
 }
