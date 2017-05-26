@@ -218,5 +218,13 @@ end
                onchange="trimField(this)"
                value="{{", ".join([t.name for t in conn['tags']])}}"/>
     </label>
-    <input class="field" type="submit" value="OK"/>
+    <span class="field buttons">
+        <input class="button"
+               type="button"
+               onclick="location=location.href"
+               value="Отменить"/>
+        <input class="button"
+               type="submit"
+               value="Сохранить"/>
+    </span>
 </form>

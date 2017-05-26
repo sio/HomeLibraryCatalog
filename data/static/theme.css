@@ -25,7 +25,9 @@ body {
 #footer {
     padding:1em;
 }
-
+.center {
+    text-align:center;
+}
 
 /* MENU SIDEBAR */
 #menu {
@@ -174,8 +176,14 @@ a.edit_book {
     border-color: #c00000!important;
     color: #c00000!important;
 }
-.center {
-    text-align:center;
+.user_input .button {
+    width:calc(50% - 0.5ex)!important;
+}
+.user_input .button:first-child {
+    float:left;
+}
+.user_input .button:last-child {
+    float:right;
 }
 .first_of_3 {
     float:left;
