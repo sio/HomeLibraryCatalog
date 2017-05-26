@@ -362,7 +362,7 @@ class SQL(SQLBaseWithEscaping):
         """
         self.__dbapi = dbapi_connection
 
-    def select(self, table, where=None, what="*"):
+    def select(self, table, where=None, what="*", order=None):
         """
         Run SQL SELECT operation
 
@@ -371,6 +371,7 @@ class SQL(SQLBaseWithEscaping):
             where:  Dictionary. {field=requirement} pairs
             what:   String or sequence of strings. Optional. Field names
                     to be selected.
+            order:  String or sequence of string. Optional. ORDER commands
 
         Returns cursor object
         """
@@ -390,6 +391,18 @@ class SQL(SQLBaseWithEscaping):
                 tuple(str(x) + "=?" for x in self._escape_seq(where.keys())))
             query_template += where_clause
 
+        order_cmds = list()
+        if order:
+            if type(order) is str:
+                order_cmds.append(order)
+            else:
+                order_cmds = list(order)
+        order_clause = str()
+        if order_cmds:
+            order_clause = " ORDER BY "
+            order_clause += ", ".join(order_cmds)
+        query_template += order_clause
+                
         cursor = self.__dbapi.cursor()
         cursor.execute(query_template,
                        list(where.values()) if where else tuple())
@@ -689,7 +702,7 @@ class CatalogueDB(SQLiteDB):
             cur = search.fetchone()
             if cur:
                 b = Book(self, cur[Book.__IDField__])
-        else:
+        if not b:
             b = Book(self)
         return b
 
