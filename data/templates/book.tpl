@@ -136,7 +136,13 @@
 % if book.annotation:
 <div class="item">
     <div class="label">Аннотация:</div>
-    <div class="value">{{book.annotation}}</div>
+    <div class="value">
+    % for line in book.annotation.splitlines():
+    %   if line:
+        <p>{{line}}</p>
+    %   end
+    % end
+    </div>
 </div>
 % end
 
