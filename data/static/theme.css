@@ -105,6 +105,10 @@ a.edit_book {
     color:navy;
     font-style:italic;
 }
+.book_preview .truncated {
+    color:gray;
+    font-style:italic;
+}
 
 /* BOOK LIST */
 .page_nav {

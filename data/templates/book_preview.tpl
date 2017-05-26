@@ -28,7 +28,10 @@
 % if book.annotation:
 <div class="annotation">
 % TRUNCATE_CHARS = 300
-{{book.annotation[:TRUNCATE_CHARS]}}{{book.annotation[TRUNCATE_CHARS:] and "..." or ""}}
+{{book.annotation[:TRUNCATE_CHARS]}}\\
+% if len(book.annotation) > TRUNCATE_CHARS:
+<a href="{{book_url}}" class="truncated">[...]</a>
+% end
 </div>
 % end
 
