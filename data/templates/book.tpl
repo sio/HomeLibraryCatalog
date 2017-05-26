@@ -31,7 +31,7 @@
 </div>
 % end
 
-% series = book.getconnected(Series)
+% series = book.getconnected(Series, order="type")
 % if series:
 <div class="item">
 <div class="label">Входит в:</div>

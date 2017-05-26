@@ -35,7 +35,7 @@
 </div>
 % end
 
-% series = book.getconnected(Series)
+% series = book.getconnected(Series, order="type")
 % if series:
 <div class="info_line">
 % for s in series:
