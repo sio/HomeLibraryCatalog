@@ -368,7 +368,7 @@ function addRadioThumbnail(url) {
 };
 function showMoreThumbsLink(container) {
     var linkClassname = "more-thumbs"
-    if (container.childNodes.length < 4
+    if (container.childElementCount < 4
     && !container.querySelector("."+linkClassname)) {
         var linkNode = document.createElement("a");
         linkNode.className = linkClassname;
@@ -379,15 +379,10 @@ function showMoreThumbsLink(container) {
             var params = {"isbn":document.querySelector('input[name="isbn"]').value,
                           "thumbs":true}
             ajaxISBNHandler.get(url + "?" + encodeQueryData(params));
-            showMoreThumbsLink(container);
+            linkNode.parentNode.removeChild(linkNode);
             return false;
         };
         container.appendChild(linkNode);
-    } else {
-        var linkNode = container.querySelector("."+linkClassname)
-        if (linkNode) {
-            linkNode.parentNode.removeChild(linkNode);
-        };
     };
 };
 
