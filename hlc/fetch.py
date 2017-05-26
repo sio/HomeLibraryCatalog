@@ -138,8 +138,10 @@ class BookInfoFetcher(object):
 
     @property
     def info(self):
-        if self._info is None:
+        if self._info is None and self.isbn:
             self._info = self.get()
+        elif not self.isbn:
+            self._info = {self.isbn:{}}
         return self._info
 
     def isfull(self, input=None):
