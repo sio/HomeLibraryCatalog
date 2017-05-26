@@ -47,7 +47,6 @@ body {
     background-color:#eef;
 }
 
-
 /* BOOK PAGE */
 .library_card {
     display:table;
@@ -139,9 +138,6 @@ a.edit_book {
 }
 
 /* USER INPUT */
-.user_input {
-    width:100%;
-}
 .user_input .field {
     width:100%;
     max-width:100%;
@@ -289,7 +285,6 @@ a.edit_book {
     padding: 0.25em;
 }
 
-
 /* APPLICATION MESSAGES */
 .info p {
     margin-bottom:0.7em;
@@ -306,7 +301,6 @@ a.edit_book {
     margin-bottom: 1em;
 }
 
-
 /* CLEAR FIX */
 .clearfix {
     overflow:auto;
@@ -314,7 +308,6 @@ a.edit_book {
 .clearfix::after {
     clear:both;
 }
-
 
 /* FORMATTING */
 * {
@@ -352,7 +345,6 @@ a:hover {
     text-decoration:underline;
 }
 
-
 /* PRINTING */
 @media print {
     .no_print {
@@ -370,7 +362,6 @@ a:hover {
         padding:0!important;
     }
 }
-
 
 /* BROWSER-SPECIFIC HACKS */
 input::-webkit-calendar-picker-indicator {
