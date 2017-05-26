@@ -213,9 +213,19 @@ function ajaxISBN(input) {
         ajaxISBNHandler.get(url + "?" + encodeQueryData(params));
     };
 };
-function ajaxISBNFill(xhr) {
-    var result = JSON.parse(xhr.responseText);
+function ajaxISBNFill(xhr, json, force) {
+    if (json === undefined) {
+        var result = JSON.parse(xhr.responseText);
+    } else {
+        var result = JSON.parse(json);
+    };
     var isbn = document.querySelector('input[name="isbn"]');
+    if (force) {
+        for (var i in result) {
+            isbn.value = i;
+            break;
+        };
+    };
     var data = result[cleanISBN(isbn.value)]
     if (data) {
         var field;
