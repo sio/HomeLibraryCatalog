@@ -9,5 +9,7 @@
     <label class="field">Пароль
     <input name="password" type="password"></input>
     </label>
-    <input class="field" type="submit" value="OK"/>
+    <span class="field">
+    <input type="submit" value="OK"/>
+    </span>
 </form>
