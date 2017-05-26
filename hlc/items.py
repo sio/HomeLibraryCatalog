@@ -299,17 +299,24 @@ class TableEntityWithID(object):
         found = search.fetchone()
         return bool(found)
 
-    def getconnected(self, cls):
+    def getconnected(self, cls, order=None, desc=False):
         """
         Get connected objects of type `cls`
-        Returns a generator of objects
+        Returns a sequence of objects.
+        If `order` is specified, results will be sorted on `order` attr of
+        returned objects
         """
         ids = self.getconnected_id(cls)
-        if ids:
-            def connections():
-                for id in ids:
-                    yield cls(self.database, id)
+        def connections():
+            for id in ids:
+                yield cls(self.database, id)
+        if ids and not order:
             return connections()
+        elif ids and order:
+            return sorted(
+                connections(),
+                key=lambda x: getattr(x, order),
+                reverse=desc)
         else:
             return list()  # boolean value is False
 
