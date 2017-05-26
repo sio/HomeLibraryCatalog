@@ -33,6 +33,7 @@ end
         <input type="text"
                name="isbn"
                value="{{book.isbn or ""}}"
+               onkeydown="return keydownISBN(event)"
                onchange="checkISBN(this); ajaxISBN(this)"/>
     </label>
     <label for="author" class="field">Автор:

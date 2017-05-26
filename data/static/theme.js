@@ -307,6 +307,12 @@ function ajaxISBNFill(xhr) {
         };
     }
 };
+function keydownISBN(event) {
+    if (event.keyCode === 13) {
+        event.target.onchange();
+        return false;
+    };
+};
 function addRadioThumbnail(url) {
     /** Add new radio button for selecting from auto-fetched thumbnails **/
     var container = document.querySelector('*[data-switch="auto"]');
