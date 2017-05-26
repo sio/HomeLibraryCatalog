@@ -1,7 +1,7 @@
 <%
 if book:
     title = "Редактировать книгу"
-    onload = "validatePage(this)"
+    onload = "validatePage(this);"
 else:
     title = "Добавить книгу"
 end
@@ -23,7 +23,6 @@ if book.out_date:
     out_date = book.out_date.strftime(info["date_format"])
 end
 %>
-
 <form name="edit_book"
       class="user_input"
       method="post"
