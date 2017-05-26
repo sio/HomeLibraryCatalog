@@ -14,7 +14,7 @@ var ajaxISBNHandler = new AjaxHandler(ajaxISBNFill);
  * PRETTIER FILE INPUT
  *
  */
-function getFileInput(textInput, multiple=false) {
+function getFileInput(textInput, multiple) {
     /**
     Return hidden <input type="file"> node synced with given <input type="text">
     node. If no such file input field exists it will be created
@@ -39,7 +39,7 @@ function getFileInput(textInput, multiple=false) {
             fileInput = document.createElement("input");
             fileInput.type = "file";
             fileInput.name = name;
-            fileInput.multiple = multiple;
+            fileInput.multiple = Boolean(multiple);
             fileInput.style["display"] = "none";
             textInput.parentNode.insertBefore(fileInput, textInput);
         };
@@ -475,7 +475,7 @@ function showThumbnailInputs(anchor) {
     return false;
 };
 
-function switchChildren(node, clearInputs=false) {
+function switchChildren(node, clearInputs) {
     var container = node.parentNode;
     var link = node.getAttribute("data-switch-to");
     if (link && container) {
