@@ -15,9 +15,9 @@ This document describes the intended list of routes to be served by hlc
 ###### /ajax/complete
 ###### /ajax/fill
 ###### /ajax/suggest
-###### /book/`<hexid>`
-###### /book/`<hexid>`/edit
 ###### /books
+###### /books/`<hexid>`
+###### /books/`<hexid>`/edit
 ###### /books/add
 ###### /file/`<hexid>`
 ###### /logout
@@ -29,7 +29,7 @@ This document describes the intended list of routes to be served by hlc
 
 ## Not implemented yet
 ### Available after login
-###### /author/`<hexid>`
+###### /authors/`<hexid>`
 ###### /series/`<hexid>`
 ###### /tag/`<name>`
 

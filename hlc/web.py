@@ -94,9 +94,9 @@ class WebUI(object):
             ("/ajax/complete", self._clbk_ajax_complete),
             ("/ajax/fill", self._clbk_ajax_info),
             ("/ajax/suggest", self._clbk_ajax_suggestions),
-            ("/book/<hexid>", self._clbk_book),
-            ("/book/<hexid>/edit", self._clbk_editbook, ["GET", "POST"]),
             ("/books", self._clbk_allbooks),
+            ("/books/<hexid>", self._clbk_book),
+            ("/books/<hexid>/edit", self._clbk_editbook, ["GET", "POST"]),
             ("/books/add", self._clbk_editbook, ["GET", "POST"]),
             ("/file/<hexid>", self._clbk_user_file),
             ("/logout", self._clbk_logout),
@@ -531,7 +531,7 @@ class WebUI(object):
                 if isbn.valid:
                     input_book = self.db.getbook(isbn=isbn.number)
                     if input_book.saved:
-                        redirect("/book/%s" % self.id.book.encode(input_book.id))
+                        redirect("/books/%s" % self.id.book.encode(input_book.id))
                     else:
                         prefill = isbn.number
 
@@ -671,7 +671,7 @@ class WebUI(object):
                 except sqlite3.IntegrityError as e:
                     raise e  # todo: handle error
 
-            redirect("/book/%s" % self.id.book.encode(book.id))
+            redirect("/books/%s" % self.id.book.encode(book.id))
 
     def _error_page(self, error):
         return template("error_http", info=self.info, error=error)

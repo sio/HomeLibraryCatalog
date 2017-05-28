@@ -402,7 +402,7 @@ class SQL(SQLBaseWithEscaping):
             order_clause = " ORDER BY "
             order_clause += ", ".join(order_cmds)
         query_template += order_clause
-                
+
         cursor = self.__dbapi.cursor()
         cursor.execute(query_template,
                        list(where.values()) if where else tuple())

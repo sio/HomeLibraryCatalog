@@ -8,7 +8,7 @@
 <a href="{{img_url}}"><img class="thumbnail" src="{{img_url}}"></img></a>
 % end
 
-<a href="/book/{{id.book.encode(book.id)}}/edit" class="edit_book">[изменить]</a>
+<a href="/books/{{id.book.encode(book.id)}}/edit" class="edit_book">[изменить]</a>
 
 <div class="library_card">
 
@@ -18,7 +18,7 @@
     <div class="label">Автор:</div>
     <div class="value">
     % for author in authors:
-        <a href="/author/{{id.author.encode(author.id)}}">{{author.name}}</a><br/>
+        <a href="/authors/{{id.author.encode(author.id)}}">{{author.name}}</a><br/>
     % end
     </div>
 </div>

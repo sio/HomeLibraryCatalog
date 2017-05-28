@@ -1,5 +1,5 @@
 % from hlc.items import Series, Author, Tag
-% book_url = "/book/%s" % id.book.encode(book.id)
+% book_url = "/books/%s" % id.book.encode(book.id)
 <div class="book_preview clearfix">
 
 <a href="{{book_url}}">
