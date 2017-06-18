@@ -268,6 +268,9 @@ class TableEntityWithID(object):
             unity_table = "book_tags"
             columns[Book] = "book_id"
             columns[Tag] = "tag_id"
+        elif objects == {Barcode, User}:
+            unity_table = "barcode_queue"
+            columns[User] = "user"
         else:
             raise TypeError("Incompatible objects: %s, %s" %
                             tuple(objects))
@@ -635,6 +638,31 @@ class Thumbnail(TableEntityWithID):
         self._changes["image"] = pic.read()
         del pic
         self._saved = False
+
+
+class Barcode(TableEntityWithID):
+    __TableName__ = "barcode_queue"
+    __IDField__ = "id"
+
+    def __init__(self, db, id=None):
+        TableEntityWithID.__init__(self, db, id)
+        self._simple_attrs("title")
+        self._simple_date_attrs("date")
+
+    @property
+    def isbn(self):
+        if self._data:
+            return self._data["isbn"]
+
+    @isbn.setter
+    def isbn(self, value):
+        input = ISBN(value)
+        if (not self._new and self._data["isbn"] != input.number) or (self._new):
+            if input.valid:
+                self._changes["isbn"] = input.number
+                self._saved = False
+            else:
+                raise ValueError("ISBN is not valid: %s" % value)
 
 
 class ISBN(object):

@@ -719,6 +719,16 @@ class CatalogueDB(SQLiteDB):
                 hash text not null)
             """,
             """
+            CREATE TABLE barcode_queue (
+                id integer primary key,
+                isbn text unique not null,
+                user_id integer,
+                date integer not null default (cast(strftime('%s','now') as integer)),
+                title text,
+                foreign key(user_id) references users(id) on delete cascade on update cascade
+            )
+            """,
+            """
             CREATE TABLE groups (
                 id integer primary key,
                 name text unique not null)
@@ -767,6 +777,12 @@ class CatalogueDB(SQLiteDB):
             CREATE TRIGGER trg_isbn_update AFTER UPDATE OF isbn_user ON books
             BEGIN
                 UPDATE books SET isbn = clean_isbn(isbn_user) WHERE _rowid_ = NEW._rowid_;
+            END
+            """,
+            """
+            CREATE TRIGGER trg_clean_queue AFTER UPDATE OF isbn ON books
+            BEGIN
+                DELETE FROM barcode_queue WHERE isbn = NEW.isbn;
             END
             """,
             """
