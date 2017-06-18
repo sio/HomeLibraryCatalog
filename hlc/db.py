@@ -742,7 +742,7 @@ class CatalogueDB(SQLiteDB):
                 id          integer primary key,
                 name        text not null,
                 isbn_user   text,
-                isbn        integer unique,
+                isbn        text unique,
                 price       real check (price>=0),
                 publisher   text,
                 year        integer check (year>=1900 and year<=2100),
