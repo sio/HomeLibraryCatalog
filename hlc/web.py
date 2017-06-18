@@ -534,8 +534,7 @@ class WebUI(object):
 
     def _clbk_queue_barcode(self):
         valid, cookie = self.read_cookie()
-        if valid:
-            user = User(self.db, cookie[0])
+        user = User(self.db, cookie[0])
         if request.method == "GET":
             params = request.query.decode()
             isbn = params.get("isbn")
@@ -554,6 +553,7 @@ class WebUI(object):
                 except sqlite3.IntegrityError:
                     reply = "[OK] Already exists: %s" % isbn
                 else:
+                    brcode.connect(user)
                     reply = "[OK] ISBN saved to queue: %s" % isbn
             query = "SELECT id FROM barcode_queue ORDER BY date DESC"
             search = self.db.sql.generic(
