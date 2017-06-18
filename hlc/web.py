@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
                    template, redirect, static_file
 from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group, Series,\
-                      BookFile, Tag
+                      BookFile, Tag, Barcode
 from hlc.db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
 from hlc.util import LinCrypt, timestamp, debug, random_str, message, \
                      DynamicDict, ReadOnlyDict, parse_csv
@@ -104,6 +104,7 @@ class WebUI(object):
             ("/thumbs/<hexid>", self._clbk_thumb),
         )
         routes_for_user = (
+            ("/queue", self._clbk_queue_barcode),
             ("/", self._clbk_hello),
             ("/quit", self.close),
         )
@@ -530,6 +531,43 @@ class WebUI(object):
                 id=self.id)
         else:
             abort(404, "Invalid book id: %s" % hexid)
+
+    def _clbk_queue_barcode(self):
+        valid, cookie = self.read_cookie()
+        if valid:
+            user = User(self.db, cookie[0])
+        if request.method == "GET":
+            params = request.query.decode()
+            isbn = params.get("isbn")
+            reply = str()
+            if params.get("delete") and isbn:
+                brcode = self.db.get(Barcode, "isbn", ISBN(isbn).number)
+                if brcode: brcode.delete()
+                redirect(request.urlparts[2])
+            elif isbn:
+                brcode = Barcode(self.db)
+                try:
+                    brcode.isbn = isbn
+                    brcode.save()
+                except ValueError:
+                    reply = "[Error] Invalid ISBN: %s" % isbn
+                except sqlite3.IntegrityError:
+                    reply = "[OK] Already exists: %s" % isbn
+                else:
+                    reply = "[OK] ISBN saved to queue: %s" % isbn
+            query = "SELECT id FROM barcode_queue ORDER BY date DESC"
+            search = self.db.sql.generic(
+                self.db.connection,
+                query)
+            barcodes = (Barcode(self.db, row[0]) \
+                        for row in self.db.sql.iterate(search))
+            return template(
+                "queue",
+                barcodes=barcodes,
+                message=reply,
+                info=self.info)
+        elif request.method == "POST":
+            pass
 
     def _clbk_editbook(self, hexid=None):
         book = NoneMocker()
