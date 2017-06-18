@@ -270,7 +270,7 @@ class TableEntityWithID(object):
             columns[Tag] = "tag_id"
         elif objects == {Barcode, User}:
             unity_table = "barcode_queue"
-            columns[User] = "user"
+            columns[User] = "user_id"
         else:
             raise TypeError("Incompatible objects: %s, %s" %
                             tuple(objects))
