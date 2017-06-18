@@ -279,7 +279,15 @@ class WebUI(object):
             if valid:
                 return func(*a, **ka)
             else:
-                redirect("/login")
+                url, params = request.urlparts[2:4]
+                url = url[1:]
+                if url in {"login", "logout", "quit"}: url = ""
+                if params: url += "?" + params
+                if url:
+                    to = "?" + urllib.parse.urlencode({"to":url})
+                else:
+                    to = str()
+                redirect("/login" + to)
         return with_acl
 
     def _acl_not_firstrun(self, func):
@@ -380,9 +388,16 @@ class WebUI(object):
         return "Hello World!"
 
     def _clbk_login(self):
+        """
+        Save [user_id, timestamp] pairs as session information after verifying
+        login credentials
+        """
+        params = request.query.decode()
+        to = params.get("to", "")
+        
         valid, cookie = self.read_cookie()
         if valid:
-            redirect("/")
+            redirect("/" + to)
         else:
             err_status = False
             form = request.forms.decode()
@@ -400,7 +415,7 @@ class WebUI(object):
                             secret=self._cookie_secret)
                         self._persistent_cfg["init_user"] = None
                         self._first_user = None
-                        redirect("/")
+                        redirect("/" + to)
                 else:
                     err_status = True
             elif request.method == "POST":
