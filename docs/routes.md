@@ -21,6 +21,9 @@ This document describes the intended list of routes to be served by hlc
 ###### /books/add
 ###### /file/`<hexid>`
 ###### /logout
+###### /queue`[?isbn=number]`
+Save scanned barcodes (ISBNs) for adding to library later. Usecase: scan codes 
+on cellphone, edit and save on desktop
 ###### /thumbs/`<hexid>`
 
 ### Administrative routes
