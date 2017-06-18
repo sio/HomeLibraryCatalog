@@ -631,7 +631,7 @@ class CatalogueDB(SQLiteDB):
                 suggestions.append(result[0])
         return suggestions
 
-    def __get_simplified(self, cls, field, value, attr=None):
+    def get(self, cls, field, value, attr=None, simplify=False):
         """
         Get an instance of TableEntityWithID of class `cls` where field=value
 
@@ -641,7 +641,10 @@ class CatalogueDB(SQLiteDB):
         """
         if attr is None: attr = field
         if value:
-            query = "SELECT %s FROM %s WHERE simplify(%s)=simplify(?)"
+            if simplify:
+                query = "SELECT %s FROM %s WHERE simplify(%s)=simplify(?)"
+            else:
+                query = "SELECT %s FROM %s WHERE %s=?"
             search = self.sql.generic(
                 self.connection,
                 query,
@@ -671,13 +674,13 @@ class CatalogueDB(SQLiteDB):
             Author() object. If `name` was not found in the database, returns
             new Author() object (not saved)
         """
-        return self.__get_simplified(Author, "name", name)
+        return self.get(Author, "name", name, simplify=True)
 
     def getseries(self, name):
-        return self.__get_simplified(Series, "name", name)
+        return self.get(Series, "name", name, simplify=True)
 
     def gettag(self, name):
-        return self.__get_simplified(Tag, "name", name)
+        return self.get(Tag, "name", name, simplify=True)
 
     def getbook(self, id=None, isbn=None):
         """
