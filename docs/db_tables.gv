@@ -45,4 +45,5 @@ strict graph {
     app_config
     books -- book_files -- files
     sessions
+    users -- barcode_queue [taillabel = 1]
 }
