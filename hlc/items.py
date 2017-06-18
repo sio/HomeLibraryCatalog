@@ -225,46 +225,46 @@ class TableEntityWithID(object):
         """
         Information for connecting pairs of objects
         """
-        objects = list()
+        objects = set()
         for i in (a, b):
             if type(i) is type:
-                objects.append(i)
+                objects.add(i)
             else:
-                objects.append(type(i))
+                objects.add(type(i))
 
         columns = dict()
-        if Book in objects and Author in objects:
+        if objects == {Book, Author}:
             unity_table = "book_authors"
             columns[Book] = "book_id"
             columns[Author] = "author_id"
-        elif Book in objects and Series in objects:
+        elif objects == {Book, Series}:
             unity_table = "book_series"
             columns[Book] = "book_id"
             columns[Series] = "series_id"
-        elif Book in objects and Thumbnail in objects:
+        elif objects == {Book, Thumbnail}:
             unity_table = "books"
             columns[Thumbnail] = "thumbnail_id"
-        elif Book in objects and BookReview in objects:
+        elif objects == {Book, BookReview}:
             unity_table = "book_reviews"
             columns[Book] = "book_id"
-        elif Author in objects and AuthorRating in objects:
+        elif objects == {Author, AuthorRating}:
             unity_table = "author_ratings"
             columns[Author] = "author_id"
-        elif User in objects and BookReview in objects:
+        elif objects == {User, BookReview}:
             unity_table = "book_reviews"
             columns[User] = "reviewed_by"
-        elif User in objects and AuthorRating in objects:
+        elif objects == {User, AuthorRating}:
             unity_table = "author_ratings"
             columns[User] = "rated_by"
-        elif User in objects and Group in objects:
+        elif objects == {User, Group}:
             unity_table = "user_groups"
             columns[User] = "user_id"
             columns[Group] = "group_id"
-        elif Book in objects and BookFile in objects:
+        elif objects == {Book, BookFile}:
             unity_table = "book_files"
             columns[Book] = "book_id"
             columns[BookFile] = "file_id"
-        elif Book in objects and Tag in objects:
+        elif objects == {Book, Tag}:
             unity_table = "book_tags"
             columns[Book] = "book_id"
             columns[Tag] = "tag_id"
