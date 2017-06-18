@@ -713,6 +713,11 @@ class CatalogueDB(SQLiteDB):
         """Create new SQLite database file and all required tables"""
         new_table_queries = (
             """
+            CREATE TABLE sessions (
+                cookie text unique not null,
+                session text)
+            """,
+            """
             CREATE TABLE users (
                 id integer primary key,
                 name text unique not null,

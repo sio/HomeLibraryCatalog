@@ -83,7 +83,7 @@ class WebUI(object):
         self._db_init()
         self._first_user = self._persistent_cfg.get("init_user")
         self._app = Bottle()
-        self._session_manager = SessionManager()
+        self._session_manager = SessionManager(self.db.connection)
         self._datadir = os.path.dirname(os.path.abspath(sqlite_file))
 
         routes_no_acl = (
@@ -767,10 +767,14 @@ class SessionManager(object):
         JSON formatted session data. Data structure should be kept as simple
         as possible to avoid unexpected serialization errors
     """
-    def __init__(self):
-        self._sessions = dict()
+    def __init__(self, db=None):
         # _sessions object should be a key-value storage for strings,
         # for example dict() or DBKeyValueStorage()
+        self._sessions = DBKeyValueStorage(
+            db,
+            "sessions",
+            "cookie",
+            "session")
 
     def get(self, cookie, default=None):
         """Get data corresponding to a cookie"""

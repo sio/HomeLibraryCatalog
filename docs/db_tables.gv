@@ -44,4 +44,5 @@ strict graph {
     books -- book_tags -- tags
     app_config
     books -- book_files -- files
+    sessions
 }
