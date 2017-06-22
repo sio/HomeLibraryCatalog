@@ -26,6 +26,12 @@ as the `HomeLibraryCatalog.py` by default
 
 
 # Todo list
+#### Release 0.1 roadmap
+- [ ] route /admin/adduser
+- [ ] route /admin/groups
+- [ ] route /users/<name>
+- [ ] password change form for user
+
 #### WebUI:
 - [ ] Barcode queue:
     - [ ] fetch related information in background, store to title field
@@ -55,12 +61,14 @@ as the `HomeLibraryCatalog.py` by default
         - [ ] recent books with thumbnails (last month, prev-next links)
     - [ ] plain table: title, authors, series, - in series, year
     - [ ] one book
+        - [ ] external links
+        - [ ] more information?
+        - [ ] hide some data from anonymous users
     - [ ] one author
         - [ ] wikipedia link
         - [ ] series "foo"
         - [ ] other books by year
     - [ ] authors/series list
-    - [ ] login page, handle invalid auth data
 - [ ] CSS:
     - [ ] dark background, light page
     - [ ] no #000000
@@ -78,9 +86,7 @@ as the `HomeLibraryCatalog.py` by default
     - [ ] Google Books?
 
 #### Deployment:
-- [ ] remove bottle.debug
 - [ ] try pyinstall
-- [ ] persistent sessions in database?
 
 #### Unit tests:
 - [ ] mock database object (or in :memory:)
