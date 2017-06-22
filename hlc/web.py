@@ -91,6 +91,9 @@ class WebUI(object):
             ("/static/<filename:path>", self._clbk_static),
         )
         routes_after_init = (
+            ("/", self._clbk_frontpage),
+        )
+        routes_user = (
             ("/ajax/complete", self._clbk_ajax_complete),
             ("/ajax/fill", self._clbk_ajax_info),
             ("/ajax/suggest", self._clbk_ajax_suggestions),
@@ -100,19 +103,20 @@ class WebUI(object):
             ("/books/add", self._clbk_editbook, ["GET", "POST"]),
             ("/file/<hexid>", self._clbk_user_file),
             ("/logout", self._clbk_logout),
-            ("/table/<table>", self._clbk_table),
+            ("/queue", self._clbk_queue_barcode),
             ("/thumbs/<hexid>", self._clbk_thumb),
         )
-        routes_for_user = (
-            ("/queue", self._clbk_queue_barcode),
-            ("/", self._clbk_hello),
+        routes_admin = (
+            ("/books/<hexid>/delete", self._clbk_book_delete),
             ("/quit", self.close),
+            ("/table/<table>", self._clbk_table),
         )
         self._create_routes(routes_no_acl)
         self._create_routes(routes_after_init, self._acl_not_firstrun)
-        self._create_routes(routes_for_user, self._acl_user)
+        self._create_routes(routes_user, self._acl_user)
+        self._create_routes(routes_admin, self._acl_admin)
 
-        for code in [404,]:
+        for code in [404, 403]:
             self.app.error(code)(self._error_page)
 
     def _db_init(self):
@@ -127,7 +131,7 @@ class WebUI(object):
                 credentials[1],
                 datetime.now() + timedelta(days=1))
 
-            for name in ("admin", "user"):
+            for name in ("admin", "user"):  # order matters
                 group = Group(self.db)
                 group.name = name
                 group.save()
@@ -272,12 +276,28 @@ class WebUI(object):
 
         return valid and valid_age, data
 
+    def _acl_admin(self, func):
+        @self._acl_user
+        def admin(*a, **ka):
+            # Hardcoded group ID instead of making a db query
+            # Order in which groups are created by _db_init() matters
+            admins_gid = 1
+
+            admins = Group(self.db, admins_gid)
+            if ka["user"].isconnected(admins):
+                return func(*a, **ka)
+            else:
+                abort(403, "Only administrators can view this page")
+        return admin
+
     def _acl_user(self, func):
         """Wrapper for callback functions. Checks authorization for normal users"""
         @self._acl_not_firstrun
         def with_acl(*a, **ka):
             valid, session = self.read_cookie()
             if valid:
+                user = User(self.db, session[0])
+                ka["user"] = user
                 return func(*a, **ka)
             else:
                 url, params = request.urlparts[2:4]
@@ -374,7 +394,7 @@ class WebUI(object):
         self.db.close()
         sys.stderr.close()  # not ideal, but I don't know any better
 
-    def _clbk_thumb(self, hexid):
+    def _clbk_thumb(self, hexid, user=None):
         """Show thumbnail based on encrypted `hexid`"""
         picture = None
         try:
@@ -385,8 +405,8 @@ class WebUI(object):
         response.content_type = "image/jpeg"
         return picture
 
-    def _clbk_hello(self):
-        return "Hello World!"
+    def _clbk_frontpage(self, user=None):
+        redirect("/books")  # todo: create proper front page
 
     def _clbk_login(self):
         """
@@ -395,7 +415,7 @@ class WebUI(object):
         """
         params = request.query.decode()
         to = params.get("to", "")
-        
+
         valid, cookie = self.read_cookie()
         if valid:
             redirect("/" + to)
@@ -423,7 +443,7 @@ class WebUI(object):
                 err_status = True
             return template("login_password", info=self.info, error=err_status)
 
-    def _clbk_logout(self):
+    def _clbk_logout(self, user=None):
         cookie = request.get_cookie("auth", secret=self._cookie_secret)
         try:
             self.session.pop(cookie)
@@ -437,7 +457,7 @@ class WebUI(object):
             filename,
             root=os.path.join(self._datadir, self._static_location))
 
-    def _clbk_table(self, table):
+    def _clbk_table(self, table, user=None):
         try:
             return template("table",
                 cursor=self.db.sql.select(table),
@@ -446,7 +466,7 @@ class WebUI(object):
         except sqlite3.OperationalError:
             abort(404, "Table `%s` not found in %s" % (table, self.db.filename))
 
-    def _clbk_user_file(self, hexid):
+    def _clbk_user_file(self, hexid, user=None):
         id = self.id.file.decode(hexid)
         link = BookFile(self.db, id)
         try:
@@ -460,21 +480,21 @@ class WebUI(object):
             download=urllib.parse.quote(name),  # wsgiref encodes to iso-8859-1
             mimetype=type)
 
-    def _clbk_ajax_suggestions(self):
+    def _clbk_ajax_suggestions(self, user=None):
         """Reply to AJAX requests for input suggestions"""
         params = request.query.decode()
         line, field = params.get("q"), params.get("f")
         suggestions = self.suggest(field, line)
         return json.dumps({field: suggestions})
 
-    def _clbk_ajax_complete(self):
+    def _clbk_ajax_complete(self, user=None):
         """Reply to AJAX requests for input completion"""
         params = request.query.decode()
         line, field = params.get("q"), params.get("f")
         completion = self.suggest(field, line, 1)
         return json.dumps({field: completion})
 
-    def _clbk_ajax_info(self):
+    def _clbk_ajax_info(self, user=None):
         """Reply to AJAX requests for book info"""
         params = request.query.decode()
         isbn = params.get("isbn")
@@ -484,7 +504,7 @@ class WebUI(object):
         else:
             return json.dumps(book_info(isbn))
 
-    def _clbk_allbooks(self):
+    def _clbk_allbooks(self, user=None):
         MAX_PAGE_SIZE = 100
         DEFAULT_PAGE_SIZE = 3
 
@@ -516,25 +536,31 @@ class WebUI(object):
             info=self.info,
             id=self.id)
 
-    def _clbk_book(self, hexid):
+    def _get_book(self, hexid):
         try:
             id = self.id.book.decode(hexid)
         except ValueError:
-            abort(404, "Invalid book id: %s" % hexid)
-
+            id = None
         book = self.db.getbook(id)
         if book and book.saved:
-            return template(
-                "book",
-                info=self.info,
-                book=book,
-                id=self.id)
+            return book
         else:
             abort(404, "Invalid book id: %s" % hexid)
 
-    def _clbk_queue_barcode(self):
-        valid, cookie = self.read_cookie()
-        user = User(self.db, cookie[0])
+    def _clbk_book(self, hexid, user=None):
+        book = self._get_book(hexid)
+        return template(
+            "book",
+            info=self.info,
+            book=book,
+            id=self.id)
+
+    def _clbk_book_delete(self, hexid, user=None):
+        book = self._get_book(hexid)
+        book.delete()
+        redirect(request.urlparts[2])
+
+    def _clbk_queue_barcode(self, user=None):
         if request.method == "GET":
             params = request.query.decode()
             isbn = params.get("isbn")
@@ -569,11 +595,10 @@ class WebUI(object):
         elif request.method == "POST":
             pass
 
-    def _clbk_editbook(self, hexid=None):
+    def _clbk_editbook(self, hexid=None, user=None):
         book = NoneMocker()
         if hexid:
-            b = self.db.getbook(id=self.id.book.decode(hexid))
-            if b.saved: book = b
+            book = self._get_book(hexid)
 
         if request.method == "GET":
             params = request.query.decode()
