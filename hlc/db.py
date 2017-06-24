@@ -724,7 +724,7 @@ class CatalogueDB(SQLiteDB):
                 fullname text,
                 created_on integer not null default (cast(strftime('%s','now') as integer)),
                 expires_on integer,
-                hash text not null)
+                hash text)
             """,
             """
             CREATE TABLE barcode_queue (
