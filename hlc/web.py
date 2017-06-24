@@ -53,13 +53,6 @@ class WebUI(object):
 
     Internal functions:
         _create_routes(routes, wrapper)
-
-    Route callback functions:
-        _clbk_hello
-        _clbk_login
-        _clbk_logout
-        _clbk_thumb
-        _clbk_allbooks
     """
 
     _scramble_shift = {
@@ -425,7 +418,7 @@ class WebUI(object):
             Timer(1.25, lambda: webbrowser.open(url)).start()  # todo: replace webbrowser.open() with proper handler
         self.app.run(*a, **kw)
 
-    def close(self):
+    def close(self, user=None):
         """Stop WebUI: stop server, close database"""
         self.app.close()
         self.db.close()
