@@ -26,12 +26,6 @@ as the `HomeLibraryCatalog.py` by default
 
 
 # Todo list
-#### Release 0.1 roadmap
-- [ ] route /admin/adduser
-- [ ] route /admin/groups
-- [ ] route /users/<name>
-- [ ] password change form for user
-
 #### WebUI:
 - [ ] Barcode queue:
     - [ ] fetch related information in background, store to title field
@@ -45,9 +39,7 @@ as the `HomeLibraryCatalog.py` by default
         - [ ] book not in library anymore
         - [ ] password change (force if expired)
     - [ ] for administrators
-        - [ ] add user (set password expiration date)
-        - [ ] edit user
-        - [ ] add/edit groups
+        - [ ] edit groups
     - [ ] for all visitors
         - [ ] search box
         - [ ] advanced search: single field searches
