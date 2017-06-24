@@ -145,10 +145,11 @@ class PassHash(object):
             hash
                 String. A hash of valid password
         """
-        if hash.count(cls._delimiter) != 1:
-            raise ValueError("unable to separate salt and hash")
-        salt = hash.split(cls._delimiter)[1].encode()
-        return hash == cls.get(password, salt)
+        if hash:
+            if hash.count(cls._delimiter) != 1:
+                raise ValueError("unable to separate salt and hash")
+            salt = hash.split(cls._delimiter)[1].encode()
+            return hash == cls.get(password, salt)
 
 
 class ReadOnlyDict(object):
