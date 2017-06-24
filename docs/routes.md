@@ -57,7 +57,22 @@ GET parameters are used to save and delete entries
 View attached cover images. Used mostly internally for embedding images into
 web pages
 
+### /users/`<name>`
+View user information
+
+### /users/`<name>`/edit
+Edit user information: change password, change group membership
+
 ## Administrative routes
+### /admin/users
+Create and view existing users
+
+### /admin/groups
+Create and view existing groups
+
+### /books/`<hexid>`/delete
+Delete a book from the library as if it never existed
+
 ### /quit
 Stop application. Closes the database connection and terminates backend
 
@@ -76,17 +91,3 @@ Series name, may be some links + list of books in series
 
 ### /tag/`<name>`
 List of books by tag
-
-
-## Administrative routes
-### /admin/adduser
-Create new user account. Inputs: login, password, expiration date, groups
-
-### /admin/groups
-View/edit groups: add/delete users, create/delete groups
-
-### /books/`<hexid>`/delete
-Delete a book from the library as if it never existed
-
-### /users/`<name>`
-View user information. Edit user information: change password, change group membership
