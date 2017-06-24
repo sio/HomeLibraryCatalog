@@ -76,6 +76,11 @@ a.edit {
     top: 0;
 }
 
+/* USER PAGE */
+.ro_inputs input[disabled] {
+    border-color:rgb(225,225,225)!important;
+}
+
 /* BOOK PREVIEW */
 .book_preview {
     margin-bottom:1em;
