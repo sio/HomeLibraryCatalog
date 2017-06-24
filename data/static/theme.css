@@ -158,6 +158,9 @@ ul.items li {
     position:relative;
     overflow:hidden;
 }
+.user_input label {
+    margin-top:0.15em;
+}
 .user_input .field input[type="text"],
 .user_input .field input[type="password"],
 .user_input .field input[type="submit"],
