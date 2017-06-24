@@ -466,7 +466,12 @@ class WebUI(object):
                             secret=self._cookie_secret)
                         self._persistent_cfg["init_user"] = None
                         self._first_user = None
-                        redirect("/" + to)
+                        if saved_user.expired:
+                            redirect("/users/%s/edit" % saved_user.name)
+                        else:
+                            redirect("/" + to)
+                    else:
+                        err_status = True
                 else:
                     err_status = True
             elif request.method == "POST":
