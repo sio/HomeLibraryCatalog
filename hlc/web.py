@@ -105,6 +105,8 @@ class WebUI(object):
             ("/logout", self._clbk_logout),
             ("/queue", self._clbk_queue_barcode),
             ("/thumbs/<hexid>", self._clbk_thumb),
+            ("/users/<name>", self._clbk_user_page),
+            ("/users/<name>/edit", self._clbk_user_page, ["GET", "POST"]),
         )
         routes_admin = (
             ("/books/<hexid>/delete", self._clbk_book_delete),
@@ -158,7 +160,8 @@ class WebUI(object):
             "out_comment": ("books", "out_comment"),
             "series_type": ("series", "type"),
             "series_name": ("series", "name"),
-            "tags": ("tags", "name")
+            "tags": ("tags", "name"),
+            "groups": ("groups", "name"),
         }
 
         result = list()
@@ -479,6 +482,73 @@ class WebUI(object):
             root=os.path.dirname(path),
             download=urllib.parse.quote(name),  # wsgiref encodes to iso-8859-1
             mimetype=type)
+
+    def _clbk_user_page(self, name, user=None):
+        edit_key = "/edit"
+        inputs = {
+            "self": {"fullname", "password", "password_repeat"},
+            "admin": {"name", "fullname", "groups", "password", "password_repeat"},
+            "readonly": {}}
+        url = request.urlparts[2]
+
+        subject = self.db.get(User, "name", name)
+        admin = user.isconnected(Group(self.db, 1))
+        if admin and url.endswith(edit_key):
+            access = "admin"
+        elif subject == user and url.endswith(edit_key):
+            access = "self"
+        elif not url.endswith(edit_key):
+            access = "readonly"
+        else:
+            access = None
+        edit_link = bool(admin or subject==user)
+
+        if subject and subject.saved:
+            if request.method == "GET":
+                if access:
+                    return template(
+                        "user",
+                        subject=subject,
+                        user=user,
+                        access=inputs[access],
+                        edit_link=edit_link,
+                        info=self.info)
+                else:
+                    abort(403, "You have no permissions to edit this information")
+            elif request.method == "POST":
+                form = request.forms.decode()
+                def get_input(name, default=None):
+                    if name in inputs[access]:
+                        return form.get(name)
+                    else:
+                        return default
+
+                valid, value = validate.nonempty(get_input("name"))
+                if valid: subject.name = value
+
+                valid, value = validate.nonempty(get_input("fullname"))
+                if valid: subject.fullname = value
+
+                valid, value = validate.nonempty(get_input("password"))
+                if valid and get_input("password") == get_input("password_repeat"):
+                    subject.password = get_input("password")
+                    subject.expires_on = datetime.now() + timedelta(days=365)
+
+                subject.save()
+
+                if "groups" in inputs[access]:
+                    for group in subject.getconnected(Group):
+                        group.disconnect(subject)
+                    for group_name in parse_csv(get_input("groups", "")):
+                        group = self.db.get(Group, "name", group_name)
+                        if group and group.saved:
+                            group.connect(subject)
+
+                redirect("/users/" + subject.name)
+            else:
+                raise RuntimeError("Invalid method: %s" % request.method)
+        else:
+            abort(404, "Invalid user name: %s" % name)
 
     def _clbk_ajax_suggestions(self, user=None):
         """Reply to AJAX requests for input suggestions"""
