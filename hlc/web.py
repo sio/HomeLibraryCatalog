@@ -112,6 +112,8 @@ class WebUI(object):
             ("/books/<hexid>/delete", self._clbk_book_delete),
             ("/quit", self.close),
             ("/table/<table>", self._clbk_table),
+            ("/admin/users", self._clbk_admin_users, ["GET", "POST"]),
+            ("/admin/groups", self._clbk_admin_groups, ["GET", "POST"]),
         )
         self._create_routes(routes_no_acl)
         self._create_routes(routes_after_init, self._acl_not_firstrun)
@@ -120,6 +122,38 @@ class WebUI(object):
 
         for code in [404, 403]:
             self.app.error(code)(self._error_page)
+
+    def _clbk_admin_users(self, user=None):
+        return self._clbk_admin_generic(
+            cls=User,
+            title="Пользователи",
+            field="name",
+            link=["/users/%s", "name"],
+            add=request.forms.decode().get("add"))
+
+    def _clbk_admin_groups(self, user=None):
+        return self._clbk_admin_generic(
+            cls=Group,
+            title="Группы пользователей",
+            field="name",
+            add=request.forms.decode().get("add"))
+
+    def _clbk_admin_generic(self, cls, field, **kw):
+        if not kw.get("attr"): kw["attr"] = field
+
+        if kw.get("add"):
+            new = cls(self.db)
+            setattr(new, kw["attr"], kw["add"])
+            new.save()
+
+        query = "SELECT %s FROM %s ORDER BY %s"
+        search = self.db.sql.generic(
+            self.db.connection,
+            query,
+            (cls.__IDField__, cls.__TableName__, field))
+        kw["items"] = (cls(self.db, row[0]) \
+                       for row in self.db.sql.iterate(search))
+        return template("accounts", info=self.info, **kw)
 
     def _db_init(self):
         """
