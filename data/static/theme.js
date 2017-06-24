@@ -685,6 +685,12 @@ function cleanISBN(s) {
     return s.replace(/[^x0-9]/gi,"").toUpperCase();
 };
 
+function checkPasswordMatch(second) {
+    /** Check that two password inputs contain the same password **/
+    var first = second.previousElementSibling;
+    var valid = (first.value === second.value);
+    showFieldValidation(second, valid);
+};
 
 /*
  *
