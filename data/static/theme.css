@@ -81,6 +81,14 @@ a.edit {
     border-color:rgb(225,225,225)!important;
 }
 
+/* ADMINISTRATIVE LIST */
+ul.items {
+    margin-top:0.5em;
+}
+ul.items li {
+    margin-left:2em;
+}
+
 /* BOOK PREVIEW */
 .book_preview {
     margin-bottom:1em;
