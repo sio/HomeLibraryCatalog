@@ -90,10 +90,10 @@ class WebUI(object):
             ("/ajax/complete", self._clbk_ajax_complete),
             ("/ajax/fill", self._clbk_ajax_info),
             ("/ajax/suggest", self._clbk_ajax_suggestions),
-            ("/books", self._clbk_allbooks),
+            ("/books", self._clkb_books_all),
             ("/books/<hexid>", self._clbk_book),
-            ("/books/<hexid>/edit", self._clbk_editbook, ["GET", "POST"]),
-            ("/books/add", self._clbk_editbook, ["GET", "POST"]),
+            ("/books/<hexid>/edit", self._clbk_book_edit, ["GET", "POST"]),
+            ("/books/add", self._clbk_book_edit, ["GET", "POST"]),
             ("/file/<hexid>", self._clbk_user_file),
             ("/logout", self._clbk_logout),
             ("/queue", self._clbk_queue_barcode),
@@ -114,88 +114,24 @@ class WebUI(object):
         self._create_routes(routes_admin, self._acl_admin)
 
         for code in [404, 403]:
-            self.app.error(code)(self._error_page)
+            self.app.error(code)(self._clbk_error_http)
 
-    def _clbk_admin_users(self, user=None):
-        return self._clbk_admin_generic(
-            cls=User,
-            title="Пользователи",
-            field="name",
-            link=["/users/%s", "name"],
-            add=request.forms.decode().get("add"))
+    def __del__(self):
+        self.close()
 
-    def _clbk_admin_groups(self, user=None):
-        return self._clbk_admin_generic(
-            cls=Group,
-            title="Группы пользователей",
-            field="name",
-            add=request.forms.decode().get("add"))
-
-    def _clbk_admin_generic(self, cls, field, **kw):
-        if not kw.get("attr"): kw["attr"] = field
-
-        if kw.get("add"):
-            new = cls(self.db)
-            setattr(new, kw["attr"], kw["add"])
-            new.save()
-
-        query = "SELECT %s FROM %s ORDER BY %s"
-        search = self.db.sql.generic(
-            self.db.connection,
-            query,
-            (cls.__IDField__, cls.__TableName__, field))
-        kw["items"] = (cls(self.db, row[0]) \
-                       for row in self.db.sql.iterate(search))
-        return template("accounts", info=self.info, **kw)
-
-    def _db_init(self):
+    def adduser(self, username, password, expiration=None):
         """
-        Initialize some database entries and create first administrator account
+        Create new WebUI user
+
+        Returns User() instance
+        Raises sqlite3.IntegrityError if username is already taken
         """
-        options = self._persistent_cfg
-        if not options.get("init_date"):
-            credentials = ("admin_" + random_str(2,4).upper(), random_str(6,8))
-            root = self.adduser(
-                credentials[0],
-                credentials[1],
-                datetime.now() + timedelta(days=1))
-
-            for name in ("admin", "user"):  # order matters
-                group = Group(self.db)
-                group.name = name
-                group.save()
-                group.connect(root)
-
-            msg = "Created initial administrative account:\n Login: %s\n Password: %s"
-            message(msg % credentials)
-
-            options["init_date"] = timestamp()
-            options["init_user"] = ":".join(credentials)
-
-    def suggest(self, field, input, count=10):
-        """
-        Return suggestions based on user input
-        """
-        translate = {
-            # form_field: (db_table, db_column)
-            "title": ("books", "name"),
-            "author": ("authors", "name"),
-            "publisher": ("books", "publisher"),
-            "in_type": ("books", "in_type"),
-            "in_comment": ("books", "in_comment"),
-            "out_type": ("books", "out_type"),
-            "out_comment": ("books", "out_comment"),
-            "series_type": ("series", "type"),
-            "series_name": ("series", "name"),
-            "tags": ("tags", "name"),
-            "groups": ("groups", "name"),
-        }
-
-        result = list()
-        if field in translate:
-            table, column = translate[field]
-            result = self.db.getsuggestions(str(input), table, column, count)
-        return result
+        user = User(self.db)
+        user.name = username
+        user.password = password
+        user.expires_on = expiration
+        user.save()
+        return user
 
     def booksearch(self, search, sort_keys=None):
         """
@@ -251,47 +187,6 @@ class WebUI(object):
             books_generator = (self.db.getbook(row["id"]) for row in results)
         return count, books_generator
 
-    def adduser(self, username, password, expiration=None):
-        """
-        Create new WebUI user
-
-        Returns User() instance
-        Raises sqlite3.IntegrityError if username is already taken
-        """
-        user = User(self.db)
-        user.name = username
-        user.password = password
-        user.expires_on = expiration
-        user.save()
-        return user
-
-    def __del__(self):
-        self.close()
-
-    def _create_routes(self, routes, wrapper=None):
-        """
-        Create multiple routes at once. Decorate callback functions in wrapper
-        if needed
-
-        Arguments:
-            routes: List of tuples, each containing information about a single
-                    route: (url, callback, method=GET). Raises ValueError if
-                    length of any route tuple is not 2 or 3
-            wrapper: Optional. Decorator function applied to all callback
-                    functions, for example: checking user access level
-        """
-        for route in routes:
-            url, func = route[:2]
-            if wrapper:
-                func = wrapper(func)
-            if len(route) == 3:
-                method = route[2]
-            elif len(route) == 2:
-                method = "GET"
-            else:
-                raise ValueError("Invalid route tuple of length=%s" % len(route))
-            self.app.route(url, method=method, callback=func)
-
     def read_cookie(self, name="auth"):
         COOKIE_MAX_AGE = 2*24*60*60  # seconds
 
@@ -305,6 +200,31 @@ class WebUI(object):
             response.delete_cookie(name)
 
         return valid and valid_age, data
+
+    def suggest(self, field, input, count=10):
+        """
+        Return suggestions based on user input
+        """
+        translate = {
+            # form_field: (db_table, db_column)
+            "title": ("books", "name"),
+            "author": ("authors", "name"),
+            "publisher": ("books", "publisher"),
+            "in_type": ("books", "in_type"),
+            "in_comment": ("books", "in_comment"),
+            "out_type": ("books", "out_type"),
+            "out_comment": ("books", "out_comment"),
+            "series_type": ("series", "type"),
+            "series_name": ("series", "name"),
+            "tags": ("tags", "name"),
+            "groups": ("groups", "name"),
+        }
+
+        result = list()
+        if field in translate:
+            table, column = translate[field]
+            result = self.db.getsuggestions(str(input), table, column, count)
+        return result
 
     def _acl_admin(self, func):
         @self._acl_user
@@ -353,241 +273,37 @@ class WebUI(object):
                     info=self.info)
         return with_init
 
-    def _info_init(self):
-        i = self._info = DynamicDict()
-        self._info_ro = ReadOnlyDict(self._info)
-        i["books_count"] = lambda: self._persistent_cfg.get("book_count", 0)
-        i["copyright"] = lambda: "2016-%s" % datetime.now().year
-        i["date_format"] = "%d.%m.%Y"
-        i["date"] = lambda: datetime.now().strftime(i["date_format"])
+    def _clbk_admin_generic(self, cls, field, **kw):
+        if not kw.get("attr"): kw["attr"] = field
 
-    @property
-    def db(self):
-        """CatalogueDB object. Used for storing persistent data"""
-        return self._db
+        if kw.get("add"):
+            new = cls(self.db)
+            setattr(new, kw["attr"], kw["add"])
+            new.save()
 
-    @property
-    def app(self):
-        """Bottle application"""
-        return self._app
+        query = "SELECT %s FROM %s ORDER BY %s"
+        search = self.db.sql.generic(
+            self.db.connection,
+            query,
+            (cls.__IDField__, cls.__TableName__, field))
+        kw["items"] = (cls(self.db, row[0]) \
+                       for row in self.db.sql.iterate(search))
+        return template("accounts", info=self.info, **kw)
 
-    @property
-    def session(self):
-        """SessionManager() object"""
-        return self._session_manager
+    def _clbk_admin_groups(self, user=None):
+        return self._clbk_admin_generic(
+            cls=Group,
+            title="Группы пользователей",
+            field="name",
+            add=request.forms.decode().get("add"))
 
-    @property
-    def info(self):
-        """Access the dictionary with some basic stats and other information"""
-        return self._info_ro
-
-    def start(self, config, browser=False, *a, **kw):
-        """Start WebUI"""
-        self._scramble_key = int(config.webui.id_key)
-        self._cookie_secret = str(config.webui.cookie_key)
-        self._static_location = os.path.join(config.app.root, "ui", "static")
-        self._uploads = FSKeyFileStorage(
-            os.path.join(self._datadir, "uploads"),
-            max_filesize=10*2**20)
-        TEMPLATE_PATH.insert(
-            0, os.path.join(config.app.root, "ui", "templates"))
-
-        class IDReader(object):
-            pass
-        self.id = IDReader()
-        for key in self._scramble_shift:
-            setattr(self.id, key, LinCrypt(
-                self._scramble_key + self._scramble_shift[key]))
-
-        if browser:
-            if len(a) > 2:
-                host = a[2]
-            elif "host" in kw:
-                host = kw["host"]
-            else:
-                host = "127.0.0.1"
-
-            if len(a) > 3:
-                port = a[3]
-            elif "port" in kw:
-                port = kw["port"]
-            else:
-                port = "8080"
-
-            url = "http://%s:%s" % (host, port)
-            Timer(1.25, lambda: webbrowser.open(url)).start()  # todo: replace webbrowser.open() with proper handler
-        self.app.run(*a, **kw)
-
-    def close(self, user=None):
-        """Stop WebUI: stop server, close database"""
-        self.app.close()
-        self.db.close()
-        sys.stderr.close()  # not ideal, but I don't know any better
-
-    def _clbk_thumb(self, hexid, user=None):
-        """Show thumbnail based on encrypted `hexid`"""
-        picture = None
-        try:
-            id = self.id.thumb.decode(hexid)
-            picture = Thumbnail(self.db, id).image
-        except ValueError:
-            abort(404, "Invalid thumnail ID: %s" % hexid)
-        response.content_type = "image/jpeg"
-        return picture
-
-    def _clbk_frontpage(self, user=None):
-        redirect("/books")  # todo: create proper front page
-
-    def _clbk_login(self):
-        """
-        Save [user_id, timestamp] pairs as session information after verifying
-        login credentials
-        """
-        params = request.query.decode()
-        to = params.get("to", "")
-
-        valid, cookie = self.read_cookie()
-        if valid:
-            redirect("/" + to)
-        else:
-            err_status = False
-            form = request.forms.decode()
-            user = form.get("user")
-            password = form.get("password")
-            if user and password:
-                row = self.db.sql.select("users", {"name": user}).fetchone()
-                if row:
-                    saved_user = User(self.db, row["id"])
-                    if saved_user.check(password):
-                        cookie = self.session.new([saved_user.id, timestamp()])
-                        response.set_cookie(
-                            "auth",
-                            cookie,
-                            secret=self._cookie_secret)
-                        self._persistent_cfg["init_user"] = None
-                        self._first_user = None
-                        if saved_user.expired:
-                            redirect("/users/%s/edit" % saved_user.name)
-                        else:
-                            redirect("/" + to)
-                    else:
-                        err_status = True
-                else:
-                    err_status = True
-            elif request.method == "POST":
-                err_status = True
-            return template("login_password", info=self.info, error=err_status)
-
-    def _clbk_logout(self, user=None):
-        cookie = request.get_cookie("auth", secret=self._cookie_secret)
-        try:
-            self.session.pop(cookie)
-        except KeyError:
-            pass
-        response.delete_cookie("auth")
-        redirect("/")
-
-    def _clbk_static(self, filename):
-        return static_file(
-            filename,
-            root=self._static_location)
-
-    def _clbk_table(self, table, user=None):
-        try:
-            return template("table",
-                cursor=self.db.sql.select(table),
-                title=table,
-                info=self.info)
-        except sqlite3.OperationalError:
-            abort(404, "Table `%s` not found in %s" % (table, self.db.filename))
-
-    def _clbk_user_file(self, hexid, user=None):
-        id = self.id.file.decode(hexid)
-        link = BookFile(self.db, id)
-        try:
-            name, type = link.name, link.type
-        except ValueError:
-            abort(404, "File not found: %s" % hexid)
-        path = self._uploads["BookFile:%s" % id]
-        return static_file(
-            os.path.basename(path),
-            root=os.path.dirname(path),
-            download=urllib.parse.quote(name),  # wsgiref encodes to iso-8859-1
-            mimetype=type)
-
-    def _clbk_user_page(self, name, user=None):
-        edit_key = "/edit"
-        inputs = {
-            "self": {"fullname", "password", "password_repeat"},
-            "admin": {"name", "fullname", "groups", "password", "password_repeat"},
-            "readonly": {}}
-        url = request.urlparts[2]
-
-        subject = self.db.get(User, "name", name)
-        admin = user.isconnected(Group(self.db, 1))
-        if admin and url.endswith(edit_key):
-            access = "admin"
-        elif subject == user and url.endswith(edit_key):
-            access = "self"
-        elif not url.endswith(edit_key):
-            access = "readonly"
-        else:
-            access = None
-        edit_link = bool(admin or subject==user)
-
-        if subject and subject.saved:
-            if request.method == "GET":
-                if access:
-                    return template(
-                        "user",
-                        subject=subject,
-                        user=user,
-                        access=inputs[access],
-                        edit_link=edit_link,
-                        info=self.info)
-                else:
-                    abort(403, "You have no permissions to edit this information")
-            elif request.method == "POST":
-                form = request.forms.decode()
-                def get_input(name, default=None):
-                    if name in inputs[access]:
-                        return form.get(name)
-                    else:
-                        return default
-
-                valid, value = validate.nonempty(get_input("name"))
-                if valid: subject.name = value
-
-                valid, value = validate.nonempty(get_input("fullname"))
-                if valid: subject.fullname = value
-
-                valid, value = validate.nonempty(get_input("password"))
-                if valid and get_input("password") == get_input("password_repeat"):
-                    subject.password = get_input("password")
-                    subject.expires_on = datetime.now() + timedelta(days=365)
-
-                subject.save()
-
-                if "groups" in inputs[access]:
-                    for group in subject.getconnected(Group):
-                        group.disconnect(subject)
-                    for group_name in parse_csv(get_input("groups", "")):
-                        group = self.db.get(Group, "name", group_name)
-                        if group and group.saved:
-                            group.connect(subject)
-
-                redirect("/users/" + subject.name)
-            else:
-                raise RuntimeError("Invalid method: %s" % request.method)
-        else:
-            abort(404, "Invalid user name: %s" % name)
-
-    def _clbk_ajax_suggestions(self, user=None):
-        """Reply to AJAX requests for input suggestions"""
-        params = request.query.decode()
-        line, field = params.get("q"), params.get("f")
-        suggestions = self.suggest(field, line)
-        return json.dumps({field: suggestions})
+    def _clbk_admin_users(self, user=None):
+        return self._clbk_admin_generic(
+            cls=User,
+            title="Пользователи",
+            field="name",
+            link=["/users/%s", "name"],
+            add=request.forms.decode().get("add"))
 
     def _clbk_ajax_complete(self, user=None):
         """Reply to AJAX requests for input completion"""
@@ -606,48 +322,12 @@ class WebUI(object):
         else:
             return json.dumps(book_info(isbn))
 
-    def _clbk_allbooks(self, user=None):
-        MAX_PAGE_SIZE = 100
-        DEFAULT_PAGE_SIZE = 10
-
+    def _clbk_ajax_suggestions(self, user=None):
+        """Reply to AJAX requests for input suggestions"""
         params = request.query.decode()
-        pagenum, pagesize = params.get("p", 0), params.get("ps", DEFAULT_PAGE_SIZE)
-
-        pagenum = max(0, int(pagenum))
-        pagesize = min(MAX_PAGE_SIZE, int(pagesize))
-        offset = pagenum * pagesize
-
-        query = "SELECT id FROM books ORDER BY last_edit DESC LIMIT ? OFFSET ?"
-        search = self.db.sql.generic(
-                    self.db.connection,
-                    query,
-                    params=(pagesize, offset))
-
-        return self._page_book_list(
-            search,
-            "Все книги",
-            pg_info=[pagenum, pagesize])
-
-    def _page_book_list(self, search, title, pg_info):
-        return template(
-            "book_list",
-            books=(self.db.getbook(row[0]) \
-                   for row in self.db.sql.iterate(search)),
-            title=title,
-            pg_info=pg_info,
-            info=self.info,
-            id=self.id)
-
-    def _get_book(self, hexid):
-        try:
-            id = self.id.book.decode(hexid)
-        except ValueError:
-            id = None
-        book = self.db.getbook(id)
-        if book and book.saved:
-            return book
-        else:
-            abort(404, "Invalid book id: %s" % hexid)
+        line, field = params.get("q"), params.get("f")
+        suggestions = self.suggest(field, line)
+        return json.dumps({field: suggestions})
 
     def _clbk_book(self, hexid, user=None):
         book = self._get_book(hexid)
@@ -662,42 +342,7 @@ class WebUI(object):
         book.delete()
         redirect(request.urlparts[2])
 
-    def _clbk_queue_barcode(self, user=None):
-        if request.method == "GET":
-            params = request.query.decode()
-            isbn = params.get("isbn")
-            reply = str()
-            if params.get("delete") and isbn:
-                brcode = self.db.get(Barcode, "isbn", ISBN(isbn).number)
-                if brcode: brcode.delete()
-                redirect(request.urlparts[2])
-            elif isbn:
-                brcode = Barcode(self.db)
-                try:
-                    brcode.isbn = isbn
-                    brcode.save()
-                except ValueError:
-                    reply = "[Error] Invalid ISBN: %s" % isbn
-                except sqlite3.IntegrityError:
-                    reply = "[OK] Already exists: %s" % isbn
-                else:
-                    brcode.connect(user)
-                    reply = "[OK] ISBN saved to queue: %s" % isbn
-            query = "SELECT id FROM barcode_queue ORDER BY date DESC"
-            search = self.db.sql.generic(
-                self.db.connection,
-                query)
-            barcodes = (Barcode(self.db, row[0]) \
-                        for row in self.db.sql.iterate(search))
-            return template(
-                "queue",
-                barcodes=barcodes,
-                message=reply,
-                info=self.info)
-        elif request.method == "POST":
-            pass
-
-    def _clbk_editbook(self, hexid=None, user=None):
+    def _clbk_book_edit(self, hexid=None, user=None):
         book = NoneMocker()
         if hexid:
             book = self._get_book(hexid)
@@ -853,8 +498,363 @@ class WebUI(object):
 
             redirect("/books/%s" % self.id.book.encode(book.id))
 
-    def _error_page(self, error):
+    def _clkb_books_all(self, user=None):
+        MAX_PAGE_SIZE = 100
+        DEFAULT_PAGE_SIZE = 10
+
+        params = request.query.decode()
+        pagenum, pagesize = params.get("p", 0), params.get("ps", DEFAULT_PAGE_SIZE)
+
+        pagenum = max(0, int(pagenum))
+        pagesize = min(MAX_PAGE_SIZE, int(pagesize))
+        offset = pagenum * pagesize
+
+        query = "SELECT id FROM books ORDER BY last_edit DESC LIMIT ? OFFSET ?"
+        search = self.db.sql.generic(
+                    self.db.connection,
+                    query,
+                    params=(pagesize, offset))
+
+        return self._page_book_list(
+            search,
+            "Все книги",
+            pg_info=[pagenum, pagesize])
+
+    def _clbk_error_http(self, error):
         return template("error_http", info=self.info, error=error)
+
+    def _clbk_frontpage(self, user=None):
+        redirect("/books")  # todo: create proper front page
+
+    def _clbk_login(self):
+        """
+        Save [user_id, timestamp] pairs as session information after verifying
+        login credentials
+        """
+        params = request.query.decode()
+        to = params.get("to", "")
+
+        valid, cookie = self.read_cookie()
+        if valid:
+            redirect("/" + to)
+        else:
+            err_status = False
+            form = request.forms.decode()
+            user = form.get("user")
+            password = form.get("password")
+            if user and password:
+                row = self.db.sql.select("users", {"name": user}).fetchone()
+                if row:
+                    saved_user = User(self.db, row["id"])
+                    if saved_user.check(password):
+                        cookie = self.session.new([saved_user.id, timestamp()])
+                        response.set_cookie(
+                            "auth",
+                            cookie,
+                            secret=self._cookie_secret)
+                        self._persistent_cfg["init_user"] = None
+                        self._first_user = None
+                        if saved_user.expired:
+                            redirect("/users/%s/edit" % saved_user.name)
+                        else:
+                            redirect("/" + to)
+                    else:
+                        err_status = True
+                else:
+                    err_status = True
+            elif request.method == "POST":
+                err_status = True
+            return template("login_password", info=self.info, error=err_status)
+
+    def _clbk_logout(self, user=None):
+        cookie = request.get_cookie("auth", secret=self._cookie_secret)
+        try:
+            self.session.pop(cookie)
+        except KeyError:
+            pass
+        response.delete_cookie("auth")
+        redirect("/")
+
+    def _clbk_queue_barcode(self, user=None):
+        if request.method == "GET":
+            params = request.query.decode()
+            isbn = params.get("isbn")
+            reply = str()
+            if params.get("delete") and isbn:
+                brcode = self.db.get(Barcode, "isbn", ISBN(isbn).number)
+                if brcode: brcode.delete()
+                redirect(request.urlparts[2])
+            elif isbn:
+                brcode = Barcode(self.db)
+                try:
+                    brcode.isbn = isbn
+                    brcode.save()
+                except ValueError:
+                    reply = "[Error] Invalid ISBN: %s" % isbn
+                except sqlite3.IntegrityError:
+                    reply = "[OK] Already exists: %s" % isbn
+                else:
+                    brcode.connect(user)
+                    reply = "[OK] ISBN saved to queue: %s" % isbn
+            query = "SELECT id FROM barcode_queue ORDER BY date DESC"
+            search = self.db.sql.generic(
+                self.db.connection,
+                query)
+            barcodes = (Barcode(self.db, row[0]) \
+                        for row in self.db.sql.iterate(search))
+            return template(
+                "queue",
+                barcodes=barcodes,
+                message=reply,
+                info=self.info)
+        elif request.method == "POST":
+            pass
+
+    def _clbk_static(self, filename):
+        return static_file(
+            filename,
+            root=self._static_location)
+
+    def _clbk_table(self, table, user=None):
+        try:
+            return template("table",
+                cursor=self.db.sql.select(table),
+                title=table,
+                info=self.info)
+        except sqlite3.OperationalError:
+            abort(404, "Table `%s` not found in %s" % (table, self.db.filename))
+
+    def _clbk_thumb(self, hexid, user=None):
+        """Show thumbnail based on encrypted `hexid`"""
+        picture = None
+        try:
+            id = self.id.thumb.decode(hexid)
+            picture = Thumbnail(self.db, id).image
+        except ValueError:
+            abort(404, "Invalid thumnail ID: %s" % hexid)
+        response.content_type = "image/jpeg"
+        return picture
+
+    def _clbk_user_file(self, hexid, user=None):
+        id = self.id.file.decode(hexid)
+        link = BookFile(self.db, id)
+        try:
+            name, type = link.name, link.type
+        except ValueError:
+            abort(404, "File not found: %s" % hexid)
+        path = self._uploads["BookFile:%s" % id]
+        return static_file(
+            os.path.basename(path),
+            root=os.path.dirname(path),
+            download=urllib.parse.quote(name),  # wsgiref encodes to iso-8859-1
+            mimetype=type)
+
+    def _clbk_user_page(self, name, user=None):
+        edit_key = "/edit"
+        inputs = {
+            "self": {"fullname", "password", "password_repeat"},
+            "admin": {"name", "fullname", "groups", "password", "password_repeat"},
+            "readonly": {}}
+        url = request.urlparts[2]
+
+        subject = self.db.get(User, "name", name)
+        admin = user.isconnected(Group(self.db, 1))
+        if admin and url.endswith(edit_key):
+            access = "admin"
+        elif subject == user and url.endswith(edit_key):
+            access = "self"
+        elif not url.endswith(edit_key):
+            access = "readonly"
+        else:
+            access = None
+        edit_link = bool(admin or subject==user)
+
+        if subject and subject.saved:
+            if request.method == "GET":
+                if access:
+                    return template(
+                        "user",
+                        subject=subject,
+                        user=user,
+                        access=inputs[access],
+                        edit_link=edit_link,
+                        info=self.info)
+                else:
+                    abort(403, "You have no permissions to edit this information")
+            elif request.method == "POST":
+                form = request.forms.decode()
+                def get_input(name, default=None):
+                    if name in inputs[access]:
+                        return form.get(name)
+                    else:
+                        return default
+
+                valid, value = validate.nonempty(get_input("name"))
+                if valid: subject.name = value
+
+                valid, value = validate.nonempty(get_input("fullname"))
+                if valid: subject.fullname = value
+
+                valid, value = validate.nonempty(get_input("password"))
+                if valid and get_input("password") == get_input("password_repeat"):
+                    subject.password = get_input("password")
+                    subject.expires_on = datetime.now() + timedelta(days=365)
+
+                subject.save()
+
+                if "groups" in inputs[access]:
+                    for group in subject.getconnected(Group):
+                        group.disconnect(subject)
+                    for group_name in parse_csv(get_input("groups", "")):
+                        group = self.db.get(Group, "name", group_name)
+                        if group and group.saved:
+                            group.connect(subject)
+
+                redirect("/users/" + subject.name)
+            else:
+                raise RuntimeError("Invalid method: %s" % request.method)
+        else:
+            abort(404, "Invalid user name: %s" % name)
+
+    def _create_routes(self, routes, wrapper=None):
+        """
+        Create multiple routes at once. Decorate callback functions in wrapper
+        if needed
+
+        Arguments:
+            routes: List of tuples, each containing information about a single
+                    route: (url, callback, method=GET). Raises ValueError if
+                    length of any route tuple is not 2 or 3
+            wrapper: Optional. Decorator function applied to all callback
+                    functions, for example: checking user access level
+        """
+        for route in routes:
+            url, func = route[:2]
+            if wrapper:
+                func = wrapper(func)
+            if len(route) == 3:
+                method = route[2]
+            elif len(route) == 2:
+                method = "GET"
+            else:
+                raise ValueError("Invalid route tuple of length=%s" % len(route))
+            self.app.route(url, method=method, callback=func)
+
+    def _db_init(self):
+        """
+        Initialize some database entries and create first administrator account
+        """
+        options = self._persistent_cfg
+        if not options.get("init_date"):
+            credentials = ("admin_" + random_str(2,4).upper(), random_str(6,8))
+            root = self.adduser(
+                credentials[0],
+                credentials[1],
+                datetime.now() + timedelta(days=1))
+
+            for name in ("admin", "user"):  # order matters
+                group = Group(self.db)
+                group.name = name
+                group.save()
+                group.connect(root)
+
+            msg = "Created initial administrative account:\n Login: %s\n Password: %s"
+            message(msg % credentials)
+
+            options["init_date"] = timestamp()
+            options["init_user"] = ":".join(credentials)
+
+    def _info_init(self):
+        i = self._info = DynamicDict()
+        self._info_ro = ReadOnlyDict(self._info)
+        i["books_count"] = lambda: self._persistent_cfg.get("book_count", 0)
+        i["copyright"] = lambda: "2016-%s" % datetime.now().year
+        i["date_format"] = "%d.%m.%Y"
+        i["date"] = lambda: datetime.now().strftime(i["date_format"])
+
+    def _get_book(self, hexid):
+        try:
+            id = self.id.book.decode(hexid)
+        except ValueError:
+            id = None
+        book = self.db.getbook(id)
+        if book and book.saved:
+            return book
+        else:
+            abort(404, "Invalid book id: %s" % hexid)
+
+    def _page_book_list(self, search, title, pg_info):
+        return template(
+            "book_list",
+            books=(self.db.getbook(row[0]) \
+                   for row in self.db.sql.iterate(search)),
+            title=title,
+            pg_info=pg_info,
+            info=self.info,
+            id=self.id)
+
+    @property
+    def db(self):
+        """CatalogueDB object. Used for storing persistent data"""
+        return self._db
+
+    @property
+    def app(self):
+        """Bottle application"""
+        return self._app
+
+    @property
+    def session(self):
+        """SessionManager() object"""
+        return self._session_manager
+
+    @property
+    def info(self):
+        """Access the dictionary with some basic stats and other information"""
+        return self._info_ro
+
+    def start(self, config, browser=False, *a, **kw):
+        """Start WebUI"""
+        self._scramble_key = int(config.webui.id_key)
+        self._cookie_secret = str(config.webui.cookie_key)
+        self._static_location = os.path.join(config.app.root, "ui", "static")
+        self._uploads = FSKeyFileStorage(
+            os.path.join(self._datadir, "uploads"),
+            max_filesize=10*2**20)
+        TEMPLATE_PATH.insert(
+            0, os.path.join(config.app.root, "ui", "templates"))
+
+        class IDReader(object):
+            pass
+        self.id = IDReader()
+        for key in self._scramble_shift:
+            setattr(self.id, key, LinCrypt(
+                self._scramble_key + self._scramble_shift[key]))
+
+        if browser:
+            if len(a) > 2:
+                host = a[2]
+            elif "host" in kw:
+                host = kw["host"]
+            else:
+                host = "127.0.0.1"
+
+            if len(a) > 3:
+                port = a[3]
+            elif "port" in kw:
+                port = kw["port"]
+            else:
+                port = "8080"
+
+            url = "http://%s:%s" % (host, port)
+            Timer(1.25, lambda: webbrowser.open(url)).start()  # todo: replace webbrowser.open() with proper handler
+        self.app.run(*a, **kw)
+
+    def close(self, user=None):
+        """Stop WebUI: stop server, close database"""
+        self.app.close()
+        self.db.close()
+        sys.stderr.close()  # not ideal, but I don't know any better
 
 
 class validate(object):
