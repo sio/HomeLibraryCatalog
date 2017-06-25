@@ -3,17 +3,22 @@ Functions for handling JSON files with settings
 """
 
 import json
+import os.path
 
 
 class Configuration(object):
     """
     Transform dictionary into object with properties correcponding to its keys
+    
+    Supports environment variables in values
     """
     def __init__(self, dictionary):
         for key, value in dictionary.items():
             if type(value) is dict:
                 setattr(self, key, Configuration(value))
             else:
+                if isinstance(value, str):
+                    value = os.path.expandvars(value)
                 setattr(self, key, value)
 
     def dump(self):
