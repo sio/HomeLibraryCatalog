@@ -1,5 +1,6 @@
 <%
 app_name = "Библиотека"
+user = get("user", None)
 %>
 <!DOCTYPE html>
 <html>
@@ -18,9 +19,13 @@ app_name = "Библиотека"
         <ul>
         <li><a href="/books">Каталог</a></li>
         <li><a href="/books/add">Добавить книгу</a></li>
-        <li><a href="#">Выбытие книг</a></li>
-        <li><a href="/table/books">База данных</a></li>
-        <li><a href="/login">Войти</a></li>
+        <li><a href="/queue">Очередь штрих-кодов</a></li>
+        % if user:
+        <li class="with_separator"><a href="/users/{{user.name}}">Аккаунт</a></li>
+        <li><a href="/logout">Выйти</a></li>
+        % else:
+        <li class="with_separator"><a href="/login">Войти</a></li>
+        % end
         </ul>
     </div>
     <div id="page">

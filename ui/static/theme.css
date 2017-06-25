@@ -46,6 +46,9 @@ body {
     color:navy;
     background-color:#eef;
 }
+#menu li.with_separator {
+    margin-top:1em;
+}
 
 /* BOOK PAGE */
 .library_card {
