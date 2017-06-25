@@ -25,12 +25,11 @@ DEFAULT_CONFIGURATION = {
     }
 
 
-def main():
-    CONFIG_FILE = os.path.abspath(sys.argv[1])
-    config = settings(CONFIG_FILE, DEFAULT_CONFIGURATION)
-    
+def run_app(json_file):
+    config = settings(os.path.abspath(json_file), DEFAULT_CONFIGURATION)
+
     VERBOSITY[0] = int(config.app.verbosity)
-    
+
     config.app.root = os.path.dirname(os.path.abspath(__file__))
     if not os.path.isabs(config.app.data_dir):
         config.app.data_dir = os.path.join(config.app.root, config.app.data_dir)
@@ -67,12 +66,16 @@ def test():
     hlc.test.run()
 
 
-if __name__ == "__main__":
-    args = set(sys.argv)
+def main(argv):
+    args = set(argv)
     if set.intersection(set(("--tests", "-t")), args):
         test()
-    elif len(sys.argv)==2:
-        main()
+    elif len(argv)==2:
+        run_app(argv[1])
     else:
         print("Usage: %s config.file" % os.path.basename(__file__))
         exit(1)
+
+        
+if __name__ == "__main__":
+    main(sys.argv)
