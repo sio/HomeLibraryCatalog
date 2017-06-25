@@ -6,7 +6,7 @@ import sqlite3
 import os
 import re
 from hlc.items import ISBN, Author, Book, Series, Tag
-from hlc.util import lowercase, alphanumeric, debug, timestamp
+from hlc.util import lowercase, alphanumeric, debug, timestamp, printf_replacement
 from hashlib import sha224
 
 
@@ -550,6 +550,7 @@ class SQLiteDB(object):
         self._connection.create_function("clean_isbn", 1,
             lambda x: ISBN(x).number)
         self._connection.create_function("lower", 1, lowercase)
+        self._connection.create_function("printf", -1, printf_replacement)
         self._connection.create_function("simplify", 1,
             lambda x: lowercase(alphanumeric(x)))
         # self._connection.create_function("timestamp", 0, timestamp)
