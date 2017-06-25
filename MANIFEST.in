@@ -1,6 +1,5 @@
 include README.md
 include LICENSE
 include requirements.txt
-include HomeLibraryCatalog.py
 recursive-include docs *
 recursive-include ui *
