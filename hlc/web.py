@@ -608,7 +608,7 @@ class WebUI(object):
 
     def _clbk_allbooks(self, user=None):
         MAX_PAGE_SIZE = 100
-        DEFAULT_PAGE_SIZE = 3
+        DEFAULT_PAGE_SIZE = 10
 
         params = request.query.decode()
         pagenum, pagesize = params.get("p", 0), params.get("ps", DEFAULT_PAGE_SIZE)
