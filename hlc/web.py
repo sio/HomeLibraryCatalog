@@ -866,18 +866,6 @@ class validate(object):
     """
 
     @staticmethod
-    def nonempty(text):
-        valid = bool(text)
-        try:
-            text = str(text)
-        except Exception:
-            valid = False
-        if valid:
-            text = re.sub("^\s+|\s+$", "", text)
-            valid = len(text) > 0
-        return valid, text
-
-    @staticmethod
     def date(text):
         """DD.MM.YYYY format"""
         text = validate.nonempty(text)[1]
@@ -901,17 +889,23 @@ class validate(object):
         return valid, text
 
     @staticmethod
-    def year(text):
-        valid, text = validate.nonempty(text)
+    def isbn(text):
+        try:
+            valid = ISBN(text).valid
+        except Exception:
+            valid = False
+        return valid, text
+
+    @staticmethod
+    def nonempty(text):
+        valid = bool(text)
+        try:
+            text = str(text)
+        except Exception:
+            valid = False
         if valid:
-            valid, text = validate.positive(text)
-        if valid:
-            try:
-                text = int(text)
-            except Exception:
-                valid = False
-        if valid:
-            valid = text >= 1900 and text <= 2100
+            text = re.sub("^\s+|\s+$", "", text)
+            valid = len(text) > 0
         return valid, text
 
     @staticmethod
@@ -928,11 +922,17 @@ class validate(object):
         return valid, text
 
     @staticmethod
-    def isbn(text):
-        try:
-            valid = ISBN(text).valid
-        except Exception:
-            valid = False
+    def year(text):
+        valid, text = validate.nonempty(text)
+        if valid:
+            valid, text = validate.positive(text)
+        if valid:
+            try:
+                text = int(text)
+            except Exception:
+                valid = False
+        if valid:
+            valid = text >= 1900 and text <= 2100
         return valid, text
 
 
