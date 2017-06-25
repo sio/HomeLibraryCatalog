@@ -10,11 +10,11 @@ class Configuration(object):
     Transform dictionary into object with properties correcponding to its keys
     """
     def __init__(self, dictionary):
-        for i in dictionary:
-            if type(dictionary[i]) is dict:
-                setattr(self, i, Configuration(dictionary[i]))
+        for key, value in dictionary.items():
+            if type(value) is dict:
+                setattr(self, key, Configuration(value))
             else:
-                setattr(self, i, dictionary[i])
+                setattr(self, key, value)
 
     def dump(self):
         """Dump object attributes back into dictionary"""
