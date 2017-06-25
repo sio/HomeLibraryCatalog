@@ -8,6 +8,8 @@ setup(
     author_email="sio.wtf@gmail.com",
     url="https://github.com/sio/HomeLibraryCatalog",
     packages=["hlc", "hlc.test"],
+    package_data={"hlc": ["ui/static/*", "ui/templates/*"]},
+    include_package_data=True,
     scripts=["HomeLibraryCatalog.py"],
     license="GPL-3.0",
     install_requires=[
