@@ -2,4 +2,5 @@
 *.sqlite
 *.config
 *.log
-data/uploads/
+MANIFEST
+dist/
