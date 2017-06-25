@@ -328,3 +328,9 @@ def parse_csv(csv):
         if item: item = alphanumeric(item).strip()
         items.append(item)
     return items
+
+def printf_replacement(text, *a, **ka):
+    """
+    printf replacement for older sqlite versions
+    """
+    return text.format(*a, **ka)
