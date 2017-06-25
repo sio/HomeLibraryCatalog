@@ -3,6 +3,7 @@
 
 import os
 import sys
+import hlc
 from hlc import WebUI, debug, settings, VERBOSITY
 
 
@@ -30,9 +31,11 @@ def run_app(json_file):
 
     VERBOSITY[0] = int(config.app.verbosity)
 
-    config.app.root = os.path.dirname(os.path.abspath(__file__))
+    config.app.root = os.path.dirname(os.path.abspath(hlc.__file__))
     if not os.path.isabs(config.app.data_dir):
-        config.app.data_dir = os.path.join(config.app.root, config.app.data_dir)
+        config.app.data_dir = os.path.join(
+            os.path.dirname(__file__),
+            config.app.data_dir)
     try:
         os.makedirs(config.app.data_dir, exist_ok=True)
     except FileExistsError as e:
@@ -76,6 +79,6 @@ def main(argv):
         print("Usage: %s config.file" % os.path.basename(__file__))
         exit(1)
 
-        
+
 if __name__ == "__main__":
     main(sys.argv)

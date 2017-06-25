@@ -9,4 +9,3 @@ __all__ = [
 
 from hlc.web import WebUI, debug
 from hlc.cfg import settings
-from hlc.launcher import main
