@@ -29,15 +29,13 @@ class FSKeyFileStorage(object):
             folder_name
                 Top directory containing stored files
         """
-        if os.path.isdir(folder_name):
-            self.__dir = os.path.abspath(folder_name)
-            self.__add_readme(self.__readme)
-            if max_filesize is None:
-                self.__max_size = None
-            else:
-                self.__max_size = int(max_filesize)
+        os.makedirs(folder_name, exist_ok=True)
+        self.__dir = os.path.abspath(folder_name)
+        self.__add_readme(self.__readme)
+        if max_filesize is None:
+            self.__max_size = None
         else:
-            raise ValueError("not a valid folder name: %s" % folder_name)
+            self.__max_size = int(max_filesize)
 
     def __add_readme(self, readme_file):
         text = "THIS FOLDER IS USED BY AN APPLICATION FOR STORING FILES\n"
@@ -110,8 +108,7 @@ class FSKeyFileStorage(object):
             except AttributeError:
                 enc = None
 
-            if not os.path.exists(dir):
-                os.makedirs(dir)
+            os.makedirs(dir, exist_ok=True)
             with open(path, mode, encoding=enc) as fp:
                 offset = value.tell()
                 chunk_size = 2**16
