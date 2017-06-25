@@ -29,7 +29,10 @@ class FSKeyFileStorage(object):
             folder_name
                 Top directory containing stored files
         """
-        os.makedirs(folder_name, exist_ok=True)
+        try:
+            os.makedirs(folder_name, exist_ok=True)
+        except FileExistsError as e:
+            pass
         self.__dir = os.path.abspath(folder_name)
         self.__add_readme(self.__readme)
         if max_filesize is None:
@@ -108,7 +111,10 @@ class FSKeyFileStorage(object):
             except AttributeError:
                 enc = None
 
-            os.makedirs(dir, exist_ok=True)
+            try:
+                os.makedirs(dir, exist_ok=True)
+            except FileExistsError as e:
+                pass
             with open(path, mode, encoding=enc) as fp:
                 offset = value.tell()
                 chunk_size = 2**16

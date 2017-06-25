@@ -34,7 +34,10 @@ def main():
     config.app.root = os.path.dirname(os.path.abspath(__file__))
     if not os.path.isabs(config.app.data_dir):
         config.app.data_dir = os.path.join(config.app.root, config.app.data_dir)
-    os.makedirs(config.app.data_dir, exist_ok=True)
+    try:
+        os.makedirs(config.app.data_dir, exist_ok=True)
+    except FileExistsError as e:
+        pass
 
     stdout = sys.stdout
     stderr = sys.stderr
