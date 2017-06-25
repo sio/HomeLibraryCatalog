@@ -383,14 +383,14 @@ class WebUI(object):
 
     def start(self, config, browser=False, *a, **kw):
         """Start WebUI"""
-        self._scramble_key = int(config.id_key)
-        self._cookie_secret = str(config.cookie_key)
-        self._static_location = os.path.join("ui", "static")
+        self._scramble_key = int(config.webui.id_key)
+        self._cookie_secret = str(config.webui.cookie_key)
+        self._static_location = os.path.join(config.app.root, "ui", "static")
         self._uploads = FSKeyFileStorage(
             os.path.join(self._datadir, "uploads"),
             max_filesize=10*2**20)
         TEMPLATE_PATH.insert(
-            0, os.path.join("ui", "templates"))
+            0, os.path.join(config.app.root, "ui", "templates"))
 
         class IDReader(object):
             pass
@@ -490,7 +490,7 @@ class WebUI(object):
     def _clbk_static(self, filename):
         return static_file(
             filename,
-            root=os.path.join(self._datadir, self._static_location))
+            root=self._static_location)
 
     def _clbk_table(self, table, user=None):
         try:
