@@ -228,7 +228,7 @@ class WebUI(object):
 
     def _acl_admin(self, func):
         @self._acl_user
-        def admin(*a, **ka):
+        def with_admin(*a, **ka):
             # Hardcoded group ID instead of making a db query
             # Order in which groups are created by _db_init() matters
             admins_gid = 1
@@ -238,16 +238,13 @@ class WebUI(object):
                 return func(*a, **ka)
             else:
                 abort(403, "Only administrators can view this page")
-        return admin
+        return with_admin
 
     def _acl_user(self, func):
         """Wrapper for callback functions. Checks authorization for normal users"""
         @self._acl_not_firstrun
-        def with_acl(*a, **ka):
-            valid, session = self.read_cookie()
-            if valid:
-                user = User(self.db, session[0])
-                ka["user"] = user
+        def with_user(*a, **ka):
+            if ka.get("user"):
                 return func(*a, **ka)
             else:
                 url, params = request.urlparts[2:4]
@@ -259,12 +256,16 @@ class WebUI(object):
                 else:
                     to = str()
                 redirect("/login" + to)
-        return with_acl
+        return with_user
 
     def _acl_not_firstrun(self, func):
         """Wrapper for _acl_* functions that require app initialization"""
         def with_init(*a, **ka):
             if not self._first_user:
+                valid, session = self.read_cookie()
+                if valid:
+                    user = User(self.db, session[0])
+                    ka["user"] = user
                 return func(*a, **ka)
             else:
                 return template(
@@ -295,7 +296,8 @@ class WebUI(object):
             cls=Group,
             title="Группы пользователей",
             field="name",
-            add=request.forms.decode().get("add"))
+            add=request.forms.decode().get("add"),
+            user=user)
 
     def _clbk_admin_users(self, user=None):
         return self._clbk_admin_generic(
@@ -303,7 +305,8 @@ class WebUI(object):
             title="Пользователи",
             field="name",
             link=["/users/%s", "name"],
-            add=request.forms.decode().get("add"))
+            add=request.forms.decode().get("add"),
+            user=user)
 
     def _clbk_ajax_complete(self, user=None):
         """Reply to AJAX requests for input completion"""
@@ -335,7 +338,8 @@ class WebUI(object):
             "book",
             info=self.info,
             book=book,
-            id=self.id)
+            id=self.id,
+            user=user)
 
     def _clbk_book_delete(self, hexid, user=None):
         book = self._get_book(hexid)
@@ -376,7 +380,8 @@ class WebUI(object):
                 conn=conn,
                 id=self.id,
                 prefill=prefill,
-                info=self.info)
+                info=self.info,
+                user=user)
         else:
             if not book: book = self.db.getbook()
             form = request.forms  # "multipart/form-data" doesn't need .decode()
@@ -518,15 +523,16 @@ class WebUI(object):
         return self._page_book_list(
             search,
             "Все книги",
-            pg_info=[pagenum, pagesize])
+            pg_info=[pagenum, pagesize],
+            user=user)
 
-    def _clbk_error_http(self, error):
-        return template("error_http", info=self.info, error=error)
+    def _clbk_error_http(self, error, user=None):
+        return template("error_http", info=self.info, error=error, user=user)
 
     def _clbk_frontpage(self, user=None):
         redirect("/books")  # todo: create proper front page
 
-    def _clbk_login(self):
+    def _clbk_login(self, user=None):
         """
         Save [user_id, timestamp] pairs as session information after verifying
         login credentials
@@ -606,11 +612,12 @@ class WebUI(object):
                 "queue",
                 barcodes=barcodes,
                 message=reply,
-                info=self.info)
+                info=self.info,
+                user=user)
         elif request.method == "POST":
             pass
 
-    def _clbk_static(self, filename):
+    def _clbk_static(self, filename, user=None):
         return static_file(
             filename,
             root=self._static_location)
@@ -620,7 +627,8 @@ class WebUI(object):
             return template("table",
                 cursor=self.db.sql.select(table),
                 title=table,
-                info=self.info)
+                info=self.info,
+                user=user)
         except sqlite3.OperationalError:
             abort(404, "Table `%s` not found in %s" % (table, self.db.filename))
 
@@ -783,7 +791,7 @@ class WebUI(object):
         else:
             abort(404, "Invalid book id: %s" % hexid)
 
-    def _page_book_list(self, search, title, pg_info):
+    def _page_book_list(self, search, title, pg_info, user=None):
         return template(
             "book_list",
             books=(self.db.getbook(row[0]) \
@@ -791,7 +799,8 @@ class WebUI(object):
             title=title,
             pg_info=pg_info,
             info=self.info,
-            id=self.id)
+            id=self.id,
+            user=user)
 
     @property
     def db(self):
