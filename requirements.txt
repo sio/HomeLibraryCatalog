@@ -1,4 +1,0 @@
-Pillow>=4.0.0
-bottle>=0.12.13
-cssselect>=1.0.1
-lxml>=3.7.3

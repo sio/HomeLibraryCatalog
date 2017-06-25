@@ -10,5 +10,9 @@ setup(
     packages=["hlc", "hlc.test"],
     scripts=["HomeLibraryCatalog.py"],
     license="GPL-3.0",
-    install_requires=["lxml", "cssselect", "bottle", "Pillow"]
+    install_requires=[
+        "lxml>=3.7.3", 
+        "cssselect>=1.0.1", 
+        "bottle>=0.12.13", 
+        "Pillow>=4.0.0"]
     )
