@@ -53,7 +53,7 @@ def main():
     ui.start(
         browser=False,
         debug=VERBOSITY[0]>8,
-        reloader=VERBOSITY[0]>8,
+        reloader=False,
         host=config.webui.host,
         port=config.webui.port,
         config=config)
