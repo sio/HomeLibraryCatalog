@@ -6,7 +6,6 @@ import sys
 from hlc import WebUI, debug, settings, VERBOSITY
 
 
-CONFIG_FILE = "hlc.config"
 DEFAULT_CONFIGURATION = {
     "app": {
         "data_dir": "data",
@@ -16,9 +15,6 @@ DEFAULT_CONFIGURATION = {
     "webui": {
         "host": "127.0.0.1",
         "port": 8888,
-        "static_dir": "static",
-        "templates_dir": "templates",
-        "uploads_dir": "uploads",
         "cookie_key": "SET YOUR OWN UNIQUE cookie_key AND id_key IN CONFIG!!!",
         "id_key": 72911,
         },
@@ -29,7 +25,7 @@ DEFAULT_CONFIGURATION = {
 
 
 def main():
-    os.chdir(os.path.dirname(os.path.realpath(__file__)))
+    CONFIG_FILE = sys.argv[1]
     config = settings(CONFIG_FILE, DEFAULT_CONFIGURATION)
     VERBOSITY[0] = int(config.app.verbosity)
 
@@ -59,6 +55,7 @@ def test():
 
 if __name__ == "__main__":
     args = set(sys.argv)
+    os.chdir(os.path.dirname(os.path.realpath(__file__)))
     if set.intersection(set(("--tests", "-t")), args):
         test()
     else:

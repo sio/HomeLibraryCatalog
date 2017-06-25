@@ -385,12 +385,12 @@ class WebUI(object):
         """Start WebUI"""
         self._scramble_key = int(config.id_key)
         self._cookie_secret = str(config.cookie_key)
-        self._static_location = str(config.static_dir)
+        self._static_location = os.path.join("ui", "static")
         self._uploads = FSKeyFileStorage(
-            os.path.join(self._datadir, str(config.uploads_dir)),
+            os.path.join(self._datadir, "uploads"),
             max_filesize=10*2**20)
         TEMPLATE_PATH.insert(
-            0, os.path.join(self._datadir, str(config.templates_dir)))
+            0, os.path.join("ui", "templates"))
 
         class IDReader(object):
             pass
