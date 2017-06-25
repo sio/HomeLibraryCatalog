@@ -7,5 +7,5 @@ setup(
     author="Vitaly Potyarkin",
     author_email="sio.wtf@gmail.com",
     url="https://github.com/sio/HomeLibraryCatalog",
-    packages=["hlc"],
+    packages=["hlc", "hlc.test"],
     )
