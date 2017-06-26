@@ -28,9 +28,6 @@ class WebUI(object):
     database.
 
     Methods:
-        start(browser=False, *a, **kw)
-            Start web server, open starting page in web browser. Extra arguments
-            are passed to bottle.run() method
         close()
             Stop web server, close database connection, exit WebUI application
         booksearch(search, sort_keys=None)
@@ -65,7 +62,7 @@ class WebUI(object):
         "series": 1991,
     }
 
-    def __init__(self, sqlite_file):  # todo: review access control wrappers
+    def __init__(self, sqlite_file, config):
         self._db = CatalogueDB(sqlite_file)
         self._persistent_cfg = DBKeyValueStorage(
             self.db.connection,
@@ -78,6 +75,21 @@ class WebUI(object):
         self._app = Bottle()
         self._session_manager = SessionManager(self.db.connection)
         self._datadir = os.path.dirname(os.path.abspath(sqlite_file))
+        self._scramble_key = int(config.webui.id_key)
+        self._cookie_secret = str(config.webui.cookie_key)
+        self._static_location = os.path.join(config.app.root, "ui", "static")
+        self._uploads = FSKeyFileStorage(
+            os.path.join(self._datadir, "uploads"),
+            max_filesize=10*2**20)
+        TEMPLATE_PATH.insert(
+            0, os.path.join(config.app.root, "ui", "templates"))
+
+        class IDReader(object):
+            pass
+        self.id = IDReader()
+        for key in self._scramble_shift:
+            setattr(self.id, key, LinCrypt(
+                self._scramble_key + self._scramble_shift[key]))
 
         routes_no_acl = (
             ("/login", self._clbk_login, ["GET", "POST"]),
@@ -821,43 +833,6 @@ class WebUI(object):
     def info(self):
         """Access the dictionary with some basic stats and other information"""
         return self._info_ro
-
-    def start(self, config, browser=False, *a, **kw):
-        """Start WebUI"""
-        self._scramble_key = int(config.webui.id_key)
-        self._cookie_secret = str(config.webui.cookie_key)
-        self._static_location = os.path.join(config.app.root, "ui", "static")
-        self._uploads = FSKeyFileStorage(
-            os.path.join(self._datadir, "uploads"),
-            max_filesize=10*2**20)
-        TEMPLATE_PATH.insert(
-            0, os.path.join(config.app.root, "ui", "templates"))
-
-        class IDReader(object):
-            pass
-        self.id = IDReader()
-        for key in self._scramble_shift:
-            setattr(self.id, key, LinCrypt(
-                self._scramble_key + self._scramble_shift[key]))
-
-        if browser:
-            if len(a) > 2:
-                host = a[2]
-            elif "host" in kw:
-                host = kw["host"]
-            else:
-                host = "127.0.0.1"
-
-            if len(a) > 3:
-                port = a[3]
-            elif "port" in kw:
-                port = kw["port"]
-            else:
-                port = "8080"
-
-            url = "http://%s:%s" % (host, port)
-            Timer(1.25, lambda: webbrowser.open(url)).start()  # todo: replace webbrowser.open() with proper handler
-        self.app.run(*a, **kw)
 
     def close(self, user=None):
         """Stop WebUI: stop server, close database"""
