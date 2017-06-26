@@ -102,7 +102,7 @@ class WebUI(object):
             ("/ajax/complete", self._clbk_ajax_complete),
             ("/ajax/fill", self._clbk_ajax_info),
             ("/ajax/suggest", self._clbk_ajax_suggestions),
-            ("/books", self._clkb_books_all),
+            ("/books", self._clbk_books_all),
             ("/books/<hexid>", self._clbk_book),
             ("/books/<hexid>/edit", self._clbk_book_edit, ["GET", "POST"]),
             ("/books/add", self._clbk_book_edit, ["GET", "POST"]),
@@ -515,7 +515,7 @@ class WebUI(object):
 
             redirect("/books/%s" % self.id.book.encode(book.id))
 
-    def _clkb_books_all(self, user=None):
+    def _clbk_books_all(self, user=None):
         MAX_PAGE_SIZE = 100
         DEFAULT_PAGE_SIZE = 10
 
