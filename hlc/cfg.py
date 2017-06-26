@@ -4,6 +4,7 @@ Functions for handling JSON files with settings
 
 import json
 import os.path
+import json
 
 
 class Configuration(object):
@@ -21,6 +22,9 @@ class Configuration(object):
                     value = os.path.expandvars(value)
                 setattr(self, key, value)
 
+    def __str__(self):
+        return json.dumps(self.dump(), indent=2)
+                
     def dump(self):
         """Dump object attributes back into dictionary"""
         output = dict()
