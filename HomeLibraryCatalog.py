@@ -53,6 +53,7 @@ def wsgi_app(json_file, run=False):
 
     dbfile = os.path.join(config.app.data_dir, config.db.filename)
     ui = WebUI(dbfile, config)
+    debug(config.dump())
     
     if run:
         ui.app.run(
