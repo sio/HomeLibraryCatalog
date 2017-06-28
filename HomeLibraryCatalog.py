@@ -16,7 +16,7 @@ DEFAULT_CONFIGURATION = {
         },
     "webui": {
         "host": "127.0.0.1",
-        "port": 8888,
+        "port": 8080,
         "cookie_key": "SET YOUR OWN UNIQUE cookie_key AND id_key IN CONFIG!!!",
         "id_key": 72911,
         },
@@ -30,10 +30,10 @@ def wsgi_app(json_file, run=False):
     config = settings(os.path.abspath(json_file), DEFAULT_CONFIGURATION)
     VERBOSITY[0] = int(config.app.verbosity)
     if not config.app.root:
-        config.app.root = os.path.dirname(os.path.abspath(hlc.__file__))
+        config.app.root = os.path.dirname(hlc.__file__)
     if not os.path.isabs(config.app.data_dir):
         config.app.data_dir = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)),
+            os.path.abspath(os.path.dirname(json_file)),
             config.app.data_dir)
     if not os.path.isabs(config.app.logfile):
         config.app.logfile = os.path.join(
@@ -74,11 +74,14 @@ def test():
 
 
 def main(argv):
-    args = set(argv)
-    if set.intersection(set(("--tests", "-t")), args):
+    if set(("--tests", "-t")).intersection(set(argv)):
         test()
-    elif len(argv)==2:
-        wsgi_app(argv[1], run=True)
+    elif len(argv) in {1, 2}:
+        try:
+            file = argv[1]
+        except IndexError:
+            file = "hlc.config"
+        wsgi_app(file, run=True)
     else:
         print("Usage: %s config.file" % os.path.basename(__file__))
         exit(1)
