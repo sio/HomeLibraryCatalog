@@ -2,11 +2,19 @@
 Web application for cataloging home books collection
 
 
-# Unfinished project!
-This project is in the early stages of development, most of the time it doesn't
-even start and if it starts it might do something unexpected and irreversible
+# Installation and usage
+Installation:
+* `pip install git+git://github.com/sio/HomeLibraryCatalog.git` to install
+directly from GitHub *or*
+* download release archive, and install with `pip install <archive.tar.gz>` *or*
+* download release archive, unpack it and start `HomeLibraryCatalog.py`
 
-Consider yourself warned
+To launch HomeLibraryCatalog with wsgiref web server run
+`HomeLibraryCatalog config.json` where *config.json* is the 
+[configuration file][1]. If no command line arguments are supplied,
+*hlc.config* in current working directory is used
+
+[1]: docs/configuration.md
 
 
 # Requirements
@@ -16,13 +24,34 @@ Consider yourself warned
     * **lxml** with **cssselect** - HTML scraping library
 
 
-# Installation and usage
-This application doesn't require installation, just unzip it and start
+# Localization status
+As of now all user interaction happens in Russian
 
-To start it with default settings launch `HomeLibraryCatalog.py`
+Localization is not planned in the foreseable future due to the lack of human
+resources
 
-Configuration file is named `hlc.config` and is located in the same directory
-as the `HomeLibraryCatalog.py` by default
+All locale-dependent text is contained in template files (*.tpl).
+Application supports changing template directory via configuration file, so all
+locale-specific text can be translated and placed into another directory.
+Proper localizations tools and techniques (gettext et al) are not yet supported
+
+
+# License and copyright
+Copyright © 2016-2017 Vitaly Potyarkin
+```
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+```
 
 
 # Todo list
@@ -85,33 +114,3 @@ as the `HomeLibraryCatalog.py` by default
 
 #### Database:
 - [ ] add garbage collector method (delete orphaned thumbnails, authors, etc.)
-
-
-# Localization status
-As of now all user interaction happens in Russian
-
-Localization is not planned in the foreseable future due to the lack of human
-resources
-
-All locale-dependent text is contained in template files (*.tpl).
-Application supports changing template directory via configuration file, so all
-locale-specific text can be translated and placed into another directory.
-Proper localizations tools and techniques (gettext et al) are not yet supported
-
-
-# License and copyright
-Copyright © 2016-2017 Vitaly Potyarkin
-```
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-```
