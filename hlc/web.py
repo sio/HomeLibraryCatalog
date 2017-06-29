@@ -83,7 +83,8 @@ class WebUI(object):
             max_filesize=10*2**20)
         TEMPLATE_PATH.insert(
             0, os.path.join(config.app.root, "ui", "templates"))
-
+        self.config = config
+            
         class IDReader(object):
             pass
         self.id = IDReader()
