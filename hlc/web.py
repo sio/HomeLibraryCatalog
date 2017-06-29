@@ -360,12 +360,14 @@ class WebUI(object):
 
     def _clbk_book(self, hexid, user=None):
         book = self._get_book(hexid)
+        full_view = user and {1,2}.intersection(set(user.getconnected_id(Group)))
         return template(
             "book",
             info=self.info,
             book=book,
             id=self.id,
-            user=user)
+            user=user,
+            full=full_view)
 
     def _clbk_book_delete(self, hexid, user=None):
         book = self._get_book(hexid)

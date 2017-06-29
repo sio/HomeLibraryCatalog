@@ -7,9 +7,9 @@
 % img_url = "/thumbs/%s" % id.thumb.encode(book.thumbnail_id)
 <a href="{{img_url}}"><img class="thumbnail" src="{{img_url}}"></img></a>
 % end
-
+% if full:
 <a href="/books/{{id.book.encode(book.id)}}/edit" class="edit">[изменить]</a>
-
+% end
 <div class="library_card">
 
 % authors = book.getconnected(Author)
@@ -80,14 +80,14 @@
 </div>
 % end
 
-% if book.price:
+% if book.price and full:
 <div class="item">
     <div class="label">Цена:</div>
     <div class="value">{{book.price}}</div>
 </div>
 % end
 
-% if book.in_date:
+% if book.in_date and full:
 <div class="item">
     <div class="label">Поступление:</div>
     <div class="value">
@@ -110,7 +110,7 @@
 </div>
 % end
 
-% if book.out_date:
+% if book.out_date and full:
 <div class="item">
     <div class="label">Выбытие:</div>
     <div class="value">
@@ -129,6 +129,18 @@
 % end
 {{brackets[2]}}
 % end
+    </div>
+</div>
+% end
+
+% if not full:
+<div class="item">
+    <div class="label">Статус:</div>
+    % if book.in_date and not book.out_date:
+    в наличии
+    % else:
+    отсутствует
+    % end
     </div>
 </div>
 % end
@@ -164,7 +176,7 @@
 % end
 
 % files = book.getconnected(BookFile)
-% if files:
+% if files and user:
 <div class="item">
     <div class="label">Файлы:</div>
     <div class="value">
