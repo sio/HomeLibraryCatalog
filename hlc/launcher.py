@@ -67,7 +67,7 @@ def wsgi_app(json_file, run=False):
         sys.stderr = stderr
         log.close()
     else:
-        return ui.app
+        return ui
 
 
 def test():
