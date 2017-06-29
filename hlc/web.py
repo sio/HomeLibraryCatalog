@@ -131,8 +131,9 @@ class WebUI(object):
             ):
             self._create_routes(route_list, wrapper)
 
+        http_error_handler = self._acl_not_firstrun(self._clbk_error_http)
         for code in [404, 403]:
-            self.app.error(code)(self._clbk_error_http)
+            self.app.error(code)(http_error_handler)
 
     def __del__(self):
         self.close()
