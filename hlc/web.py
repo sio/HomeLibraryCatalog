@@ -18,7 +18,7 @@ from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group, Series,\
                       BookFile, Tag, Barcode
 from hlc.db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
 from hlc.util import LinCrypt, timestamp, debug, random_str, message, \
-                     DynamicDict, ReadOnlyDict, parse_csv
+                     DynamicDict, ReadOnlyDict, parse_csv, time2unix
 from hlc.fetch import book_info, book_thumbs
 
 
@@ -97,21 +97,23 @@ class WebUI(object):
         )
         routes_after_init = (
             ("/", self._clbk_frontpage),
+            ("/books", self._clbk_books_all),
+            ("/books/<hexid>", self._clbk_book),
+            ("/thumbs/<hexid>", self._clbk_thumb),
         )
         routes_user = (
+            ("/file/<hexid>", self._clbk_user_file),
+            ("/logout", self._clbk_logout),
+            ("/users/<name>", self._clbk_user_page),
+            ("/users/<name>/edit", self._clbk_user_page, ["GET", "POST"]),
+        )
+        routes_librarian = (
             ("/ajax/complete", self._clbk_ajax_complete),
             ("/ajax/fill", self._clbk_ajax_info),
             ("/ajax/suggest", self._clbk_ajax_suggestions),
-            ("/books", self._clbk_books_all),
-            ("/books/<hexid>", self._clbk_book),
-            ("/books/<hexid>/edit", self._clbk_book_edit, ["GET", "POST"]),
             ("/books/add", self._clbk_book_edit, ["GET", "POST"]),
-            ("/file/<hexid>", self._clbk_user_file),
-            ("/logout", self._clbk_logout),
+            ("/books/<hexid>/edit", self._clbk_book_edit, ["GET", "POST"]),
             ("/queue", self._clbk_queue_barcode),
-            ("/thumbs/<hexid>", self._clbk_thumb),
-            ("/users/<name>", self._clbk_user_page),
-            ("/users/<name>/edit", self._clbk_user_page, ["GET", "POST"]),
         )
         routes_admin = (
             ("/books/<hexid>/delete", self._clbk_book_delete),
@@ -120,10 +122,14 @@ class WebUI(object):
             ("/admin/users", self._clbk_admin_users, ["GET", "POST"]),
             ("/admin/groups", self._clbk_admin_groups, ["GET", "POST"]),
         )
-        self._create_routes(routes_no_acl)
-        self._create_routes(routes_after_init, self._acl_not_firstrun)
-        self._create_routes(routes_user, self._acl_user)
-        self._create_routes(routes_admin, self._acl_admin)
+        for route_list, wrapper in (
+                (routes_no_acl, None),
+                (routes_after_init, self._acl_not_firstrun),
+                (routes_user, self._acl_user),
+                (routes_librarian, self._acl_librarian),
+                (routes_admin, self._acl_admin),
+            ):
+            self._create_routes(route_list, wrapper)
 
         for code in [404, 403]:
             self.app.error(code)(self._clbk_error_http)
@@ -239,18 +245,26 @@ class WebUI(object):
         return result
 
     def _acl_admin(self, func):
-        @self._acl_user
-        def with_admin(*a, **ka):
-            # Hardcoded group ID instead of making a db query
-            # Order in which groups are created by _db_init() matters
-            admins_gid = 1
+        """Restrict access to callbacks to administators only"""
+        allowed_gid = {1,}  # hardcoded to save database queries
+        return self._acl_groups(func, allowed_gid)
 
-            admins = Group(self.db, admins_gid)
-            if ka["user"].isconnected(admins):
+    def _acl_librarian(self, func):
+        """Restrict access to callbacks to administators only"""
+        allowed_gid = {1, 2}  # hardcoded to save database queries
+        return self._acl_groups(func, allowed_gid)
+
+    def _acl_groups(self, func, group_ids):
+        """Generic access control for certain groups of users"""
+        @self._acl_user
+        def restricted(*a, **ka):
+            current_ids = set(ka["user"].getconnected_id(Group))
+            allow_ids = set(group_ids)
+            if current_ids.intersection(allow_ids):
                 return func(*a, **ka)
             else:
-                abort(403, "Only administrators can view this page")
-        return with_admin
+                abort(403, "You have no permissions to view this page")
+        return restricted
 
     def _acl_user(self, func):
         """Wrapper for callback functions. Checks authorization for normal users"""
@@ -778,7 +792,7 @@ class WebUI(object):
                 credentials[1],
                 datetime.now() + timedelta(days=1))
 
-            for name in ("admin", "user"):  # order matters
+            for name in ("admin", "librarian", "visitor"):  # order matters
                 group = Group(self.db)
                 group.name = name
                 group.save()
