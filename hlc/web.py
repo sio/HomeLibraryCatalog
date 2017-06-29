@@ -649,11 +649,17 @@ class WebUI(object):
         picture = None
         try:
             id = self.id.thumb.decode(hexid)
-            picture = Thumbnail(self.db, id).image
+            thumb = Thumbnail(self.db, id)
         except ValueError:
             abort(404, "Invalid thumnail ID: %s" % hexid)
+            
+        last_modified_unix = time2unix(thumb.last_edit)
+        last_modified_utc = datetime.utcfromtimestamp(last_modified_unix)
+        last_modified = last_modified_utc.strftime("%a, %d %b %Y %H:%M:%S GMT")
+        response.set_header("Last-Modified", last_modified)
+        response.set_header("Cache-Control", "public,max-age=%d" % (60*60*24*30))
         response.content_type = "image/jpeg"
-        return picture
+        return thumb.image
 
     def _clbk_user_file(self, hexid, user=None):
         id = self.id.file.decode(hexid)
