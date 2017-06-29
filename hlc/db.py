@@ -757,7 +757,8 @@ class CatalogueDB(SQLiteDB):
             CREATE TABLE thumbs (
                 id      integer primary key,
                 url     text,
-                image   blob)
+                image   blob,
+                last_edit integer not null default (cast(strftime('%s','now') as integer)))
             """,
             """
             CREATE TABLE books (
@@ -778,6 +779,12 @@ class CatalogueDB(SQLiteDB):
                 last_edit   integer not null default (cast(strftime('%s','now') as integer)),
                 thumbnail_id integer,
                 foreign key(thumbnail_id) references thumbs(id) on delete cascade on update cascade)
+            """,
+            """
+            CREATE TRIGGER trg_thumbs_mtime BEFORE UPDATE ON thumbs
+            BEGIN
+                UPDATE thumbs SET last_edit = cast(strftime('%s','now') as integer) WHERE _rowid_ = NEW._rowid_;
+            END
             """,
             """
             CREATE TRIGGER trg_book_mtime BEFORE UPDATE ON books

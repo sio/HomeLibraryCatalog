@@ -612,6 +612,7 @@ class Thumbnail(TableEntityWithID):
     def __init__(self, db, id=None):
         TableEntityWithID.__init__(self, db, id)
         self._simple_attrs("url")
+        self._simple_date_attrs("last_edit")
 
     @property
     def image(self):
