@@ -46,7 +46,7 @@ class FSKeyFileStorage(object):
         text += "DO NOT DELETE OR MODIFY ANY FILES MANUALLY\n"
         readme_file = os.path.join(self.__dir, readme_file)
         if not os.path.isfile(readme_file):
-            with open(readme_file, "w") as f:
+            with open(readme_file, "w", encoding="utf-8") as f:
                 f.write(text)
 
     def __hash(self, key):
