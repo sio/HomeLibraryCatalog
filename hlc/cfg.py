@@ -47,7 +47,7 @@ def settings(json_file, default):
             Dictionary containing default settings structure. Settings not
             specified in `default` dictionary will be ignored
     """
-    with open(json_file) as f:
+    with open(json_file, encoding="utf-8") as f:
         input = json.load(f)
     return Configuration(mimic_dict(input, default))
 
