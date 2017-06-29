@@ -21,5 +21,6 @@ setup(
         "cssselect>=1.0.1", 
         "bottle>=0.12.13", 
         "Pillow>=4.0.0"],
+    python_requires=">=3.3",
     zip_safe=False,
     )
