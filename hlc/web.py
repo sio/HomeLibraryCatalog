@@ -130,6 +130,9 @@ class WebUI(object):
         for code in [404, 403]:
             self.app.error(code)(http_error_handler)
 
+    def __call__(self, *a, **ka):
+        return self.app(*a, **ka)
+            
     def __del__(self):
         self.close()
 
