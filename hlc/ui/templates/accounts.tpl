@@ -1,6 +1,8 @@
 % rebase("main")
 <form class="add user_input" method="post">
-    <label class="field">Создать: <input name="add" type="text"/></label>
+    <label class="field">Создать: 
+        <input name="add" type="text" autocomplete="off"/>
+    </label>
 </form>
 % if get("message"):
 <div class="message">{{message}}</div>

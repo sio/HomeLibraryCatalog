@@ -54,6 +54,7 @@ end
                name="groups"
                value="{{', '.join([g.name for g in subject.getconnected(Group)])}}"
                placeholder="список групп через запятую"
+               autocomplete="off"
                onkeypress="ajaxCSV(event)"
                onchange="trimField(this)"
                {{!disabled('groups')}}/>
@@ -62,10 +63,12 @@ end
     <label class="field">Изменить пароль:
         <input type="password"
                name="password"
+               autocomplete="new-password"
                placeholder="{{subject.expires_on and formatted_date['expires_on'] + ' закончится срок дейстия пароля' or (subject.hash and 'сохраненный пароль действителен' or 'введите новый пароль')}}"
                onkeypress="this.nextElementSibling.hidden=false"/>
         <input type="password"
                name="password_repeat"
+               autocomplete="new-password"
                placeholder="повторите новый пароль"
                hidden="true"
                onchange="checkPasswordMatch(this)"/>
