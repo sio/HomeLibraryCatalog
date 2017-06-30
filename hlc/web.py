@@ -10,7 +10,7 @@ import sys
 import webbrowser
 import urllib.parse
 import urllib.request
-from threading import Timer
+from threading import get_ident
 from datetime import datetime, timedelta
 from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
                    template, redirect, static_file
@@ -63,17 +63,11 @@ class WebUI(object):
     }
 
     def __init__(self, sqlite_file, config):
-        self._db = CatalogueDB(sqlite_file)
-        self._persistent_cfg = DBKeyValueStorage(
-            self.db.connection,
-            "app_config",
-            "option",
-            "value")
+        self._connections = ThreadItemPool(CatalogueDB, sqlite_file)
         self._info_init()
         self._db_init()
-        self._first_user = self._persistent_cfg.get("init_user")
         self._app = Bottle()
-        self._session_manager = SessionManager(self.db.connection)
+        self._first_user = self.option.get("init_user")
         self._datadir = os.path.dirname(os.path.abspath(sqlite_file))
         self._info["title"] = config.app.title
         self._scramble_key = int(config.webui.id_key)
@@ -84,8 +78,7 @@ class WebUI(object):
             max_filesize=10*2**20)
         TEMPLATE_PATH.insert(
             0, os.path.join(config.app.root, "ui", "templates"))
-        self.config = config
-            
+
         class IDReader(object):
             pass
         self.id = IDReader()
@@ -589,7 +582,7 @@ class WebUI(object):
                             "auth",
                             cookie,
                             secret=self._cookie_secret)
-                        self._persistent_cfg["init_user"] = None
+                        self.option["init_user"] = None
                         self._first_user = None
                         if saved_user.expired:
                             redirect("/users/%s/edit" % saved_user.name)
@@ -671,7 +664,7 @@ class WebUI(object):
             thumb = Thumbnail(self.db, id)
         except ValueError:
             abort(404, "Invalid thumnail ID: %s" % hexid)
-            
+
         last_modified_unix = time2unix(thumb.last_edit)
         last_modified_utc = datetime.utcfromtimestamp(last_modified_unix)
         last_modified = last_modified_utc.strftime("%a, %d %b %Y %H:%M:%S GMT")
@@ -789,7 +782,7 @@ class WebUI(object):
         """
         Initialize some database entries and create first administrator account
         """
-        options = self._persistent_cfg
+        options = self.option
         if not options.get("init_date"):
             credentials = ("admin_" + random_str(2,4).upper(), random_str(6,8))
             root = self.adduser(
@@ -812,7 +805,7 @@ class WebUI(object):
     def _info_init(self):
         i = self._info = DynamicDict()
         self._info_ro = ReadOnlyDict(self._info)
-        i["books_count"] = lambda: self._persistent_cfg.get("book_count", 0)
+        i["books_count"] = lambda: self.option.get("book_count", 0)
         i["copyright"] = lambda: "2016-%s" % datetime.now().year
         i["date_format"] = "%d.%m.%Y"
         i["date"] = lambda: datetime.now().strftime(i["date_format"])
@@ -841,8 +834,8 @@ class WebUI(object):
 
     @property
     def db(self):
-        """CatalogueDB object. Used for storing persistent data"""
-        return self._db
+        """CatalogueDB object. Used for storing persistent data. Thread-safe"""
+        return self._connections.get()
 
     @property
     def app(self):
@@ -850,9 +843,14 @@ class WebUI(object):
         return self._app
 
     @property
+    def option(self):
+        """Access application persistent configuration. Thread-safe"""
+        return DBKeyValueStorage(self.db.connection, "app_config", "option", "value")
+
+    @property
     def session(self):
-        """SessionManager() object"""
-        return self._session_manager
+        """Manage user cookie sessions. Thread-safe"""
+        return SessionManager(self.db.connection)
 
     @property
     def info(self):
@@ -862,7 +860,8 @@ class WebUI(object):
     def close(self, user=None):
         """Stop WebUI: stop server, close database"""
         self.app.close()
-        self.db.close()
+        for conn in self._connections.pool.values():
+            conn.close()
         sys.stderr.close()  # not ideal, but I don't know any better
 
 
@@ -987,3 +986,30 @@ class SessionManager(object):
     def valid(self, cookie):
         """Check if a cookie string represents a valid session"""
         return cookie in self._sessions
+
+
+class ThreadItemPool(object):
+    """
+    Store objects that should not be shared between threads
+
+    Thread IDs returned by threading.get_ident() may be recycled when thread
+    exits and another one is created
+    """
+    # todo: garbage-collect objects that correspond to outdated IDs
+    #       check against [t.ident for t in threading.enumerate()]
+    def __init__(self, constructor, *a, **ka):
+        def create(): return constructor(*a, **ka)
+        self._create = create
+        self._stored = dict()
+
+    def get(self):
+        thread_id = get_ident()
+        try:
+            item = self.pool[thread_id]
+        except KeyError:
+            item = self.pool[thread_id] = self._create()
+        return item
+
+    @property
+    def pool(self):
+        return self._stored
