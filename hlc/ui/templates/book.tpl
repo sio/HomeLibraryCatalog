@@ -136,11 +136,13 @@
 % if not full:
 <div class="item">
     <div class="label">Статус:</div>
+    <div class="value">
     % if book.in_date and not book.out_date:
     в наличии
     % else:
     отсутствует
     % end
+    </div>
 </div>
 % end
 
