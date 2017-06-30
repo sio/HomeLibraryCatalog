@@ -10,6 +10,7 @@ from hlc import WebUI, debug, settings, VERBOSITY
 
 DEFAULT_CONFIGURATION = {
     "app": {
+        "title": "",
         "data_dir": "data",
         "verbosity": 5,
         "logfile": "hlc.log",
