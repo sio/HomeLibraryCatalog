@@ -65,7 +65,9 @@ end
                name="password"
                autocomplete="new-password"
                placeholder="{{subject.expires_on and formatted_date['expires_on'] + ' закончится срок дейстия пароля' or (subject.hash and 'сохраненный пароль действителен' or 'введите новый пароль')}}"
-               onkeypress="this.nextElementSibling.hidden=false"/>
+               onkeypress="this.nextElementSibling.hidden=false"
+               onchange="this.onkeypress()"
+               onblur="this.onkeypress()"/>
         <input type="password"
                name="password_repeat"
                autocomplete="new-password"
