@@ -15,6 +15,7 @@ double quotes
         "filename": "database.sqlite"
     },
     "app": {
+        "title": "",
         "verbosity": 5,
         "data_dir": "data",
         "logfile": "hlc.log"
@@ -36,6 +37,9 @@ value
 Default: database.sqlite
 
 ## **app** - application settings (backend)
+### title
+Name of the library (placed in the header of each page)
+
 ### verbosity
 Integer. Higher values mean more verbose output. Value of 9 turns on debug
 messages
