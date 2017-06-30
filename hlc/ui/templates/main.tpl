@@ -1,5 +1,5 @@
 <%
-app_name = "Библиотека"
+app_name = info.get("title") or "Библиотека"
 user = get("user", None)
 %>
 <!DOCTYPE html>

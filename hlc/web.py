@@ -75,6 +75,7 @@ class WebUI(object):
         self._app = Bottle()
         self._session_manager = SessionManager(self.db.connection)
         self._datadir = os.path.dirname(os.path.abspath(sqlite_file))
+        self._info["title"] = config.app.title
         self._scramble_key = int(config.webui.id_key)
         self._cookie_secret = str(config.webui.cookie_key)
         self._static_location = os.path.join(config.app.root, "ui", "static")
