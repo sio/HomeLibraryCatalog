@@ -66,7 +66,7 @@ Copyright © 2016-2017 Vitaly Potyarkin
         - [ ] book review
         - [ ] author rating
         - [ ] book not in library anymore
-        - [ ] password change (force if expired)
+        - [ ] password change: force if expired
     - [ ] for administrators
         - [ ] edit groups
     - [ ] for all visitors
@@ -84,7 +84,6 @@ Copyright © 2016-2017 Vitaly Potyarkin
     - [ ] one book
         - [ ] external links
         - [ ] more information?
-        - [ ] hide some data from anonymous users
     - [ ] one author
         - [ ] wikipedia link
         - [ ] series "foo"
@@ -95,7 +94,6 @@ Copyright © 2016-2017 Vitaly Potyarkin
     - [ ] no #000000
     - [ ] narrow pages
     - [ ] stylesheet themes
-- [ ] check password expiration on login
 - [ ] robots.txt file
 - [ ] webbrowser.open() always opens IE, replace with default browser
 
