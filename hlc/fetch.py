@@ -6,14 +6,14 @@ import lxml.html
 import urllib.request
 import re
 from hlc.items import ISBN
-from hlc.util import alphanumeric, fuzzy_str_eq
+from hlc.util import alphanumeric, fuzzy_str_eq, debug, random_str
 
 
 def book_info(isbn):
     """
     Try all available fetchers until full information about book is fetched
     """
-    fetchers = (Fantlab,)
+    fetchers = (Fantlab, Livelib)
     result = dict()
     for fetcher in fetchers:
         f = fetcher(isbn)
@@ -32,7 +32,7 @@ def book_thumbs(isbn):
     """
     Try to fetch as many thumbnails as possible
     """
-    fetchers = (FantlabThumb, AmazonThumb)
+    fetchers = (LivelibThumb, FantlabThumb, AmazonThumb)
     result = dict()
     for fetcher in fetchers:
         f = fetcher(isbn)
@@ -132,6 +132,21 @@ class BookInfoFetcher(object):
             root.make_links_absolute(root.base_url)
             return root
 
+    def query_selector(self, node, css, one=True, attr=None):
+        found = node.cssselect(css)
+        result = list()
+        if len(found):
+            for item in found:
+                if attr:
+                    result.append(item.get(attr))
+                else:
+                    result.append(item.text_content())
+                if one: break
+        if result and one:
+            return result[0]
+        else:
+            return result
+
     def fetch_url(self, url):
         page = self.request(url)
         if page: return page.read()
@@ -179,7 +194,109 @@ class BookInfoFetcher(object):
         else:
             return name
 
+    @staticmethod
+    def split_names(names, separator=","):
+        """Turn 'John Doe, Jane Doe, Jack Daniels' into list of names"""
+        return [name.strip() for name in names.split(separator)]
 
+
+class Livelib(BookInfoFetcher):
+    _url_pattern = "https://www.livelib.ru/find/books/%s"
+
+    def get(self):
+        result = dict()
+        book = result[self._isbn] = dict()
+        root = self.parse(self.url)
+
+        true_url = ""
+        if root is not None:
+            for anchor in root.cssselect("#objects-block .object-edition a.title"):
+                url = anchor.get("href")
+                if "book" in url:
+                    true_url = url
+                    break
+
+        root = None
+        if true_url:
+            root = self.parse(true_url + "-" + random_str(10, 20))
+        if root is not None:
+            title = self.query_selector(root, "#book-title")
+            if title: book["title"] = title
+
+            authors = self.query_selector(root, ".author-name")
+            if authors:
+                authors = [self.reverse_name(n) for n in self.split_names(authors)]
+            if authors: book["authors"] = authors
+
+            publisher = self.query_selector(root, "span[itemprop=publisher]")
+            if publisher:
+                publisher = re.sub(r"\s+", " ", publisher).strip()
+            if publisher: book["publisher"] = publisher
+
+            year_node = root.xpath('//span[@itemprop="isbn"]/following-sibling::b[1]/following-sibling::text()[1]')
+            for year in year_node:
+                try:
+                    year = int(year.strip())
+                except Exception as e:
+                    year = None
+                if year: book["year"] = str(year)
+
+            series = list()
+            publ_series = self.query_selector(root, "#book-series a", one=False)
+            for name in publ_series:
+                if name.strip():
+                    series.append((
+                        "издательская серия",
+                        name.strip()))
+            author_series = self.query_selector(root, "#work-cycle a", one=False)
+            for name in author_series:
+                if name.strip():
+                    series.append((
+                        "цикл",
+                        name.strip()))
+            if series: book["series"] = series
+
+            thumbnail = self.query_selector(root, "#main-image-book", attr="src")
+            if thumbnail:
+                book["thumbnail"] = [thumbnail, self.fix_thumb_url(thumbnail)]
+
+            annotation = self.query_selector(root, "#full-description")
+            if annotation: annotation = annotation.strip()
+            if annotation: book["annotation"] = annotation
+
+        return result
+
+    @staticmethod
+    def fix_thumb_url(url):
+        url = re.sub(r"(boocover/[^/]*/)[^/]*", r"\1o", url)
+        url = url.replace(".jpg", ".jpeg")
+        return url
+
+
+class LivelibThumb(Livelib):
+    def get(self):
+        result = dict()
+        book = result[self._isbn] = dict()
+        root = self.parse(self.url)
+
+        true_url = ""
+        if root is not None:
+            for anchor in root.cssselect("#objects-block .object-edition a.title"):
+                url = anchor.get("href")
+                if "book" in url:
+                    true_url = url
+                    break
+
+        root = None
+        if true_url:
+            root = self.parse(true_url + "-" + random_str(10, 20))
+        if root is not None:
+            thumbnail = self.query_selector(root, "#main-image-book", attr="src")
+            if thumbnail:
+                book["thumbnail"] = [thumbnail, self.fix_thumb_url(thumbnail)]
+        return result
+
+        
 class Fantlab(BookInfoFetcher):
     _url_pattern = "http://fantlab.ru/searchmain?searchstr=%s"
 
