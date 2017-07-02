@@ -13,9 +13,8 @@ def book_info(isbn):
     """
     Try all available fetchers until full information about book is fetched
     """
-    fetchers = (Fantlab, Livelib)
     result = dict()
-    for fetcher in fetchers:
+    for fetcher in INFO_FETCHERS:
         f = fetcher(isbn)
         if not result:
             result = f.info
@@ -32,9 +31,8 @@ def book_thumbs(isbn):
     """
     Try to fetch as many thumbnails as possible
     """
-    fetchers = (LivelibThumb, FantlabThumb, AmazonThumb)
     result = dict()
-    for fetcher in fetchers:
+    for fetcher in THUMB_FETCHERS:
         f = fetcher(isbn)
         if not result:
             result = f.info
@@ -410,3 +408,8 @@ class AmazonThumb(BookInfoFetcher):
                 img_url = self.img_urlfix(img_url)
                 book["thumbnail"] = [img_url,]
         return result
+
+        
+# Public API for changing priority of fetchers
+INFO_FETCHERS = [Fantlab, Livelib]
+THUMB_FETCHERS = [LivelibThumb, FantlabThumb, AmazonThumb]
