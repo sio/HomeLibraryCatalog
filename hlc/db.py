@@ -9,6 +9,12 @@ from hlc.items import ISBN, Author, Book, Series, Tag
 from hlc.util import lowercase, alphanumeric, debug, timestamp, printf_replacement
 from hashlib import sha224
 
+if sqlite3.sqlite_version_info < (3, 8, 11):
+    print("\n".join([
+        "WARNING! YOU ARE USING A VERY OLD VERSION OF SQLITE!",
+        "It has been released in 2015 or earlier. Some database features may not work",
+        "Please consider updating at least to 3.8.11"]))
+
 
 class FSKeyFileStorage(object):
     """
