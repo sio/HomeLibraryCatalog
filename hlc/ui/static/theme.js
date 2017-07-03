@@ -359,8 +359,9 @@ function addRadioThumbnail(url) {
         radiobutton.id = id;
 
         label.appendChild(dimensions);
-        container.appendChild(radiobutton);
-        container.appendChild(label);
+
+        container.insertBefore(label, container.firstChild);
+        container.insertBefore(radiobutton, container.firstChild);
 
         showMoreThumbsLink(container);
     }
