@@ -619,6 +619,11 @@ class WebUI(object):
                 redirect(request.urlparts[2])
             elif isbn:
                 brcode = Barcode(self.db)
+
+                repeat = self.db.getbook(isbn=isbn)
+                if repeat.saved:
+                    redirect("/books/%s" % self.id.book.encode(repeat.id))
+
                 try:
                     brcode.isbn = isbn
                     brcode.save()
