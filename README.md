@@ -57,7 +57,7 @@ Copyright © 2016-2017 Vitaly Potyarkin
 - [ ] Barcode queue:
     - [ ] fetch related information in background, store to title field
     - [ ] style /queue page with CSS
-    - [ ] do not queue books already in the library
+    - [x] do not queue books already in the library
     - [ ] show title and user on /queue page
 - [ ] Forms:
     - [ ] for registered users
