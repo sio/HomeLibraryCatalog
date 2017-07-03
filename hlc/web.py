@@ -92,9 +92,12 @@ class WebUI(object):
         )
         routes_after_init = (
             ("/", self._clbk_frontpage),
+            ("/authors/<hexid>", self._clbk_books_author),
             ("/books", self._clbk_books_all),
             ("/books/<hexid>", self._clbk_book),
+            ("/series/<hexid>", self._clbk_books_series),
             ("/thumbs/<hexid>", self._clbk_thumb),
+            ("/tag/<name>", self._clbk_books_tag),
         )
         routes_user = (
             ("/file/<hexid>", self._clbk_user_file),
@@ -132,7 +135,7 @@ class WebUI(object):
 
     def __call__(self, *a, **ka):
         return self.app(*a, **ka)
-            
+
     def __del__(self):
         self.close()
 
@@ -203,6 +206,16 @@ class WebUI(object):
             count = len(results)
             books_generator = (self.db.getbook(row["id"]) for row in results)
         return count, books_generator
+
+    def pagination_params(self, default_size=10, max_size=100):
+        """Read pagination parameters from GET request"""
+        params = request.query.decode()
+        page_num = params.get("p", 0)
+        page_size = params.get("ps", default_size)
+        page_num = max(0, int(page_num))
+        page_size = min(max_size, int(page_size))
+        offset = page_num * page_size
+        return page_num, page_size, offset
 
     def read_cookie(self, name="auth"):
         COOKIE_MAX_AGE = 2*24*60*60  # seconds
@@ -531,26 +544,98 @@ class WebUI(object):
             redirect("/books/%s" % self.id.book.encode(book.id))
 
     def _clbk_books_all(self, user=None):
-        MAX_PAGE_SIZE = 100
-        DEFAULT_PAGE_SIZE = 10
-
-        params = request.query.decode()
-        pagenum, pagesize = params.get("p", 0), params.get("ps", DEFAULT_PAGE_SIZE)
-
-        pagenum = max(0, int(pagenum))
-        pagesize = min(MAX_PAGE_SIZE, int(pagesize))
-        offset = pagenum * pagesize
-
         query = "SELECT id FROM books ORDER BY last_edit DESC LIMIT ? OFFSET ?"
+        pg_info = self.pagination_params()
         search = self.db.sql.generic(
                     self.db.connection,
                     query,
-                    params=(pagesize, offset))
+                    params=pg_info[1:])
+        return template(
+            "book_list",
+            books=(self.db.getbook(row[0]) \
+                   for row in self.db.sql.iterate(search)),
+            title="Все книги",
+            pg_info=pg_info[:2],
+            info=self.info,
+            id=self.id,
+            user=user)
 
-        return self._page_book_list(
-            search,
-            "Все книги",
-            pg_info=[pagenum, pagesize],
+    def _clbk_books_author(self, hexid, user=None):
+        author = Author(self.db, self.id.author.decode(hexid))
+        if not author.saved: error(404)
+        query = """
+            SELECT book_id
+            FROM (
+               SELECT book_id FROM book_authors WHERE author_id = ?
+            ) as conn LEFT JOIN books ON conn.book_id = books.id
+            ORDER BY books.year ASC, books.last_edit ASC
+            LIMIT ? OFFSET ?
+            """
+        pg_info = self.pagination_params(default_size=25)
+        search = self.db.sql.generic(
+                    self.db.connection,
+                    query,
+                    params=[author.id,] + list(pg_info[1:]))
+        return template(
+            "author",
+            books=(self.db.getbook(row[0]) \
+                   for row in self.db.sql.iterate(search)),
+            title=author.name.replace(",", ""),
+            pg_info=pg_info[:2],
+            info=self.info,
+            id=self.id,
+            user=user)
+
+    def _clbk_books_tag(self, name, user=None):
+        tag = self.db.get(Tag, "name", name)
+        if not tag.saved: error(404)
+        query = """
+            SELECT book_id
+            FROM (
+               SELECT book_id FROM book_tags WHERE tag_id = ?
+            ) as conn LEFT JOIN books ON conn.book_id = books.id
+            ORDER BY books.year ASC, books.last_edit ASC
+            LIMIT ? OFFSET ?
+            """
+        pg_info = self.pagination_params(default_size=25)
+        search = self.db.sql.generic(
+                    self.db.connection,
+                    query,
+                    params=[tag.id,] + list(pg_info[1:]))
+        return template(
+            "series",
+            books=(self.db.getbook(row[0]) \
+                   for row in self.db.sql.iterate(search)),
+            title=tag.name,
+            pg_info=pg_info[:2],
+            info=self.info,
+            id=self.id,
+            user=user)
+
+    def _clbk_books_series(self, hexid, user=None):
+        series = Series(self.db, self.id.series.decode(hexid))
+        if not series.saved: error(404)
+        query = """
+            SELECT book_id
+            FROM (
+               SELECT book_id FROM book_series WHERE series_id = ?
+            ) as conn LEFT JOIN books ON conn.book_id = books.id
+            ORDER BY books.year ASC, books.last_edit ASC
+            LIMIT ? OFFSET ?
+            """
+        pg_info = self.pagination_params(default_size=25)
+        search = self.db.sql.generic(
+                    self.db.connection,
+                    query,
+                    params=[series.id,] + list(pg_info[1:]))
+        return template(
+            "series",
+            books=(self.db.getbook(row[0]) \
+                   for row in self.db.sql.iterate(search)),
+            title=series.name,
+            pg_info=pg_info[:2],
+            info=self.info,
+            id=self.id,
             user=user)
 
     def _clbk_error_http(self, error, user=None):
@@ -828,17 +913,6 @@ class WebUI(object):
             return book
         else:
             abort(404, "Invalid book id: %s" % hexid)
-
-    def _page_book_list(self, search, title, pg_info, user=None):
-        return template(
-            "book_list",
-            books=(self.db.getbook(row[0]) \
-                   for row in self.db.sql.iterate(search)),
-            title=title,
-            pg_info=pg_info,
-            info=self.info,
-            id=self.id,
-            user=user)
 
     @property
     def db(self):
