@@ -559,6 +559,10 @@ function checkDateField(field) {
         valid = valid && (month>0) && (month<=12);
         days_in_month = new Date(year, month, 0).getDate();
         valid = valid && (day>0) && (day<=days_in_month);
+
+        /* Allow only one month in the future (month is 0-based) */
+        valid = valid &&
+            (new Date() - new Date(year, month-1, day))/(1000*60*60*24) > -31;
     } else {
         valid = false;
     };
