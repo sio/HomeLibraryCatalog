@@ -373,12 +373,14 @@ class WebUI(object):
     def _clbk_book(self, hexid, user=None):
         book = self._get_book(hexid)
         full_view = user and {1,2}.intersection(set(user.getconnected_id(Group)))
+        repeat = bool(request.query.decode().get("repeat"))
         return template(
             "book",
             info=self.info,
             book=book,
             id=self.id,
             user=user,
+            repeat=repeat,
             full=full_view)
 
     def _clbk_book_delete(self, hexid, user=None):
@@ -448,7 +450,13 @@ class WebUI(object):
             try:
                 book.save()
             except sqlite3.IntegrityError as e:
-                raise e  # todo: handle error
+                repeat = self.db.getbook(
+                    isbn=validate.isbn(form.get("isbn"))[1])
+                if repeat.saved:
+                    redirect("/books/%s?repeat=yes" % 
+                             self.id.book.encode(repeat.id))
+                else:
+                    raise e  # is there any chance execution gets here?
 
             for author in book.getconnected(Author):
                 book.disconnect(author)

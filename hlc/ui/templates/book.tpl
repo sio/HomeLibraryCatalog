@@ -2,6 +2,9 @@
 % DATE_FORMAT = info["date_format"]
 % from hlc.items import Series, Author, Thumbnail, Tag, BookFile
 
+% if repeat:
+<div class="info error">Такая книга уже была добавлена в библиотеку ранее</div>
+% end
 
 % if book.thumbnail_id:
 % img_url = "/thumbs/%s" % id.thumb.encode(book.thumbnail_id)
