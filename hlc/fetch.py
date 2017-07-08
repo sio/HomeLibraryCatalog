@@ -85,7 +85,7 @@ class BookInfoFetcher(object):
             }
         }
         """
-        pass
+        raise NotImplementedError("This method has to be implemented by subclass")
 
     def __init__(self, isbn):
         self._info = None
