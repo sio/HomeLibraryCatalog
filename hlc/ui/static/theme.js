@@ -230,6 +230,12 @@ function ajaxISBNFill(xhr, json, force) {
     if (data) {
         var field;
 
+        // redirect
+        if (data["redirect"]) {
+            window.location = data["redirect"];
+            return;
+        };
+
         // thumbnail
         if (data["thumbnail"]) {
             for (var i=0; i<data["thumbnail"].length; i++) {

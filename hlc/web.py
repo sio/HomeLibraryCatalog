@@ -361,7 +361,15 @@ class WebUI(object):
         if thumbs:
             return json.dumps(book_thumbs(isbn))
         else:
-            return json.dumps(book_info(isbn))
+            repeat = self.db.getbook(isbn=isbn)
+            if repeat.saved:
+                return json.dumps(
+                    {ISBN(repeat.isbn).number:
+                        {"redirect": "/books/%s?repeat=yes" %
+                                     self.id.book.encode(repeat.id)}}
+                    )
+            else:
+                return json.dumps(book_info(isbn))
 
     def _clbk_ajax_suggestions(self, user=None):
         """Reply to AJAX requests for input suggestions"""
