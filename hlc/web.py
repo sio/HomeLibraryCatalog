@@ -570,7 +570,7 @@ class WebUI(object):
 
     def _clbk_books_author(self, hexid, user=None):
         author = Author(self.db, self.id.author.decode(hexid))
-        if not author.saved: error(404)
+        if not author.saved: abort(404)
         query = """
             SELECT book_id
             FROM (
@@ -596,7 +596,7 @@ class WebUI(object):
 
     def _clbk_books_tag(self, name, user=None):
         tag = self.db.get(Tag, "name", name)
-        if not tag.saved: error(404)
+        if not tag.saved: abort(404)
         query = """
             SELECT book_id
             FROM (
@@ -622,7 +622,7 @@ class WebUI(object):
 
     def _clbk_books_series(self, hexid, user=None):
         series = Series(self.db, self.id.series.decode(hexid))
-        if not series.saved: error(404)
+        if not series.saved: abort(404)
         query = """
             SELECT book_id
             FROM (
