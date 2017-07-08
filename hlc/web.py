@@ -461,7 +461,7 @@ class WebUI(object):
                 repeat = self.db.getbook(
                     isbn=validate.isbn(form.get("isbn"))[1])
                 if repeat.saved:
-                    redirect("/books/%s?repeat=yes" % 
+                    redirect("/books/%s?repeat=yes" %
                              self.id.book.encode(repeat.id))
                 else:
                     raise e  # is there any chance execution gets here?
