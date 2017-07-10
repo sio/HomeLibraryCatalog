@@ -223,7 +223,10 @@ class OpenLibrary(BookInfoFetcher):
         except FetcherInvalidPageError:
             reply = None
         if reply is not None:
-            reply = json.loads(reply.read().decode("utf-8"))
+            try:
+                reply = json.loads(reply.read().decode("utf-8"))
+            except Exception:
+                reply = dict()
             if reply: reply = reply.popitem()[1]
 
             title = reply.get("title")
