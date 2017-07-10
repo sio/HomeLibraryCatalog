@@ -108,7 +108,7 @@ class BookInfoFetcher(object):
         else:
             self._isbn = None
 
-    def request(self, url):
+    def request(self, url, type="text/html"):
         """
         Open URL and return a file-like object if it points to html page
         Raise FetcherInvalidPageError otherwise
@@ -122,7 +122,7 @@ class BookInfoFetcher(object):
             opened = urllib.request.urlopen(req)
         except urllib.request.URLError as e:
             pass
-        if opened and opened.headers.get_content_type() == "text/html":
+        if opened and opened.headers.get_content_type() == type:
             return opened
         else:
             if not opened:
@@ -307,7 +307,7 @@ class LivelibThumb(Livelib):
                 book["thumbnail"] = [thumbnail, self.fix_thumb_url(thumbnail)]
         return result
 
-        
+
 class Fantlab(BookInfoFetcher):
     _url_pattern = "http://fantlab.ru/searchmain?searchstr=%s"
 
@@ -422,7 +422,7 @@ class AmazonThumb(BookInfoFetcher):
                 book["thumbnail"] = [img_url,]
         return result
 
-        
+
 # Public API for changing priority of fetchers
 INFO_FETCHERS = [Fantlab, Livelib]
 THUMB_FETCHERS = [LivelibThumb, FantlabThumb, AmazonThumb]
