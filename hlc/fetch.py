@@ -41,7 +41,8 @@ def book_thumbs(isbn):
         f = fetcher(isbn)
         old, new = result[f.isbn], f.info[f.isbn]
         key = "thumbnail"
-        if key not in old:
+        if key not in old \
+        and key in new:
             old[key] = new[key]
         elif isinstance(new.get(key), list) \
         and isinstance(old.get(key), list):
