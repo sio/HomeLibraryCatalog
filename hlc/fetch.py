@@ -5,6 +5,7 @@ Tools for fetching book info by ISBN
 import lxml.html
 import urllib.request
 import re
+import json
 from hlc.items import ISBN
 from hlc.util import alphanumeric, fuzzy_str_eq, debug, random_str
 
@@ -209,6 +210,57 @@ class BookInfoFetcher(object):
     def split_names(names, separator=","):
         """Turn 'John Doe, Jane Doe, Jack Daniels' into list of names"""
         return [name.strip() for name in names.split(separator)]
+
+
+class OpenLibrary(BookInfoFetcher):
+    _url_pattern = "https://openlibrary.org/api/books?bibkeys=ISBN:%s&format=json&jscmd=data"
+
+    def get(self):
+        result = dict()
+        book = result[self._isbn] = dict()
+        try:
+            reply = self.request(self.url, "application/json")
+        except FetcherInvalidPageError:
+            reply = None
+        if reply is not None:
+            reply = json.loads(reply.read().decode("utf-8"))
+            if reply: reply = reply.popitem()[1]
+
+            title = reply.get("title")
+            if title: book["title"] = title
+
+            authors = list()
+            for a in reply.get("authors", list()):
+                name = a.get("name")
+                if name:
+                    authors.append(self.reverse_name(name))
+            if not authors:
+                name = reply.get("by_statement")
+                if name: authors.append(name)
+            if authors: book["authors"] = authors
+
+            publisher = reply.get("publishers")
+            if publisher: publisher = publisher[0].get("name")
+            if publisher: book["publisher"] = publisher
+
+            year = reply.get("publish_date")
+            if year: book["year"] = year
+
+            thumbnail = None
+            for path in [
+                    ("cover", "large"),
+                    ("cover", "medium"),
+                    ("cover", "small")]:
+                thumbnail = get_nested(reply, *path)
+                if thumbnail:
+                    book["thumbnail"] = [thumbnail,]
+                    break
+        return result
+
+
+class OpenLibraryThumb(OpenLibrary):
+    def get():
+        raise NotImplementedError  # todo
 
 
 class Livelib(BookInfoFetcher):
@@ -424,5 +476,5 @@ class AmazonThumb(BookInfoFetcher):
 
 
 # Public API for changing priority of fetchers
-INFO_FETCHERS = [Fantlab, Livelib]
+INFO_FETCHERS = [Fantlab, Livelib, OpenLibrary]
 THUMB_FETCHERS = [LivelibThumb, FantlabThumb, AmazonThumb]
