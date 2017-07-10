@@ -46,6 +46,19 @@ def book_thumbs(isbn):
     return result
 
 
+def get_nested(dictionary, *keys, default=None):
+    """Get value from nested dictionary"""
+    reply = default
+    for key in keys:
+        try:
+            reply = dictionary[key]
+        except KeyError:
+            reply = default
+            break
+        else:
+            dictionary = reply
+    return reply
+
 
 class FetcherInvalidPageError(ValueError):
     """Raised when fetched page is not suitable for further parsing"""
