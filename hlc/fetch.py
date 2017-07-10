@@ -263,11 +263,6 @@ class OpenLibrary(BookInfoFetcher):
         return result
 
 
-class OpenLibraryThumb(OpenLibrary):
-    def get():
-        raise NotImplementedError  # todo
-
-
 class Livelib(BookInfoFetcher):
     _url_pattern = "https://www.livelib.ru/find/books/%s"
 
@@ -482,4 +477,4 @@ class AmazonThumb(BookInfoFetcher):
 
 # Public API for changing priority of fetchers
 INFO_FETCHERS = [Fantlab, Livelib, OpenLibrary]
-THUMB_FETCHERS = [LivelibThumb, FantlabThumb, AmazonThumb]
+THUMB_FETCHERS = [LivelibThumb, FantlabThumb, AmazonThumb, OpenLibrary]
