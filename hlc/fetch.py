@@ -470,9 +470,13 @@ class AmazonThumb(BookInfoFetcher):
         if root is not None:
             img = root.cssselect(".s-item-container img.s-access-image")
             if img is not None:
-                img_url = img[0].get("src")
-                img_url = self.img_urlfix(img_url)
-                book["thumbnail"] = [img_url,]
+                try:
+                    img_url = img[0].get("src")
+                except IndexError:
+                    pass
+                else:
+                    img_url = self.img_urlfix(img_url)
+                    book["thumbnail"] = [img_url,]
         return result
 
 
