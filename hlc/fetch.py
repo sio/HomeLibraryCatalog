@@ -31,19 +31,21 @@ def book_info(isbn):
 def book_thumbs(isbn):
     """
     Try to fetch as many thumbnails as possible
+
+    It is safe to append general purpose fetchers to THUMB_FETCHERS list.
+    Those fetchers' results will be stripped of all extra information except
+    for thumbnail urls
     """
-    result = dict()
+    result = {ISBN(isbn).number:{}}
     for fetcher in THUMB_FETCHERS:
         f = fetcher(isbn)
-        if not result:
-            result = f.info
-        else:
-            old, new = result[f.isbn], f.info[f.isbn]
-            for k in new.keys():
-                if k not in old:
-                    old[k] = new[k]
-                elif type(new[k]) is list and type(old[k]) is list:
-                    old[k] += new[k]
+        old, new = result[f.isbn], f.info[f.isbn]
+        key = "thumbnail"
+        if key not in old:
+            old[key] = new[key]
+        elif isinstance(new.get(key), list) \
+        and isinstance(old.get(key), list):
+            old[key] += new[key]
     return result
 
 
