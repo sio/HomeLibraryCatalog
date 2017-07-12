@@ -112,7 +112,7 @@ class BookInfoFetcher(object):
         else:
             self._isbn = None
 
-    def request(self, url, type="text/html"):
+    def request(self, url, content_type="text/html"):
         """
         Open URL and return a file-like object if it points to html page
         Raise FetcherInvalidPageError otherwise
@@ -126,7 +126,7 @@ class BookInfoFetcher(object):
             opened = urllib.request.urlopen(req)
         except urllib.request.URLError as e:
             pass
-        if opened and opened.headers.get_content_type() == type:
+        if opened and opened.headers.get_content_type() == content_type:
             return opened
         else:
             if not opened:
