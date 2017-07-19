@@ -11,6 +11,6 @@ There are no strict guidelines, so you should not worry about breaking any rules
 
 I'm open to dialog and I promise to behave responsibly and treat all contributors
 with respect. Please try to do the same, and treat others the way you want to be
-treated
+treated.
 
 Thank you again!
