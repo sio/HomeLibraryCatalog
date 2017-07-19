@@ -10,7 +10,7 @@ directly from GitHub *or*
 * download release archive, unpack it and start `HomeLibraryCatalog.py`
 
 To launch HomeLibraryCatalog with wsgiref web server run
-`HomeLibraryCatalog config.json` where *config.json* is the 
+`HomeLibraryCatalog config.json` where *config.json* is the
 [configuration file][1]. If no command line arguments are supplied,
 *hlc.config* in current working directory is used
 
@@ -32,6 +32,11 @@ resources
 
 All locale-dependent text is contained in template files (*.tpl).
 Proper localizations tools and techniques (gettext et al) are not yet supported
+
+
+# Contributing
+All contributions are welcome!
+Please check [CONTRIBUTING.md](CONTRIBUTING.md) for details
 
 
 # License and copyright
