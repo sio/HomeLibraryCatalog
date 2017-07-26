@@ -721,6 +721,8 @@ class CatalogueDB(SQLiteDB):
 
     def create_db(self, db_filename):
         """Create new SQLite database file and all required tables"""
+        # NOTE: increment CatalogueDB._schema_version and
+        #       add SCHEMA_TRANSITIONS to db_transitions.py if changing schema
         new_table_queries = (
             """
             CREATE TABLE sessions (

@@ -20,6 +20,7 @@ from hlc.db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
 from hlc.util import LinCrypt, timestamp, debug, random_str, message, \
                      DynamicDict, ReadOnlyDict, parse_csv, time2unix
 from hlc.fetch import book_info, book_thumbs
+from .db_transition import upgrade
 
 
 class WebUI(object):
@@ -891,6 +892,7 @@ class WebUI(object):
         """
         Initialize some database entries and create first administrator account
         """
+        upgrade(self.db)
         options = self.option
         if not options.get("init_date"):
             credentials = ("admin_" + random_str(2,4).upper(), random_str(6,8))
@@ -910,6 +912,7 @@ class WebUI(object):
 
             options["init_date"] = timestamp()
             options["init_user"] = ":".join(credentials)
+            options["schema_version"] = CatalogueDB._schema_version
 
     def _info_init(self):
         i = self._info = DynamicDict()
