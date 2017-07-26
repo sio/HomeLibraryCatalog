@@ -329,8 +329,8 @@ def parse_csv(csv):
         items.append(item)
     return items
 
-def printf_replacement(text, *a, **ka):
+def printf_replacement(text, *args):
     """
     printf replacement for older sqlite versions
     """
-    return text.format(*a, **ka)
+    return text % tuple(a if a else "" for a in args)
