@@ -925,6 +925,7 @@ class WebUI(object):
         i["copyright"] = lambda: "2016-%s" % datetime.now().year
         i["date_format"] = "%d.%m.%Y"
         i["date"] = lambda: datetime.now().strftime(i["date_format"])
+        i["url"] = lambda: request.urlparts
 
     def _get_book(self, hexid):
         try:

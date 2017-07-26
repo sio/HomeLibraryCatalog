@@ -11,11 +11,17 @@
 <div class="empty">Книг, соответствующих запросу, не найдено</div>
 % end
 
+<%
+from urllib.parse import urlencode, parse_qs
+params = {k:v[0] for k,v in parse_qs(info["url"][3]).items()}
+%>
 <div class="page_nav">
 % if pg_info[0] and pg_info[1]:
-<a class="prev" href="{{'?p=%s&ps=%s' % (pg_info[0]-1,pg_info[1])}}">&lt; назад </a>
+% params["p"] = pg_info[0]-1
+<a class="prev" href="{{'?'+urlencode(params)}}">&lt; назад </a>
 % end
 % if count == pg_info[1] and pg_info[1]:
-<a class="next" href="{{'?p=%s&ps=%s' % (pg_info[0]+1,pg_info[1])}}"> далее &gt;</a>
+% params["p"] = pg_info[0]+1
+<a class="next" href="{{'?'+urlencode(params)}}"> далее &gt;</a>
 % end
 </div>
