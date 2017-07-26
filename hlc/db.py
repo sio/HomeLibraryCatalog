@@ -614,6 +614,8 @@ class CatalogueDB(SQLiteDB):
             Create new SQLite database. Dates and times are stored
             in Unix epoch format
     """
+    _schema_version = 2  # Integer. Increment this when schema changes.
+
     def __init__(self, filename):
         new = not os.path.isfile(filename)
 
@@ -892,7 +894,8 @@ class CatalogueDB(SQLiteDB):
                 books.in_date as in_date,
                 books.year as year,
                 books.name as title,
-                authors.name as author
+                authors.name as author,
+                books.last_edit as last_edit
             FROM
             books
             LEFT JOIN book_authors ON book_authors.book_id = books.id
