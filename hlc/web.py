@@ -156,7 +156,7 @@ class WebUI(object):
         user.save()
         return user
 
-    def booksearch(self, search, sort_keys=None):
+    def booksearch(self, search, page=None, sort_keys=None):
         """
         Search for string in most important book properties
 
@@ -166,6 +166,8 @@ class WebUI(object):
         Arguments:
             search
                 String, user input. Search query. Accepts "*" as wildcard
+            page
+                3-tuple of page number, page size, offset
             sort_keys
                 Tuple of sort keys. Possible values are "in_date", "year",
                 "title", "author". Raises sqlite3.OperationalError if invalid
@@ -198,17 +200,18 @@ class WebUI(object):
         query = "SELECT DISTINCT id FROM search_books WHERE %s ORDER BY %s" % (
             where_clause, order_clause)
 
-        count = 0
-        books_generator = ()
         if words:
+            if page:
+                query += " LIMIT ? OFFSET ?"
+                words += list(page[1:])
             cur = self.db.sql.generic(
                 self.db.connection,
                 query,
                 params=tuple(words))
-            results = cur.fetchall()
-            count = len(results)
-            books_generator = (self.db.getbook(row["id"]) for row in results)
-        return count, books_generator
+            books = (self.db.getbook(row[0]) for row in self.db.sql.iterate(cur))
+        else:
+            books = ()
+        return books
 
     def pagination_params(self, default_size=10, max_size=100):
         """Read pagination parameters from GET request"""
