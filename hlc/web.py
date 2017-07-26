@@ -15,12 +15,13 @@ from threading import get_ident
 from datetime import datetime, timedelta
 from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
                    template, redirect, static_file
-from hlc.items import NoneMocker, Author, User, Thumbnail, ISBN, Group, Series,\
-                      BookFile, Tag, Barcode
-from hlc.db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
-from hlc.util import LinCrypt, timestamp, debug, random_str, message, \
-                     DynamicDict, ReadOnlyDict, parse_csv, time2unix
-from hlc.fetch import book_info, book_thumbs
+
+from .items import NoneMocker, Author, User, Thumbnail, ISBN, Group, Series,\
+                   BookFile, Tag, Barcode
+from .db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
+from .util import LinCrypt, timestamp, debug, random_str, message, \
+                  DynamicDict, ReadOnlyDict, parse_csv, time2unix
+from .fetch import book_info, book_thumbs
 from .db_transition import upgrade
 
 
