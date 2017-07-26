@@ -13,6 +13,9 @@ user = get("user", None)
 <body onload="{{get('onload') or ''}}">
 <div id="header" class="widewrapper no_print">
     <a href="/"><h1>{{app_name}}</h1></a>
+    <form id="quick_search" name="search" action="/search">
+        <input name="q" type="text" placeholder="поиск"/>
+    </form>
 </div>
 <div id="middle">
     <div id="menu" class="no_print">

@@ -28,6 +28,14 @@ body {
 .center {
     text-align:center;
 }
+#header {
+    position: relative;
+}
+#quick_search {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
 
 /* MENU SIDEBAR */
 #menu {
@@ -48,6 +56,9 @@ body {
 }
 #menu li.with_separator {
     margin-top:1em;
+}
+#quick_search input {
+    padding:0.3em;
 }
 
 /* BOOK PAGE */
@@ -195,7 +206,8 @@ ul.items li {
 .user_input .field input[type="text"],
 .user_input .field input[type="password"],
 .user_input .field textarea,
-.user_input .field select {
+.user_input .field select,
+#quick_search input {
     border: #999999 solid 1px;
     background-color:white;
     color:#333333;
@@ -207,7 +219,8 @@ ul.items li {
 .user_input .field input[type="text"]:focus,
 .user_input .field input[type="password"]:focus,
 .user_input .field textarea:focus,
-.user_input .field select:focus {
+.user_input .field select:focus,
+#quick_search input:focus {
     outline: none;
     border-color: navy;
 }

@@ -98,6 +98,7 @@ class WebUI(object):
             ("/authors/<hexid>", self._clbk_books_author),
             ("/books", self._clbk_books_all),
             ("/books/<hexid>", self._clbk_book),
+            ("/search", self._clbk_search_simple),
             ("/series/<hexid>", self._clbk_books_series),
             ("/thumbs/<hexid>", self._clbk_thumb),
             ("/tag/<name>", self._clbk_books_tag),
@@ -757,6 +758,22 @@ class WebUI(object):
                 user=user)
         elif request.method == "POST":
             pass
+
+    def _clbk_search_simple(self, user=None):
+        params = request.query.decode()
+        query = params.get("q")
+        if not query.strip():
+            redirect("/")
+        page = self.pagination_params()
+        books = self.booksearch(query, page, ["last_edit DESC"])
+        return template(
+            "book_list",
+            books=books,
+            title="Результаты поиска",
+            pg_info=page[:2],
+            info=self.info,
+            id=self.id,
+            user=user)
 
     def _clbk_static(self, filename, user=None):
         return static_file(
