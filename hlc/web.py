@@ -10,6 +10,7 @@ import sys
 import webbrowser
 import urllib.parse
 import urllib.request
+from collections import namedtuple
 from threading import get_ident
 from datetime import datetime, timedelta
 from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
@@ -216,7 +217,9 @@ class WebUI(object):
         page_num = max(0, int(page_num))
         page_size = min(max_size, int(page_size))
         offset = page_num * page_size
-        return page_num, page_size, offset
+
+        Page = namedtuple("Page", ["num", "size", "offset"])
+        return Page(page_num, page_size, offset)
 
     def read_cookie(self, name="auth"):
         COOKIE_MAX_AGE = 2*24*60*60  # seconds
