@@ -1,6 +1,13 @@
 <%
 app_name = info.get("title") or "Библиотека"
 user = get("user", None)
+url = info["url"]
+if url[2] == "/search":
+    from urllib.parse import parse_qs
+    search_query = parse_qs(url[3]).get("q", [""])[0]
+else:
+    search_query = ""
+end
 %>
 <!DOCTYPE html>
 <html>
@@ -14,7 +21,7 @@ user = get("user", None)
 <div id="header" class="widewrapper no_print">
     <a href="/"><h1>{{app_name}}</h1></a>
     <form id="quick_search" name="search" action="/search">
-        <input name="q" type="text" placeholder="поиск"/>
+        <input name="q" type="text" placeholder="поиск" value="{{search_query}}"/>
     </form>
 </div>
 <div id="middle">
