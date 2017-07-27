@@ -762,7 +762,7 @@ class WebUI(object):
     def _clbk_search_simple(self, user=None):
         params = request.query.decode()
         query = params.get("q")
-        if not (isinstance(query, str) and query.strip()):
+        if not query:
             redirect("/")
         page = self.pagination_params()
         books = self.booksearch(query, page, ["last_edit DESC"])
