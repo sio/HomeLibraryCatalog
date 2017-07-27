@@ -400,6 +400,9 @@ p {
 a:hover {
     text-decoration:underline;
 }
+.highlight {
+    background-color:yellow;
+}
 
 /* PRINTING */
 @media print {

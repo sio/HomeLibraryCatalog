@@ -764,6 +764,55 @@ function showFieldValidation(field, valid) {
 
 /*
  *
+ * HIGHLIGHT TEXT
+ *
+ */
+function highlight(node, text) {
+    /** Highlight all words from `text` in `node` **/
+    var WILDCARD = "*";
+    var HIGHLIGHT_CLASS = "highlight";
+    var WORD_CHARS = "\\wА-ЯЁа-яё";  // because \w is not Unicode-aware
+
+    var words = text.replace(/\s+/g, " ").split(" ");
+    for (var i=0; i<words.length; i++) {
+        var word = words[i].trim();
+
+        // read wildcards and throw them away
+        var wildcards = [word.slice(0, 1)===WILDCARD,
+                         word.slice(-1)===WILDCARD];
+        if (wildcards[0]) {word = word.slice(1)};
+        if (wildcards[1]) {word = word.slice(0, -1)};
+
+        // quote special chars
+        word = word.replace(
+                    /([.?*+^$\]\[\(\){}|+!:\/])-/g,
+                    "\\$1");
+        word = word.replace("<", "&lt;");
+        word = word.replace(">", "&gt;");
+
+        // insert word boundaries (remember that \w is not Unicode-aware)
+        if (wildcards[0]) {word = "[" + WORD_CHARS + "]*" + word};
+        if (wildcards[1]) {word += "[" + WORD_CHARS + "]*"};
+
+        // search and replace
+        var pattern = new RegExp("(^|>)([^<>]*?)([^"
+                                    + WORD_CHARS
+                                    + "]*)("
+                                    + word
+                                    + ")([^"
+                                    + WORD_CHARS
+                                    +"]|$)",
+                                 "ig");
+        node.innerHTML = node.innerHTML.replace(
+                            pattern,
+                            "$1$2$3<span class=\""
+                                + HIGHLIGHT_CLASS
+                                + "\">$4</span>$5");
+    };
+};
+
+/*
+ *
  * UTILITY FUNCTIONS
  *
  */
