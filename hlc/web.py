@@ -186,7 +186,7 @@ class WebUI(object):
         words = list()
         for i in range(len(old_words)):
             new_word = old_words[i]
-            if new_word:
+            if len(new_word.strip(WILDCARD)) > 2:  # drop short words
                 if new_word[0] != WILDCARD:
                     new_word = " " + new_word
                 if new_word[-1] != WILDCARD:
