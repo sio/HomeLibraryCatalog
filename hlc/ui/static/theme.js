@@ -130,7 +130,11 @@ function AjaxHandler(callback) {
 function ajaxSuggestions(keypress) {
     /** Get suggestions for input field via AJAX call **/
     var input = keypress.target;
-    if (input.value.length > 2) {
+    // User types two letters
+    // -> AJAX gets suggestions
+    // -> User types third letter
+    // -> Browser shows suggestions from datalist
+    if (input.value.length >= 2) {
         var url="/ajax/suggest";
         var params = {"f": input.name, "q": input.value};
         input.setAttribute("list", input.name + "_suggestions");
