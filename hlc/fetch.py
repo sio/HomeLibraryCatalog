@@ -265,6 +265,11 @@ class OpenLibrary(BookInfoFetcher):
 
 
 class Livelib(BookInfoFetcher):
+    #
+    # Livelib doesn't like repeated automated requests, so we drop it from
+    # INFO_FETCHERS list
+    #
+
     _url_pattern = "https://www.livelib.ru/find/books/%s"
 
     def get(self):
@@ -481,5 +486,5 @@ class AmazonThumb(BookInfoFetcher):
 
 
 # Public API for changing priority of fetchers
-INFO_FETCHERS = [Fantlab, Livelib, OpenLibrary]
-THUMB_FETCHERS = [LivelibThumb, FantlabThumb, AmazonThumb, OpenLibrary]
+INFO_FETCHERS = [Fantlab, OpenLibrary]
+THUMB_FETCHERS = [FantlabThumb, AmazonThumb, OpenLibrary]
