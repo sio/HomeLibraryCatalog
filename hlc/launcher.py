@@ -5,7 +5,9 @@ Command-line user interface for HomeLibraryCatalog
 import os
 import sys
 import hlc
-from hlc import WebUI, debug, settings, VERBOSITY
+from hlc import VERBOSITY
+from hlc.cfg import settings
+from hlc.web import WebUI, debug
 
 
 DEFAULT_CONFIGURATION = {
