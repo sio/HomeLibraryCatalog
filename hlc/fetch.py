@@ -220,7 +220,7 @@ class OpenLibrary(BookInfoFetcher):
 
     def get(self):
         result = dict()
-        book = result[self._isbn] = dict()
+        book = result[self.isbn] = dict()
         try:
             reply = self.request(self.url, "application/json")
         except FetcherInvalidPageError:
@@ -274,7 +274,7 @@ class Livelib(BookInfoFetcher):
 
     def get(self):
         result = dict()
-        book = result[self._isbn] = dict()
+        book = result[self.isbn] = dict()
         root = self.parse(self.url)
 
         true_url = ""
@@ -345,7 +345,7 @@ class Livelib(BookInfoFetcher):
 class LivelibThumb(Livelib):
     def get(self):
         result = dict()
-        book = result[self._isbn] = dict()
+        book = result[self.isbn] = dict()
         root = self.parse(self.url)
 
         true_url = ""
@@ -372,7 +372,7 @@ class Fantlab(BookInfoFetcher):
     def get(self):
         """Scrape website for information about the book"""
         result = dict()
-        book = result[self._isbn] = dict()
+        book = result[self.isbn] = dict()
 
         # search results page
         root = self.parse(self.url)
@@ -444,7 +444,7 @@ class FantlabThumb(Fantlab):
     """Fetch only thumbnail from Fantlab (less http requests)"""
     def get(self):
         result = dict()
-        book = result[self._isbn] = dict()
+        book = result[self.isbn] = dict()
 
         root = self.parse(self.url)
         if root is not None:
@@ -469,7 +469,7 @@ class AmazonThumb(BookInfoFetcher):
 
     def get(self):
         result = dict()
-        book = result[self._isbn] = dict()
+        book = result[self.isbn] = dict()
 
         root = self.parse(self.url)
         if root is not None:
