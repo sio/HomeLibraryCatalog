@@ -12,9 +12,13 @@ directly from GitHub *or*
 To launch HomeLibraryCatalog with wsgiref web server run
 `HomeLibraryCatalog config.json` where *config.json* is the
 [configuration file][1]. If no command line arguments are supplied,
-*hlc.config* in current working directory is used
+*hlc.config* in current working directory is used.
+
+Check [this article][2] for further information on HomeLibraryCatalog
+deployment with wsgiref and/or other WSGI compatible web servers.
 
 [1]: docs/configuration.md
+[2]: docs/deployment.md
 
 
 # Requirements

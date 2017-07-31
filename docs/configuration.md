@@ -5,7 +5,7 @@ as the only command line argument
 Environment variables referenced in string values will be expanded according to
 host system's standards
 
-As per JSON specification all keys and string values have to be enclosed in 
+As per JSON specification all keys and string values have to be enclosed in
 double quotes
 
 ## Example configuration (with default values)
@@ -18,7 +18,8 @@ double quotes
         "title": "",
         "verbosity": 5,
         "data_dir": "data",
-        "logfile": "hlc.log"
+        "logfile": "hlc.log",
+        root: None,
     },
     "webui": {
         "host": "127.0.0.1",
@@ -57,6 +58,24 @@ Path to log file. Relative paths are resolved relative to `app.data_dir`
 
 Default: hlc.log
 
+### root
+Path to the "ui" directory. Change this only if you know what you're doing!
+
+If "root" parameter is set, HomeLibraryCatalog will look for user interface
+resources in the specified directory. All files provided by the package MUST
+be mirrored there, even if only some of them are meant to be different.
+
+Setting this option allows you to make major changes to user interaction:
+- CSS styles,
+- JavaScript client-side interactivity,
+- Layout and contents of templates
+
+But be aware, that using custom "ui" directory places the burden of staying up
+to date with upstream UI on you. Consider all pros and cons before deciding
+on this.
+
+Default: None - use default "ui" files from the pip package
+
 ## **webui** - web interface settings (frontend)
 ### host
 When running as standalone application, specifies IP address for *wsgiref* to
@@ -65,7 +84,7 @@ bind to. Use `0.0.0.0` to listen on all interfaces including the external one
 Default: 127.0.0.1
 
 ### port
-When running as standalone application, specifies port for *wsgiref* to listen 
+When running as standalone application, specifies port for *wsgiref* to listen
 on. Values below 1024 require root privileges
 
 Default: 8080
