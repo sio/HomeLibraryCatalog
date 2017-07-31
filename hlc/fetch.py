@@ -6,8 +6,8 @@ import lxml.html
 import urllib.request
 import re
 import json
-from hlc.items import ISBN
-from hlc.util import alphanumeric, fuzzy_str_eq, debug, random_str
+from .items import ISBN
+from .util import alphanumeric, fuzzy_str_eq, debug, random_str
 
 
 def book_info(isbn):

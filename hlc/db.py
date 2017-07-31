@@ -5,8 +5,8 @@ Manage database interaction
 import sqlite3
 import os
 import re
-from hlc.items import ISBN, Author, Book, Series, Tag
-from hlc.util import lowercase, alphanumeric, debug, timestamp, printf_replacement
+from .items import ISBN, Author, Book, Series, Tag
+from .util import lowercase, alphanumeric, debug, timestamp, printf_replacement
 from hashlib import sha224
 
 if sqlite3.sqlite_version_info < (3, 8, 11):

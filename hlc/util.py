@@ -2,7 +2,7 @@
 Useful utilities
 """
 
-from hlc import VERBOSITY
+from . import VERBOSITY
 import os
 import re
 import textwrap

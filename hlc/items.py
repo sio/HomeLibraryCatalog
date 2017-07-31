@@ -7,8 +7,8 @@ import json
 import re
 import io
 from PIL import Image
-from hlc.util import debug, unix2time, time2unix, PassHash
 from datetime import datetime
+from .util import debug, unix2time, time2unix, PassHash
 
 
 class NoneMocker(object):

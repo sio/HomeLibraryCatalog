@@ -10,7 +10,7 @@ import json
 class Configuration(object):
     """
     Transform dictionary into object with properties correcponding to its keys
-    
+
     Supports environment variables in values
     """
     def __init__(self, dictionary):
@@ -24,7 +24,7 @@ class Configuration(object):
 
     def __str__(self):
         return json.dumps(self.dump(), indent=2)
-                
+
     def dump(self):
         """Dump object attributes back into dictionary"""
         output = dict()
