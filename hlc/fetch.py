@@ -258,7 +258,7 @@ class ChitaiGorod(BookInfoFetcher):
         nonsecure = ssl._create_unverified_context()
         opened = urllib.request.urlopen(api, context=nonsecure)
         if opened:
-            data = json.loads(opened.read())
+            data = json.loads(opened.read().decode("utf-8"))
         else:
             data = dict()
         return data
@@ -592,5 +592,5 @@ class AmazonThumb(BookInfoFetcher):
 
 
 # Public API for changing priority of fetchers
-INFO_FETCHERS = [Fantlab, OpenLibrary]
-THUMB_FETCHERS = [FantlabThumb, AmazonThumb, OpenLibrary]
+INFO_FETCHERS = [Fantlab, ChitaiGorod, OpenLibrary]
+THUMB_FETCHERS = [FantlabThumb, ChitaiGorod, AmazonThumb, OpenLibrary]
