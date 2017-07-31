@@ -6,6 +6,7 @@ import lxml.html
 import urllib.request
 import re
 import json
+import ssl
 from .items import ISBN
 from .util import alphanumeric, fuzzy_str_eq, debug, random_str
 
@@ -221,6 +222,111 @@ class BookInfoFetcher(object):
     def split_names(names, separator=","):
         """Turn 'John Doe, Jane Doe, Jack Daniels' into list of names"""
         return [name.strip() for name in names.split(separator)]
+
+
+class ChitaiGorod(BookInfoFetcher):
+    """
+    Russian online book store, offers both fiction and non-fiction books
+    """
+    _url_pattern = "https://www.chitai-gorod.ru/search/result.php?q=%s"
+    _url_frontpage = "https://www.chitai-gorod.ru"
+    _api_url = "https://search.chitai-gorod.ru/catalog/_search?size=20&from=0"
+    _api_host = "search.chitai-gorod.ru"
+    _img_url = "https://img-gorod.ru/upload"
+
+    def api_get_isbn(self, isbn=None):
+        if isbn is None: isbn = self.isbn
+
+        # API payload copied from Chrome Developer Tools.
+        # Don't know what this payload means, don't need to know:
+        # we need just one query after all.
+        payload = """
+            {"query":{"function_score":{"boost_mode":"sum","query":{"bool":
+            {"should":[{"filtered":{"query":{"dis_max":{"queries":[
+            {"match":{"isbn":{"query":"__ISBN__"}}},{"match":
+            {"isbn":{"query":"__ISBN__"}}}],"tie_breaker":0.9}}}}]}}}},
+            "aggs":{"sect":{"terms":{"field":"ibl_sec_id","size":500}},
+            "author":{"terms":{"field":"author.raw","size":50}},"author_b":
+            {"terms":{"field":"author_b","size":50}},"author_t":{"terms":
+            {"field":"author_t.raw","size":50}}},"sort":[{"_score":{"order":
+            "desc"}}],"min_score":1.15}
+            """
+
+        api = urllib.request.Request(
+                url=self._api_url,
+                headers={
+                    "Host": self._api_host,
+                    "Origin": self._url_frontpage,
+                    "User-Agent": self.USER_AGENT,
+                    "Referrer": self.url,
+                },
+                data=payload.replace("__ISBN__", self.isbn).encode("utf-8"),
+                origin_req_host=self._url_frontpage,
+                method="POST")
+        nonsecure = ssl._create_unverified_context()
+        opened = urllib.request.urlopen(api, context=nonsecure)
+        if opened:
+            data = json.loads(opened.read().decode("utf-8"))
+        else:
+            data = dict()
+        return data
+
+    def get(self):
+        result = dict()
+        book = result[self.isbn] = dict()
+
+        try:
+            api_reply = self.api_get_isbn()
+        except Exception:
+            api_reply = dict()
+
+        api_data = None
+        if api_reply.get("hits", {}).get("total", 0) == 1:
+            api_data = api_reply.get("hits",
+                                     {}).get("hits",
+                                             [{}])[0].get("_source")
+        if api_data:
+            title = api_data.get("name")
+            if title: book["title"] = title
+
+            authors_line = api_data.get("author_t")
+            if authors_line:
+                authors = [self.reverse_name(a) \
+                           for a in self.split_names(authors_line)]
+            else:
+                authors_line = api_data.get("author")
+                if authors_line:
+                    authors = [a.replace(" ", ", ", 1) \
+                               for a in self.split_names(authors_line)]
+            if authors: book["authors"] = authors
+
+            publisher = api_data.get("publisher")
+            if publisher: book["publisher"] = publisher
+
+            year = api_data.get("year")
+            if year: book["year"] = int(year)
+
+            series = api_data.get("seria")
+            if series: book["series"] = [("цикл", series)]
+
+            thumbnails = list()
+            for path_key, name_key in [
+                    ("d_pic_path", "d_pic_name"),
+                    ("p_pic_path", "p_pic_name"),
+                    ]:
+                path, name = api_data.get(path_key), api_data.get(name_key)
+                if path and name:
+                    thumbnails.append("/".join([
+                        self._img_url,
+                        path,
+                        name,
+                        ]))
+            if thumbnails: book["thumbnail"] = thumbnails
+
+            annotation = api_data.get("content")
+            if annotation: book["annotation"] = annotation
+
+        return result
 
 
 class OpenLibrary(BookInfoFetcher):
@@ -517,5 +623,5 @@ class AmazonThumb(BookInfoFetcher):
 
 
 # Public API for changing priority of fetchers
-INFO_FETCHERS = [Fantlab, OpenLibrary]
-THUMB_FETCHERS = [FantlabThumb, AmazonThumb, OpenLibrary]
+INFO_FETCHERS = [Fantlab, ChitaiGorod, OpenLibrary]
+THUMB_FETCHERS = [FantlabThumb, ChitaiGorod, AmazonThumb, OpenLibrary]
