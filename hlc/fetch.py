@@ -72,6 +72,7 @@ class FetcherInvalidPageError(ValueError):
 class BookInfoFetcher(object):
     """
     Base class for metadata fetchers
+    Child classes have to provide get() method
     """
     USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 \
     (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36"
@@ -136,6 +137,9 @@ class BookInfoFetcher(object):
                     opened.headers.get_content_type())
 
     def parse(self, url):
+        """
+        Open url and parse it with lxml. Returns None if parsing fails
+        """
         parser = lxml.html.HTMLParser(encoding=self._page_encoding)
         tree = None
         try:
@@ -168,6 +172,10 @@ class BookInfoFetcher(object):
 
     @property
     def info(self):
+        """
+        This property should be preferred when reading ISBN metadata,
+        because it does not query remote host on every access.
+        """
         if self._info is None and self.isbn:
             self._info = self.get()
         elif not self.isbn:
@@ -216,6 +224,11 @@ class BookInfoFetcher(object):
 
 
 class OpenLibrary(BookInfoFetcher):
+    """
+    OpenLibrary has an extensive library card catalog (primarily for english
+    language books), but lacks API access to annotations and offers mediocre
+    cover images.
+    """
     _url_pattern = "https://openlibrary.org/api/books?bibkeys=ISBN:%s&format=json&jscmd=data"
 
     def get(self):
@@ -265,6 +278,11 @@ class OpenLibrary(BookInfoFetcher):
 
 
 class Livelib(BookInfoFetcher):
+    """
+    Livelib is Russian online books catalog offering both fiction and
+    non-fiction books. It has high quality cover art and well-written
+    annotations.
+    """
     #
     # Livelib doesn't like repeated automated requests, so we drop it from
     # INFO_FETCHERS list
@@ -343,6 +361,9 @@ class Livelib(BookInfoFetcher):
 
 
 class LivelibThumb(Livelib):
+    """
+    A shortcut to image url on Livelib
+    """
     def get(self):
         result = dict()
         book = result[self._isbn] = dict()
@@ -367,6 +388,11 @@ class LivelibThumb(Livelib):
 
 
 class Fantlab(BookInfoFetcher):
+    """
+    Fantlab offers a vast collection of science fiction books metadata, mostly
+    in Russian. It also has an extensive database of old (1980-1990s) Russian
+    ISBNs, which are difficult to find elsewhere.
+    """
     _url_pattern = "http://fantlab.ru/searchmain?searchstr=%s"
 
     def get(self):
@@ -459,6 +485,11 @@ class FantlabThumb(Fantlab):
 
 
 class AmazonThumb(BookInfoFetcher):
+    """
+    Amazon offers quality thumbnails for its products. Other metadata is
+    not on par: poor grammar, transliterated descriptions, etc. make it
+    unreliable.
+    """
     _url_pattern = "https://www.amazon.com/gp/search/ref=sr_adv_b/?search-alias=stripbooks&field-isbn=%s"
 
     @staticmethod
