@@ -227,7 +227,7 @@ class ChitaiGorod(BookInfoFetcher):
     _img_url = "https://img-gorod.ru/upload"
 
     def api_get_isbn(self, isbn=None):
-        if isbn is None: isbn = self._isbn
+        if isbn is None: isbn = self.isbn
 
         # API payload copied from Chrome Developer Tools.
         # Don't know what this payload means, don't need to know:
@@ -252,7 +252,7 @@ class ChitaiGorod(BookInfoFetcher):
                     "User-Agent": self.USER_AGENT,
                     "Referrer": self.url,
                 },
-                data=payload.replace("__ISBN__", self._isbn).encode("utf-8"),
+                data=payload.replace("__ISBN__", self.isbn).encode("utf-8"),
                 origin_req_host=self._url_frontpage,
                 method="POST")
         nonsecure = ssl._create_unverified_context()
@@ -265,7 +265,7 @@ class ChitaiGorod(BookInfoFetcher):
 
     def get(self):
         result = dict()
-        book = result[self._isbn] = dict()
+        book = result[self.isbn] = dict()
 
         try:
             api_reply = self.api_get_isbn()
