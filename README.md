@@ -73,17 +73,17 @@ Copyright © 2016-2017 Vitaly Potyarkin
     - [ ] for administrators
         - [ ] edit groups
     - [ ] for all visitors
-        - [ ] search box
+        - [x] search box
         - [ ] advanced search: single field searches
     - [ ] start page: greetings/newest books/thumbnail gallery?
 - [ ] Pages:
     - [ ] annotated list with previews
-        - [ ] all books
+        - [x] all books
         - [ ] available books
-        - [ ] search results
+        - [x] search results
         - [ ] future books (to buy)
         - [ ] recent books with thumbnails (last month, prev-next links)
-    - [ ] plain table: title, authors, series, - in series, year
+    - [x] plain table: title, authors, series, - in series, year
     - [ ] one book
         - [ ] external links
         - [ ] more information?
@@ -98,7 +98,7 @@ Copyright © 2016-2017 Vitaly Potyarkin
     - [ ] narrow pages
     - [ ] stylesheet themes
 - [ ] robots.txt file
-- [ ] webbrowser.open() always opens IE, replace with default browser
+- [ ] garbage collector for ThreadItemPool
 
 #### Auto fetcher:
 - [ ] more sources:
@@ -106,12 +106,6 @@ Copyright © 2016-2017 Vitaly Potyarkin
     - [ ] Ozon
     - [ ] Amazon
     - [ ] Google Books?
-
-#### Deployment:
-- [ ] try pyinstall
-
-#### Unit tests:
-- [ ] mock database object (or in :memory:)
 
 #### Database:
 - [ ] add garbage collector method (delete orphaned thumbnails, authors, etc.)
