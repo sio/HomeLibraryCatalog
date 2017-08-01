@@ -263,8 +263,13 @@ class ChitaiGorod(BookInfoFetcher):
                 data=payload.replace("__ISBN__", self.isbn).encode("utf-8"),
                 origin_req_host=self._url_frontpage,
                 method="POST")
-        nonsecure = ssl._create_unverified_context()
-        opened = urllib.request.urlopen(api, context=nonsecure)
+        kwargs = dict()
+        try:
+            kwargs["context"] = ssl._create_unverified_context()
+        except AttributeError:
+            # Older Python versions do not check SSL certificates by default
+            pass
+        opened = urllib.request.urlopen(api, **kwargs)
         if opened:
             data = json.loads(opened.read().decode("utf-8"))
         else:
