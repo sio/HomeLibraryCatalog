@@ -9,6 +9,7 @@ import textwrap
 import base64
 import random
 from datetime import datetime
+from collections import UserDict
 from hashlib import sha512
 
 
@@ -176,7 +177,7 @@ class ReadOnlyDict(object):
         return self.__dict.keys(*a, **kw)
 
 
-class DynamicDict(dict):
+class DynamicDict(UserDict):
     """
     Dictionary that can store values computable upon access
 
