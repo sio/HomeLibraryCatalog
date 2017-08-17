@@ -385,7 +385,7 @@ class SQL(SQLBaseWithEscaping):
         Returns cursor object
         """
         fields = list()
-        if type(what) is str:
+        if isinstance(what, str):
             fields.append(what)
         else:
             fields += list(what)
@@ -402,7 +402,7 @@ class SQL(SQLBaseWithEscaping):
 
         order_cmds = list()
         if order:
-            if type(order) is str:
+            if isinstance(order, str):
                 order_cmds.append(order)
             else:
                 order_cmds = list(order)

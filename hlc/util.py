@@ -124,12 +124,12 @@ class PassHash(object):
         if salt is None:
             salt = base64.urlsafe_b64encode(os.urandom(cls._salt_size))
 
-        if type(password) is str:
+        if isinstance(password, str):
             password = password.encode()
         else:
             raise TypeError("expected string, but got %s" % type(password))
 
-        if type(salt) is not bytes:
+        if not isinstance(salt, bytes):
             raise TypeError("expected bytes, but got %s" % type(salt))
 
         return cls.function(salt + password) + cls._delimiter + salt.decode()
@@ -228,7 +228,7 @@ def timestamp():
 
 def time2unix(time):
     """Convert local time to Unix timestamp"""
-    if type(time) == datetime:
+    if isinstance(time, datetime):
         return int(datetime.timestamp(time))
     else:
         raise ValueError("%s is not %s object" % (time, datetime))

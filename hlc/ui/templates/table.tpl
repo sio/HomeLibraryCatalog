@@ -39,7 +39,7 @@
         % for value in row:
             <div class="rTableCell">\\
             <%
-            if type(value) is bytes:
+            if isinstance(value, bytes):
                 value = "<BLOB>"
             end
             %>

@@ -125,7 +125,7 @@ class TableEntityWithID(object):
         def property_set(self, value):
             if not value:
                 value = None
-            if type(value) is str:
+            if isinstance(value, str):
                 value = value.strip()
                 value = re.sub("[^\S\r\n]+", " ", value)
             if (not self._new and self._data[property_name] != value) \
@@ -545,7 +545,7 @@ class Series(TableEntityWithID):
 
     def position(self, book):
         """Return position of Book object in the Series"""
-        if type(book) is Book:
+        if isinstance(book, Book):
             question = book.id
         else:
             question = book
@@ -621,7 +621,7 @@ class Thumbnail(TableEntityWithID):
 
     @image.setter
     def image(self, data):
-        if type(data) is bytes:
+        if isinstance(data, bytes):
             img = Image.open(io.BytesIO(data))
         elif hasattr(data, "read") \
         and hasattr(data, "readable") \

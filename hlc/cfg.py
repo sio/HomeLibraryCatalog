@@ -15,7 +15,7 @@ class Configuration(object):
     """
     def __init__(self, dictionary):
         for key, value in dictionary.items():
-            if type(value) is dict:
+            if isinstance(value, dict):
                 setattr(self, key, Configuration(value))
             else:
                 if isinstance(value, str):
@@ -66,7 +66,7 @@ def mimic_dict(source, default):
     If `source` has no value then value from `default` is used
     """
     for i in (source, default):
-        if type(i) is not dict:
+        if not isinstance(i, dict):
             raise TypeError("expected dict, but got %s" % type(i))
 
     result = dict()
@@ -74,9 +74,9 @@ def mimic_dict(source, default):
         value = source.get(i)
         preset = default[i]
         if value:
-            if type(preset) is dict and type(value) is dict:
+            if isinstance(preset, dict) and isinstance(value, dict):
                 result[i] = mimic_dict(value, preset)
-            elif type(preset) is not dict and type(value) is not dict:
+            elif not isinstance(preset, dict) and not isinstance(value, dict):
                 result[i] = value
             else:
                 raise TypeError("%s doesn't match pattern %s" % (value, preset))
