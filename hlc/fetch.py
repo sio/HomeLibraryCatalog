@@ -295,6 +295,7 @@ class ChitaiGorod(BookInfoFetcher):
             if title: book["title"] = title
 
             authors_line = api_data.get("author_t")
+            authors = list()
             if authors_line:
                 authors = [self.reverse_name(a) \
                            for a in self.split_names(authors_line)]
