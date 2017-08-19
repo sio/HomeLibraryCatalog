@@ -187,11 +187,11 @@ class DynamicDict(UserDict):
     Otherwise, behaves exactly as dict
     """
     def __init__(self):
-        dict.__init__(self)
+        super().__init__(self)
         self.__fns = set()  # functions of zero args returning dynamic values
 
     def __getitem__(self, key):
-        value = dict.__getitem__(self, key)
+        value = super().__getitem__(self, key)
         if key in self.__fns:
             return value()
         else:
@@ -212,10 +212,10 @@ class DynamicDict(UserDict):
                 self.__fns.remove(key)
             except KeyError:
                 pass
-        dict.__setitem__(self, key, value)
+        super().__setitem__(self, key, value)
 
     def __delitem__(self, key):
-        dict.__delitem__(self, key)
+        super().__delitem__(self, key)
         try:
             self.__fns.remove(key)
         except KeyError:
