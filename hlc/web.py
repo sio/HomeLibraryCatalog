@@ -306,7 +306,7 @@ class WebUI(object):
     def _acl_not_firstrun(self, func):
         """Wrapper for _acl_* functions that require app initialization"""
         def with_init(*a, **ka):
-            if not self._first_user:
+            if (not self._first_user) or (not self.option.get("init_user")):
                 valid, session = self.read_cookie()
                 if valid:
                     user = User(self.db, session[0])
