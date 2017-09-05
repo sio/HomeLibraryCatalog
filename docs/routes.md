@@ -73,9 +73,6 @@ Create and view existing groups
 ### /books/`<hexid>`/delete
 Delete a book from the library as if it never existed
 
-### /quit
-Stop application. Closes the database connection and terminates backend
-
 ### /table/`<table>`
 View plain database table. For debugging purposes only
 

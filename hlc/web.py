@@ -31,8 +31,6 @@ class WebUI(object):
     database.
 
     Methods:
-        close()
-            Stop web server, close database connection, exit WebUI application
         booksearch(search, sort_keys=None)
             Full text search for books
         adduser(username, password)
@@ -119,7 +117,6 @@ class WebUI(object):
         )
         routes_admin = (
             ("/books/<hexid>/delete", self._clbk_book_delete),
-            ("/quit", self.close),
             ("/table/<table>", self._clbk_table),
             ("/admin/users", self._clbk_admin_users, ["GET", "POST"]),
             ("/admin/groups", self._clbk_admin_groups, ["GET", "POST"]),
