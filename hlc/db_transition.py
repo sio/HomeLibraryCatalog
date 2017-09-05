@@ -2,7 +2,7 @@
 Transition CatalogueDB from previous versions
 """
 
-from .db import CatalogueDB, DBKeyValueStorage
+from .db import DBKeyValueStorage
 
 
 def version(catalogue_db, set_version=None):
@@ -12,17 +12,17 @@ def version(catalogue_db, set_version=None):
                     "app_config",
                     "option",
                     "value")
-    if not options.get("init_date"):
-        raise ValueError("CatalogueDB not initialized")
     if set_version:
         options["schema_version"] = int(set_version)
+    elif not options.get("init_date"):
+        raise ValueError("CatalogueDB not initialized")
     return int(options.get("schema_version", 0))
 
 
 def upgrade(catalogue_db, to_version=None):
     """Incrementally upgrade CatalogueDB to latest version"""
     if to_version is None:
-        to_version = CatalogueDB._schema_version
+        to_version = max(SCHEMA_TRANSITIONS.keys())
     while version(catalogue_db) < to_version:
         upgrade_next(catalogue_db)
 

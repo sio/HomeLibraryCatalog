@@ -970,3 +970,6 @@ class CatalogueDB(SQLiteDB):
                 db.rollback()
                 raise e
         db.commit()
+
+        from .db_transition import version  # lazy import because of circular reference
+        version(self, self._schema_version)
