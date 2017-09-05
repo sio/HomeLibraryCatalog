@@ -345,7 +345,7 @@ ul.items li {
 .info p {
     margin-bottom:0.7em;
 }
-.info .highlight {
+.info .hl {
     font-weight: bold;
 }
 .info.error {
