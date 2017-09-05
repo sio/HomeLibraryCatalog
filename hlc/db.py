@@ -595,7 +595,7 @@ class SQLiteDB(object):
     def close(self):
         try:
             self._connection.close()
-        except AttributeError:
+        except:
             pass
 
 

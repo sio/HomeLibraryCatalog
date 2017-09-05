@@ -141,7 +141,8 @@ class WebUI(object):
         return self.app(*a, **ka)
 
     def __del__(self):
-        self.close()
+        for conn in self._connections.pool.values():
+            conn.close()
 
     def adduser(self, username, password, expiration=None):
         """
@@ -982,13 +983,6 @@ class WebUI(object):
     def info(self):
         """Access the dictionary with some basic stats and other information"""
         return self._info_ro
-
-    def close(self, user=None):
-        """Stop WebUI: stop server, close database"""
-        self.app.close()
-        for conn in self._connections.pool.values():
-            conn.close()
-        sys.stderr.close()  # not ideal, but I don't know any better
 
 
 class validate(object):
