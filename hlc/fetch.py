@@ -286,7 +286,7 @@ class ChitaiGorod(BookInfoFetcher):
             api_reply = dict()
 
         api_data = None
-        if api_reply.get("hits", {}).get("total", 0) == 1:
+        if api_reply.get("hits", {}).get("total", 0) > 0:
             api_data = api_reply.get("hits",
                                      {}).get("hits",
                                              [{}])[0].get("_source")
