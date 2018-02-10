@@ -106,7 +106,7 @@ ul.items li {
 /* BOOK PREVIEW */
 .book_preview {
     margin-bottom:1em;
-    overflow:hidden;
+    overflow:hidden!important;
 }
 .book_preview > div {
 }
