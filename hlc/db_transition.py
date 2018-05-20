@@ -69,6 +69,12 @@ def upgrade_next(catalogue_db, transitions=None):
 
 SCHEMA_TRANSITIONS = {
     # version: [sql_statement1, sql_statement2 ...]
+    3: [
+        """
+        ALTER TABLE book_reviews
+            ADD markup text
+        """
+    ],
     2: [
         """
         DROP VIEW search_books

@@ -581,6 +581,7 @@ class BookReview(TableEntityWithID):
         self._simple_attrs("book_id",
                            "reviewed_by",
                            "review",
+                           "markup",
                            "rating")
         self._simple_date_attrs("date")
 
