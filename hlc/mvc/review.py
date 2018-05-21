@@ -32,6 +32,16 @@ class ReviewForm(Form):
     review = TextAreaField('Отзыв', [validators.Optional()])
     submit = SubmitField('Сохранить')
 
+    def validate(self):
+        '''Form wide validator: either rating or review has to be filled'''
+        if not super().validate():
+            return False
+        valid = self.review.data.strip() or self.rating.data
+        if not valid:
+            if not self._errors: self._errors = {}
+            self._errors['__form__'] = ['Пустой отзыв нельзя сохранить',]
+        return valid
+
 
 def controller(webui, user, book_hexid=None, review_hexid=None):
     review = webui.item(BookReview, review_hexid)
