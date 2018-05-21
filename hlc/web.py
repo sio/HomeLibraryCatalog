@@ -17,12 +17,13 @@ from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
                    template, redirect, static_file
 
 from .items import NoneMocker, Author, User, Thumbnail, ISBN, Group, Series,\
-                   BookFile, Tag, Barcode
+                   BookFile, Tag, Barcode, BookReview, Book
 from .db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
 from .util import LinCrypt, timestamp, debug, random_str, message, \
                   DynamicDict, ReadOnlyDict, parse_csv, time2unix
 from .fetch import book_info, book_thumbs
 from .db_transition import upgrade
+from hlc import mvc
 
 
 class WebUI(object):
@@ -59,6 +60,7 @@ class WebUI(object):
         "file": 4893,
         "user": 1089,
         "book": 8266,
+        "review": 7635,
         "author": 4987,
         "series": 1991,
     }
@@ -106,6 +108,8 @@ class WebUI(object):
             ("/logout", self._clbk_logout),
             ("/users/<name>", self._clbk_user_page),
             ("/users/<name>/edit", self._clbk_user_page, ["GET", "POST"]),
+            ("/books/<book_hexid>/add_review", self._clbk_review_edit, ["GET", "POST"]),
+            ("/reviews/<review_hexid>", self._clbk_review_edit, ["GET", "POST"]),
         )
         routes_librarian = (
             ("/ajax/complete", self._clbk_ajax_complete),
@@ -756,6 +760,8 @@ class WebUI(object):
                 user=user)
         elif request.method == "POST":
             pass
+
+    _clbk_review_edit = mvc.review.controller
 
     def _clbk_search_simple(self, user=None):
         params = request.query.decode()
