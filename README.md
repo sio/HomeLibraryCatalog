@@ -114,3 +114,7 @@ Copyright © 2016-2017 Vitaly Potyarkin
 
 #### Database:
 - [ ] add garbage collector method (delete orphaned thumbnails, authors, etc.)
+
+#### Code style:
+- [ ] Clean up multiline imports with 'from X import (A,B,C)'.
+      Use `grep -ER 'from.*import.*\\' .` to find offending lines
