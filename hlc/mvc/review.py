@@ -65,19 +65,20 @@ def controller(webui, user, book_hexid=None, review_hexid=None):
             review.rating = form.rating.data
             review.save()
             redirect('/reviews/' + webui.id.review.encode(review.id))
-        else:
-            raise ValueError('Invalid form data: {}'.format(form.errors))
 
     if request.method == 'GET':  # show form
         form = ReviewForm(obj=review)
-        return template(
-            'review_form',
-            title='Изменить отзыв' if review.saved else 'Новый отзыв',
-            id=webui.id,
-            info=webui.info,
-            user=user,
-            form=form
-        )
+
+    # We show the form either because it's been requested via GET
+    # or because the POST data did not pass validation
+    return template(
+        'review_form',
+        title='Изменить отзыв' if review.saved else 'Новый отзыв',
+        id=webui.id,
+        info=webui.info,
+        user=user,
+        form=form
+    )
 
 
 def view_single(webui, user, hexid):

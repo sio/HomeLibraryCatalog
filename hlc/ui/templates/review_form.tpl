@@ -6,6 +6,15 @@ rebase('main')
     class="user_input"
     method="post"
 >
+    <%
+    if form.errors:
+        for field, error in form.errors.items():
+    %>
+        {{ field }}: {{ error }}
+    <%
+        end
+    end
+    %>
     {{ !form.rating.label }}
     {{ !form.rating }}
 
