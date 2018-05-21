@@ -26,6 +26,7 @@ deployment with wsgiref and/or other WSGI compatible web servers.
     * **bottle** - micro web framework with built-in simple web server
     * **pillow** - image manipulation library
     * **lxml** with **cssselect** - HTML scraping library
+    * **wtforms** - web forms generator
 
 
 # Localization status
