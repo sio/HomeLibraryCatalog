@@ -956,6 +956,23 @@ class WebUI(object):
         else:
             abort(404, "Invalid book id: %s" % hexid)
 
+    def item(self, cls, hexid):
+        """Get TableEntityWithID item by hexid"""
+        scramble_keys = {
+            Book: "book",
+            Thumbnail: "thumb",
+            BookFile: "file",
+            User: "user",
+            BookReview: "review",
+            Author: "author",
+            Series: "series",
+        }
+        if hexid is None:
+            item_id = None
+        else:
+            item_id = getattr(self.id, scramble_keys[cls]).decode(hexid)
+        return cls(self.db, item_id)
+
     @property
     def db(self):
         """CatalogueDB object. Used for storing persistent data. Thread-safe"""
