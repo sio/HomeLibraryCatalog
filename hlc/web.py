@@ -13,17 +13,49 @@ import urllib.request
 from collections import namedtuple
 from threading import get_ident
 from datetime import datetime, timedelta
-from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
-                   template, redirect, static_file
-
-from .items import NoneMocker, Author, User, Thumbnail, ISBN, Group, Series,\
-                   BookFile, Tag, Barcode, BookReview, Book
-from .db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
-from .util import LinCrypt, timestamp, debug, random_str, message, \
-                  DynamicDict, ReadOnlyDict, parse_csv, time2unix
+from bottle import (
+    Bottle,
+    TEMPLATE_PATH,
+    abort,
+    redirect,
+    request,
+    response,
+    static_file,
+    template,
+)
+from .items import (
+    Author,
+    Barcode,
+    Book,
+    BookFile,
+    BookReview,
+    Group,
+    ISBN,
+    NoneMocker,
+    Series,
+    Tag,
+    Thumbnail,
+    User,
+)
+from .db import (
+    CatalogueDB,
+    DBKeyValueStorage,
+    FSKeyFileStorage,
+)
+from .util import (
+    DynamicDict,
+    LinCrypt,
+    ReadOnlyDict,
+    debug,
+    message,
+    parse_csv,
+    random_str,
+    time2unix,
+    timestamp,
+)
 from .fetch import book_info, book_thumbs
 from .db_transition import upgrade
-from hlc import mvc
+from . import mvc
 
 
 class WebUI(object):
