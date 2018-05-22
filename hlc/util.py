@@ -338,7 +338,10 @@ def printf_replacement(text, *args):
     return text % tuple(a if a else "" for a in args)
 
 
-def render_html(raw, markup):
+def render_html(raw, markup=None):
+    '''Generate HTML from user input'''
+    if markup is None: markup = 'plain text'
+
     def text2html(text):
         def paragraphs():
             newlines = re.compile(r'\s*\n\s*')
