@@ -1,3 +1,7 @@
+'''
+Backend logic for book reviews
+'''
+
 from datetime import datetime
 from wtforms import (
     Form,
@@ -23,6 +27,9 @@ from hlc.util import (
 
 
 class ReviewForm(Form):
+    '''
+    Web form to create/edit book reviews
+    '''
     rating = RadioField(
         'Рейтинг',
         [validators.Optional()],
@@ -44,6 +51,9 @@ class ReviewForm(Form):
 
 
 def controller(webui, user, book_hexid=None, review_hexid=None):
+    '''
+    Server side handler for create/edit form
+    '''
     review = webui.item(BookReview, review_hexid)
     if review.saved:
         book = next(review.getconnected(Book))
