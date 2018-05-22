@@ -14,7 +14,11 @@ setup(
     author_email="sio.wtf@gmail.com",
     license="GPL-3.0",
     platforms="any",
-    packages=["hlc", "hlc.test"],
+    packages=[
+        "hlc",
+        "hlc.mvc",
+        "hlc.test",
+    ],
     scripts=["HomeLibraryCatalog.py"],
     package_data={"hlc": ["ui/static/*", "ui/templates/*"]},
     include_package_data=True,
