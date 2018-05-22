@@ -212,8 +212,6 @@ class WebUI(object):
         # build of this library does not support those extensions
         WILDCARD = "*"  # single char
 
-        #limit, offset = int(limit), int(offset)  # todo: add support for this
-
         search = re.sub(r"\s+", " ", search).strip()
         search = re.sub(r"[^\d\w %s]" % WILDCARD, "", search).lower()
         old_words = search.split(" ")
