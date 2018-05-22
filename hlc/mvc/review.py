@@ -70,7 +70,6 @@ def controller(webui, user, book_hexid=None, review_hexid=None):
         if form.validate():
             review.book_id = book.id
             review.reviewed_by = user.id
-            review.date = datetime.now()
             review.markup = 'plain text'
             review.review = form.review.data
             review.rating = form.rating.data
