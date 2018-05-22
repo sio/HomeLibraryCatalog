@@ -58,6 +58,9 @@ from .db_transition import upgrade
 from . import mvc
 
 
+Page = namedtuple("Page", ["num", "size", "offset"])
+
+
 class WebUI(object):
     """
     Interactive user interface. Starts its own web server, saves user input to
@@ -254,8 +257,6 @@ class WebUI(object):
         page_num = max(0, int(page_num))
         page_size = min(max_size, int(page_size))
         offset = page_num * page_size
-
-        Page = namedtuple("Page", ["num", "size", "offset"])
         return Page(page_num, page_size, offset)
 
     def read_cookie(self, name="auth"):
