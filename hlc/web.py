@@ -133,10 +133,11 @@ class WebUI(object):
             ("/authors/<hexid>", self._clbk_books_author),
             ("/books", self._clbk_books_all),
             ("/books/<hexid>", self._clbk_book),
+            ("/reviews/<hexid>", self._clbk_review_show),
             ("/search", self._clbk_search_simple),
             ("/series/<hexid>", self._clbk_books_series),
-            ("/thumbs/<hexid>", self._clbk_thumb),
             ("/tag/<name>", self._clbk_books_tag),
+            ("/thumbs/<hexid>", self._clbk_thumb),
         )
         routes_user = (
             ("/file/<hexid>", self._clbk_user_file),
@@ -144,7 +145,7 @@ class WebUI(object):
             ("/users/<name>", self._clbk_user_page),
             ("/users/<name>/edit", self._clbk_user_page, ["GET", "POST"]),
             ("/books/<book_hexid>/add_review", self._clbk_review_edit, ["GET", "POST"]),
-            ("/reviews/<review_hexid>", self._clbk_review_edit, ["GET", "POST"]),
+            ("/reviews/<review_hexid>/edit", self._clbk_review_edit, ["GET", "POST"]),
         )
         routes_librarian = (
             ("/ajax/complete", self._clbk_ajax_complete),
@@ -795,6 +796,7 @@ class WebUI(object):
             pass
 
     _clbk_review_edit = mvc.review.controller
+    _clbk_review_show = mvc.review.view_single
 
     def _clbk_search_simple(self, user=None):
         params = request.query.decode()

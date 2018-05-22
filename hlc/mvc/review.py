@@ -19,7 +19,8 @@ from bottle import (
 )
 from hlc.items import (
     Book,
-    BookReview
+    BookReview,
+    User
 )
 from hlc.util import (
     timestamp,
@@ -91,5 +92,16 @@ def controller(webui, user, book_hexid=None, review_hexid=None):
     )
 
 
-def view_single(webui, user, hexid):
-    pass
+def view_single(webui, hexid, user=None):
+    review = webui.item(BookReview, hexid)
+    if not review.saved:
+        abort(404)
+    book = next(review.getconnected(Book))
+    reviewer = next(review.getconnected(User))
+    return template(
+        'review_single',
+        title='Отзыв на книгу',
+        info=webui.info,
+        id=webui.id,
+        **locals()
+    )
