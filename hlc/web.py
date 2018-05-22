@@ -1009,7 +1009,10 @@ class WebUI(object):
         if hexid is None:
             item_id = None
         else:
-            item_id = getattr(self.id, scramble_keys[cls]).decode(hexid)
+            try:
+                item_id = getattr(self.id, scramble_keys[cls]).decode(hexid)
+            except:
+                item_id = None
         return cls(self.db, item_id)
 
     @property
