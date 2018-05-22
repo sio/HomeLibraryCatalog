@@ -8,7 +8,13 @@ import re
 import io
 from PIL import Image
 from datetime import datetime
-from .util import debug, unix2time, time2unix, PassHash
+from .util import (
+    PassHash,
+    debug,
+    render_html,
+    time2unix,
+    unix2time,
+)
 
 
 class NoneMocker(object):
@@ -584,6 +590,10 @@ class BookReview(TableEntityWithID):
                            "markup",
                            "rating")
         self._simple_date_attrs("date")
+
+    @property
+    def html(self):
+        return render_html(self.review, self.markup)
 
 
 class BookFile(TableEntityWithID):

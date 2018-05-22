@@ -3,11 +3,12 @@ Useful utilities
 """
 
 from . import VERBOSITY
+import base64
+import html
 import os
+import random
 import re
 import textwrap
-import base64
-import random
 from datetime import datetime
 from collections import UserDict
 from hashlib import sha512
@@ -335,3 +336,17 @@ def printf_replacement(text, *args):
     printf replacement for older sqlite versions
     """
     return text % tuple(a if a else "" for a in args)
+
+
+def render_html(raw, markup):
+    def text2html(text):
+        def paragraphs():
+            newlines = re.compile(r'\s*\n\s*')
+            for p in re.sub(newlines, r'\n', text).splitlines():
+                yield html.escape(p.strip())
+        return '\n'.join('<p>%s</p>' % p for p in paragraphs())
+
+    renderers = {
+        'plain text': text2html,
+    }
+    return renderers[markup](raw)
