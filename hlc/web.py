@@ -676,10 +676,12 @@ class WebUI(object):
         if not series.saved: abort(404)
         query = """
             SELECT book_id
-            FROM (
-               SELECT book_id FROM book_series WHERE series_id = ?
-            ) as conn LEFT JOIN books ON conn.book_id = books.id
-            ORDER BY books.year ASC, books.last_edit ASC
+            FROM
+                (SELECT book_id, book_number FROM book_series WHERE series_id = ?) as conn
+                LEFT JOIN
+                books
+                ON conn.book_id = books.id
+            ORDER BY conn.book_number ASC, books.year ASC, books.last_edit ASC
             LIMIT ? OFFSET ?
             """
         pg_info = self.pagination_params(default_size=25)
