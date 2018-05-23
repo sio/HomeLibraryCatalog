@@ -107,19 +107,36 @@ def view_single(webui, hexid, user=None):
 
 
 def view_list(webui, user=None):
+    '''Show all book reviews'''
+    query = 'SELECT id FROM book_reviews ORDER BY date DESC'
+    return reviews_page(**locals())
+
+
+def reviews_page(webui, query, params=None, title=None, user=None):
+    '''
+    Generate reviews page from SQL query that returns their ids
+
+    Pagination is added automatically based on URL parameters of GET request
+    '''
+    if params is None:
+        params = list()
+    else:
+        params = list(params)
+
+    query = query + ' LIMIT ? OFFSET ?'
+
     page = webui.pagination_params()
-    query = 'SELECT id FROM book_reviews LIMIT ? OFFSET ?'
     select = webui.db.sql.iterate(
         webui.db.sql.generic(
             webui.db.connection,
             query,
-            params=(page.size, page.offset)
+            params=params + [page.size, page.offset]
         )
     )
     reviews = (BookReview(webui.db, row[0]) for row in select)
     return template(
         'review_list',
-        title='Отзывы',
+        title=title or 'Отзывы',
         info=webui.info,
         id=webui.id,
         **locals()
