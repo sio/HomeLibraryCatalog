@@ -352,4 +352,8 @@ def render_html(raw, markup=None):
     renderers = {
         'plain text': text2html,
     }
-    return renderers[markup](raw)
+    if raw:
+        output = renderers[markup](raw)
+    else:
+        output = ''
+    return output

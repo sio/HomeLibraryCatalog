@@ -104,3 +104,23 @@ def view_single(webui, hexid, user=None):
         id=webui.id,
         **locals()
     )
+
+
+def view_list(webui, user=None):
+    page = webui.pagination_params()
+    query = 'SELECT id FROM book_reviews LIMIT ? OFFSET ?'
+    select = webui.db.sql.iterate(
+        webui.db.sql.generic(
+            webui.db.connection,
+            query,
+            params=(page.size, page.offset)
+        )
+    )
+    reviews = (BookReview(webui.db, row[0]) for row in select)
+    return template(
+        'review_list',
+        title='Отзывы',
+        info=webui.info,
+        id=webui.id,
+        **locals()
+    )

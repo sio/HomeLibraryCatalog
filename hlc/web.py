@@ -133,6 +133,7 @@ class WebUI(object):
             ("/authors/<hexid>", self._clbk_books_author),
             ("/books", self._clbk_books_all),
             ("/books/<hexid>", self._clbk_book),
+            ("/reviews", self._clbk_review_list),
             ("/reviews/<hexid>", self._clbk_review_show),
             ("/search", self._clbk_search_simple),
             ("/series/<hexid>", self._clbk_books_series),
@@ -797,6 +798,7 @@ class WebUI(object):
 
     _clbk_review_edit = mvc.review.controller
     _clbk_review_show = mvc.review.view_single
+    _clbk_review_list = mvc.review.view_list
 
     def _clbk_search_simple(self, user=None):
         params = request.query.decode()
