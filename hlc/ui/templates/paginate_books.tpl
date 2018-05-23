@@ -16,12 +16,12 @@ from urllib.parse import urlencode, parse_qs
 params = {k:v[0] for k,v in parse_qs(info["url"][3]).items()}
 %>
 <div class="page_nav">
-% if pg_info[0] and pg_info[1]:
-% params["p"] = pg_info[0]-1
+% if page.num and page.size:
+% params["p"] = page.num-1
 <a class="prev" href="{{'?'+urlencode(params)}}">&lt; назад </a>
 % end
-% if count == pg_info[1] and pg_info[1]:
-% params["p"] = pg_info[0]+1
+% if count == page.size and page.size:
+% params["p"] = page.num+1
 <a class="next" href="{{'?'+urlencode(params)}}"> далее &gt;</a>
 % end
 </div>

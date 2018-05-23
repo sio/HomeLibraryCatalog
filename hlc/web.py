@@ -605,17 +605,17 @@ class WebUI(object):
 
     def _clbk_books_all(self, user=None):
         query = "SELECT id FROM books ORDER BY last_edit DESC LIMIT ? OFFSET ?"
-        pg_info = self.pagination_params()
+        page = self.pagination_params()
         search = self.db.sql.generic(
                     self.db.connection,
                     query,
-                    params=pg_info[1:])
+                    params=page[1:])
         return template(
             "book_list",
             books=(self.db.getbook(row[0]) \
                    for row in self.db.sql.iterate(search)),
             title="Все книги",
-            pg_info=pg_info[:2],
+            page=page,
             info=self.info,
             id=self.id,
             user=user)
@@ -631,17 +631,17 @@ class WebUI(object):
             ORDER BY books.year ASC, books.last_edit ASC
             LIMIT ? OFFSET ?
             """
-        pg_info = self.pagination_params(default_size=25)
+        page = self.pagination_params(default_size=25)
         search = self.db.sql.generic(
                     self.db.connection,
                     query,
-                    params=[author.id,] + list(pg_info[1:]))
+                    params=[author.id,] + list(page[1:]))
         return template(
             "author",
             books=(self.db.getbook(row[0]) \
                    for row in self.db.sql.iterate(search)),
             title=author.name.replace(",", ""),
-            pg_info=pg_info[:2],
+            page=page,
             info=self.info,
             id=self.id,
             user=user)
@@ -657,17 +657,17 @@ class WebUI(object):
             ORDER BY books.year ASC, books.last_edit ASC
             LIMIT ? OFFSET ?
             """
-        pg_info = self.pagination_params(default_size=25)
+        page = self.pagination_params(default_size=25)
         search = self.db.sql.generic(
                     self.db.connection,
                     query,
-                    params=[tag.id,] + list(pg_info[1:]))
+                    params=[tag.id,] + list(page[1:]))
         return template(
             "series",
             books=(self.db.getbook(row[0]) \
                    for row in self.db.sql.iterate(search)),
             title=tag.name,
-            pg_info=pg_info[:2],
+            page=page,
             info=self.info,
             id=self.id,
             user=user)
@@ -685,17 +685,17 @@ class WebUI(object):
             ORDER BY conn.book_number ASC, books.year ASC, books.last_edit ASC
             LIMIT ? OFFSET ?
             """
-        pg_info = self.pagination_params(default_size=25)
+        page = self.pagination_params(default_size=25)
         search = self.db.sql.generic(
                     self.db.connection,
                     query,
-                    params=[series.id,] + list(pg_info[1:]))
+                    params=[series.id,] + list(page[1:]))
         return template(
             "series",
             books=(self.db.getbook(row[0]) \
                    for row in self.db.sql.iterate(search)),
             title=series.name,
-            pg_info=pg_info[:2],
+            page=page,
             info=self.info,
             id=self.id,
             user=user)
@@ -811,7 +811,7 @@ class WebUI(object):
             "book_list",
             books=books,
             title="Результаты поиска",
-            pg_info=page[:2],
+            page=page,
             info=self.info,
             id=self.id,
             user=user)
