@@ -118,12 +118,13 @@ def reviews_page(webui, query, params=None, title=None, user=None):
 
     Pagination is added automatically based on URL parameters of GET request
     '''
+    query = query + ' LIMIT ? OFFSET ?'
+
     if params is None:
         params = list()
     else:
         params = list(params)
-
-    query = query + ' LIMIT ? OFFSET ?'
+    title = title or 'Отзывы'
 
     page = webui.pagination_params()
     select = webui.db.sql.iterate(
@@ -136,7 +137,6 @@ def reviews_page(webui, query, params=None, title=None, user=None):
     reviews = (BookReview(webui.db, row[0]) for row in select)
     return template(
         'review_list',
-        title=title or 'Отзывы',
         info=webui.info,
         id=webui.id,
         **locals()
