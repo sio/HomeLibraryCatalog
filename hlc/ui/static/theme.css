@@ -122,12 +122,14 @@ ul.items li {
 .book_preview .description .label {
     float:left;
 }
-.book_preview .info_line,
-.book_preview .info_line * {
+.info_line,
+.info_line * {
     color:rgb(90,90,90);
 }
-.book_preview .info_line {
+.info_line {
     font-size: 85%;
+}
+.book_preview .info_line {
     padding-left: 1em;
 }
 .book_preview .tag {
@@ -403,6 +405,32 @@ a:hover {
 }
 .highlight {
     background-color:yellow;
+}
+
+/* BOOK REVIEWS */
+
+.star:before {
+    content: "☆";
+    color: gray;
+}
+.star.checked:before {
+    content: "★";
+    color: orange;
+}
+.review_short {
+    margin-bottom: 1.5em;
+}
+.review_short h2 {
+    margin-bottom: 0;
+}
+.review_short .stars {
+    display: block;
+}
+.review_short .review_text {
+    margin-top: 0.5em;
+}
+.author + .author:before {
+    content: ", "
 }
 
 /* PRINTING */
