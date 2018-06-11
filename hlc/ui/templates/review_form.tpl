@@ -1,5 +1,6 @@
 <%
 rebase('main')
+onload = 'updateStarStatus();'
 %>
 <form
     name="review"
