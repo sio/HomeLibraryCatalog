@@ -409,10 +409,26 @@ a:hover {
 
 /* BOOK REVIEWS */
 
+.stars input {
+    display: none;
+}
+.stars label {
+    position: relative;
+    visibility: hidden;
+}
+.stars label:after,
 .star:before {
     content: "☆";
     color: gray;
+    visibility: visible;
 }
+.stars label:after {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.stars input:checked + label:after,
+.stars .checked + label:after,
 .star.checked:before {
     content: "★";
     color: orange;

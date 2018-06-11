@@ -16,7 +16,7 @@ rebase('main')
     end
     %>
     {{ !form.rating.label }}
-    {{ !form.rating }}
+    {{ !form.rating(class_="stars", onchange="updateStarStatus();") }}
 
     {{ !form.review.label }}
     {{ !form.review }}

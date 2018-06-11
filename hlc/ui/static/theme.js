@@ -848,3 +848,30 @@ function scrollIntoViewIfNeeded(element) {
         element.scrollIntoView();
     }
 }
+
+
+/*
+ *
+ * STAR RATINGS
+ *
+ */
+function updateStarStatus() {
+    var marker = "checked";
+    var exists = Boolean(document.querySelector(".stars input:checked"));
+    if (exists) {
+        var items = document.querySelectorAll(".stars input");
+        var seen = false;
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            if (seen) {
+                item.classList.remove(marker);
+            }
+            else {
+                item.classList.add(marker);
+            };
+            if (item.checked) {
+                seen = true;
+            };
+        };
+    };
+}
