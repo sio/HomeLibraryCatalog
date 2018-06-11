@@ -87,6 +87,7 @@ def controller(webui, user, book_hexid=None, review_hexid=None):
         id=webui.id,
         info=webui.info,
         user=user,
+        book=book,
         form=form
     )
 

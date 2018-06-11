@@ -409,6 +409,18 @@ a:hover {
 
 /* BOOK REVIEWS */
 
+form[name="review"] > .field > label {
+    display:none;
+}
+textarea#review {
+    height:17em;
+}
+.stars li {
+    display:inline;
+}
+.stars {
+    margin-bottom:0.5ex;
+}
 .stars input {
     display: none;
 }
