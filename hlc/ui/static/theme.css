@@ -375,16 +375,20 @@ ul.items li {
     font-size:100%;
     text-decoration:none;
 }
-h1 {
+h1 * {
     color:#000000;
-    font-size:125%;
     font-weight:bold;
+}
+h1 {
+    font-size:125%;
     margin-bottom:0.5em;
 }
-h2 {
+h2 * {
     color:#000000;
-    font-size:115%;
     font-weight:bold;
+}
+h2 {
+    font-size:115%;
     margin-bottom:0.3em;
 }
 #header h1 {
@@ -409,17 +413,22 @@ a:hover {
 
 /* BOOK REVIEWS */
 
+.stars {
+    display:block;
+    margin-bottom:0.5ex;
+    margin-top:0.5ex;
+}
 form[name="review"] > .field > label {
     display:none;
+}
+.review_container .info_line {
+    margin-top:0.75em;
 }
 textarea#review {
     height:17em;
 }
 .stars li {
     display:inline;
-}
-.stars {
-    margin-bottom:0.5ex;
 }
 .stars input {
     display: none;

@@ -9,18 +9,37 @@ for review in reviews:
     review_author = next(review.getconnected(User))
 %>
 <div class="review_short">
-    <a href="/books/{{ id.book.encode(book.id) }}"><h2>{{ book.name }}</h2></a>
-    <div class="authors info_line">
-<% for author in book.getconnected(Author): %>
+    <h2>
+    <a href="/books/{{ id.book.encode(book.id) }}">{{ book.name }}</a>
+    <span class="authors">
+        <%
+        empty = True
+        for author in book.getconnected(Author):
+            if empty:
+        %>
+        (\\
+        <%
+            empty = False
+            end
+        %>
 <a class="author" href="/authors/{{ id.author.encode(author.id) }}">{{ author.name.replace(',','') }}</a>\\
-<% end %>
-    </div>
-    <% include('stars', stars=review.rating) %>
+        <%
+        end
+        if not empty:
+        %>
+)
+        <%
+        end
+        %>
+    </span>
+    </h2>
     <a href="/reviews/{{id.review.encode(review.id) }}">
     <span class="info_line">
-    {{ review.date.strftime(info['date_format']) }}, {{ review_author.fullname or review_author.name }}
+    {{ review_author.fullname or review_author.name }},
+    {{ review.date.strftime(info['date_format']) }}
     </span>
     </a>
+    <% include('stars', stars=review.rating) %>
     <div class="review_text">{{! review.html }}</div>
 </div>
 <%
