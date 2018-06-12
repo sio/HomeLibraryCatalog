@@ -8,7 +8,13 @@ import re
 import io
 from PIL import Image
 from datetime import datetime
-from .util import debug, unix2time, time2unix, PassHash
+from .util import (
+    PassHash,
+    debug,
+    render_html,
+    time2unix,
+    unix2time,
+)
 
 
 class NoneMocker(object):
@@ -302,28 +308,34 @@ class TableEntityWithID(object):
         found = search.fetchone()
         return bool(found)
 
-    def getconnected(self, cls, order=None, desc=False):
+    def getconnected(self, cls, order=None):
         """
         Get connected objects of type `cls`
         Returns a sequence of objects.
-        If `order` is specified, results will be sorted on `order` attr of
-        returned objects
+        If `order` is specified, results will be sorted on `order` column
+        of the SQL query
         """
-        ids = self.getconnected_id(cls)
+        legacy_sort = False
+        try:
+            ids = self.getconnected_id(cls, order)
+        except sqlite3.OperationalError:
+            ids = self.getconnected_id(cls)
+            legacy_sort = True
         def connections():
             for id in ids:
                 yield cls(self.database, id)
-        if ids and not order:
+        if ids and not legacy_sort:
             return connections()
-        elif ids and order:
+        elif ids and legacy_sort:
+            # Deprecated API
             return sorted(
                 connections(),
-                key=lambda x: getattr(x, order),
-                reverse=desc)
+                key=lambda x: getattr(x, order)
+            )
         else:
             return list()  # boolean value is False
 
-    def getconnected_id(self, cls):
+    def getconnected_id(self, cls, order=None):
         """
         Get connected objects of type `cls`
         Returns a tuple of ids
@@ -345,7 +357,7 @@ class TableEntityWithID(object):
         else:
             what = cls.__IDField__
 
-        search = self.database.sql.select(unity_table, where, what)
+        search = self.database.sql.select(unity_table, where, what, order)
         result = search.fetchall()
 
         found = list()
@@ -581,8 +593,13 @@ class BookReview(TableEntityWithID):
         self._simple_attrs("book_id",
                            "reviewed_by",
                            "review",
+                           "markup",
                            "rating")
         self._simple_date_attrs("date")
+
+    @property
+    def html(self):
+        return render_html(self.review, self.markup)
 
 
 class BookFile(TableEntityWithID):

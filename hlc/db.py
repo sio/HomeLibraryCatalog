@@ -614,7 +614,7 @@ class CatalogueDB(SQLiteDB):
             Create new SQLite database. Dates and times are stored
             in Unix epoch format
     """
-    _schema_version = 2  # Integer. Increment this when schema changes.
+    _schema_version = 3  # Integer. Increment this when schema changes.
 
     def __init__(self, filename):
         new = not os.path.isfile(filename)
@@ -850,6 +850,7 @@ class CatalogueDB(SQLiteDB):
                 date        integer not null default (cast(strftime('%s','now') as integer)),
                 reviewed_by integer not null,
                 review      text,
+                markup      text,
                 rating      real,
                 foreign key(book_id) references books(id) on delete cascade on update cascade,
                 foreign key(reviewed_by) references users(id) on delete cascade on update cascade)

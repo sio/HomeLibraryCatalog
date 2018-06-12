@@ -1,6 +1,6 @@
 % rebase("main", title=book.name)
 % DATE_FORMAT = info["date_format"]
-% from hlc.items import Series, Author, Thumbnail, Tag, BookFile
+% from hlc.items import Series, Author, Thumbnail, Tag, BookFile, BookReview
 
 % if repeat:
 <div class="info error">Такая книга уже была добавлена в библиотеку ранее</div>
@@ -191,4 +191,31 @@
 </div>
 % end
 
+</div>
+
+<div class="review_container">
+<h2>
+    <a href="{{ info['url'].path }}/reviews">
+        Отзывы на эту книгу
+    </a>
+</h2>
+<a href="{{ info['url'].path }}/add_review" class="edit">[написать отзыв]</a>
+<%
+from hlc.web import Page
+reviews = book.getconnected(BookReview, order='date desc')
+show_top_reviews = 10
+count = include(
+    'review_list',
+    hide={'header', 'book'},
+    page=Page(size=show_top_reviews, num=0, offset=0),
+    **locals()
+)['count']
+if count == show_top_reviews:
+%>
+<a href="{{ info['url'].path }}/reviews">
+    Показать все отзывы
+</a>
+<%
+end
+%>
 </div>

@@ -27,9 +27,10 @@ end
 <div id="middle">
     <div id="menu" class="no_print">
         <ul>
-        <li><a href="/books">Каталог</a></li>
+        <li><a href="/books">Книги</a></li>
         <li><a href="/books/add">Добавить книгу</a></li>
         <li><a href="/queue">Очередь штрих-кодов</a></li>
+        <li class="with_separator"><a href="/reviews">Отзывы</a></li>
         % if user:
         <li class="with_separator"><a href="/users/{{user.name}}">Аккаунт</a></li>
         <li><a href="/logout">Выйти</a></li>

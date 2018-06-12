@@ -122,12 +122,14 @@ ul.items li {
 .book_preview .description .label {
     float:left;
 }
-.book_preview .info_line,
-.book_preview .info_line * {
+.info_line,
+.info_line * {
     color:rgb(90,90,90);
 }
-.book_preview .info_line {
+.info_line {
     font-size: 85%;
+}
+.book_preview .info_line {
     padding-left: 1em;
 }
 .book_preview .tag {
@@ -373,16 +375,22 @@ ul.items li {
     font-size:100%;
     text-decoration:none;
 }
-h1 {
+h1,
+h1 * {
     color:#000000;
-    font-size:125%;
     font-weight:bold;
+}
+h1 {
+    font-size:125%;
     margin-bottom:0.5em;
 }
-h2 {
+h2,
+h2 * {
     color:#000000;
-    font-size:115%;
     font-weight:bold;
+}
+h2 {
+    font-size:115%;
     margin-bottom:0.3em;
 }
 #header h1 {
@@ -403,6 +411,68 @@ a:hover {
 }
 .highlight {
     background-color:yellow;
+}
+
+/* BOOK REVIEWS */
+
+.stars {
+    display:block;
+    margin-bottom:0.5ex;
+    margin-top:0.5ex;
+}
+form[name="review"] > .field > label {
+    display:none;
+}
+.review_container {
+    position:relative;
+}
+.review_container .info_line {
+    margin-top:0.75em;
+}
+textarea#review {
+    height:17em;
+}
+.stars li {
+    display:inline;
+}
+.stars input {
+    display: none;
+}
+.stars label {
+    position: relative;
+    visibility: hidden;
+}
+.stars label:after,
+.star:before {
+    content: "☆";
+    color: gray;
+    visibility: visible;
+}
+.stars label:after {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.stars input:checked + label:after,
+.stars .checked + label:after,
+.star.checked:before {
+    content: "★";
+    color: orange;
+}
+.review_short {
+    margin-bottom: 1.5em;
+}
+.review_short h2 {
+    margin-bottom: 0;
+}
+.review_short .stars {
+    display: block;
+}
+.review_short .review_text {
+    margin-top: 0.5em;
+}
+.author + .author:before {
+    content: ", "
 }
 
 /* PRINTING */

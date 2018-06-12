@@ -26,6 +26,7 @@ deployment with wsgiref and/or other WSGI compatible web servers.
     * **bottle** - micro web framework with built-in simple web server
     * **pillow** - image manipulation library
     * **lxml** with **cssselect** - HTML scraping library
+    * **wtforms** - web forms generator
 
 
 # Localization status
@@ -34,7 +35,6 @@ As of now all user interaction happens in Russian
 Localization is not planned in the foreseable future due to the lack of human
 resources
 
-All locale-dependent text is contained in template files (*.tpl).
 Proper localizations tools and techniques (gettext et al) are not yet supported
 
 

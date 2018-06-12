@@ -13,16 +13,52 @@ import urllib.request
 from collections import namedtuple
 from threading import get_ident
 from datetime import datetime, timedelta
-from bottle import Bottle, TEMPLATE_PATH, request, abort, response, \
-                   template, redirect, static_file
-
-from .items import NoneMocker, Author, User, Thumbnail, ISBN, Group, Series,\
-                   BookFile, Tag, Barcode
-from .db import CatalogueDB, DBKeyValueStorage, FSKeyFileStorage
-from .util import LinCrypt, timestamp, debug, random_str, message, \
-                  DynamicDict, ReadOnlyDict, parse_csv, time2unix
+from bottle import (
+    Bottle,
+    TEMPLATE_PATH,
+    abort,
+    redirect,
+    request,
+    response,
+    static_file,
+    template,
+)
+from .items import (
+    Author,
+    Barcode,
+    Book,
+    BookFile,
+    BookReview,
+    Group,
+    ISBN,
+    NoneMocker,
+    Series,
+    Tag,
+    Thumbnail,
+    User,
+)
+from .db import (
+    CatalogueDB,
+    DBKeyValueStorage,
+    FSKeyFileStorage,
+)
+from .util import (
+    DynamicDict,
+    LinCrypt,
+    ReadOnlyDict,
+    debug,
+    message,
+    parse_csv,
+    random_str,
+    time2unix,
+    timestamp,
+)
 from .fetch import book_info, book_thumbs
 from .db_transition import upgrade
+from . import mvc
+
+
+Page = namedtuple("Page", ["num", "size", "offset"])
 
 
 class WebUI(object):
@@ -59,6 +95,7 @@ class WebUI(object):
         "file": 4893,
         "user": 1089,
         "book": 8266,
+        "review": 7635,
         "author": 4987,
         "series": 1991,
     }
@@ -96,14 +133,19 @@ class WebUI(object):
             ("/authors/<hexid>", self._clbk_books_author),
             ("/books", self._clbk_books_all),
             ("/books/<hexid>", self._clbk_book),
+            ("/reviews", self._clbk_review_list),
+            ("/reviews/<hexid>", self._clbk_review_show),
             ("/search", self._clbk_search_simple),
             ("/series/<hexid>", self._clbk_books_series),
-            ("/thumbs/<hexid>", self._clbk_thumb),
             ("/tag/<name>", self._clbk_books_tag),
+            ("/thumbs/<hexid>", self._clbk_thumb),
         )
         routes_user = (
+            ("/books/<book_hexid>/add_review", self._clbk_review_edit, ["GET", "POST"]),
+            ("/books/<book_hexid>/reviews", self._clbk_review_by_book),
             ("/file/<hexid>", self._clbk_user_file),
             ("/logout", self._clbk_logout),
+            ("/reviews/<review_hexid>/edit", self._clbk_review_edit, ["GET", "POST"]),
             ("/users/<name>", self._clbk_user_page),
             ("/users/<name>/edit", self._clbk_user_page, ["GET", "POST"]),
         )
@@ -176,8 +218,6 @@ class WebUI(object):
         # build of this library does not support those extensions
         WILDCARD = "*"  # single char
 
-        #limit, offset = int(limit), int(offset)  # todo: add support for this
-
         search = re.sub(r"\s+", " ", search).strip()
         search = re.sub(r"[^\d\w %s]" % WILDCARD, "", search).lower()
         old_words = search.split(" ")
@@ -220,8 +260,6 @@ class WebUI(object):
         page_num = max(0, int(page_num))
         page_size = min(max_size, int(page_size))
         offset = page_num * page_size
-
-        Page = namedtuple("Page", ["num", "size", "offset"])
         return Page(page_num, page_size, offset)
 
     def read_cookie(self, name="auth"):
@@ -568,17 +606,17 @@ class WebUI(object):
 
     def _clbk_books_all(self, user=None):
         query = "SELECT id FROM books ORDER BY last_edit DESC LIMIT ? OFFSET ?"
-        pg_info = self.pagination_params()
+        page = self.pagination_params()
         search = self.db.sql.generic(
                     self.db.connection,
                     query,
-                    params=pg_info[1:])
+                    params=page[1:])
         return template(
             "book_list",
             books=(self.db.getbook(row[0]) \
                    for row in self.db.sql.iterate(search)),
             title="Все книги",
-            pg_info=pg_info[:2],
+            page=page,
             info=self.info,
             id=self.id,
             user=user)
@@ -594,17 +632,17 @@ class WebUI(object):
             ORDER BY books.year ASC, books.last_edit ASC
             LIMIT ? OFFSET ?
             """
-        pg_info = self.pagination_params(default_size=25)
+        page = self.pagination_params(default_size=25)
         search = self.db.sql.generic(
                     self.db.connection,
                     query,
-                    params=[author.id,] + list(pg_info[1:]))
+                    params=[author.id,] + list(page[1:]))
         return template(
             "author",
             books=(self.db.getbook(row[0]) \
                    for row in self.db.sql.iterate(search)),
             title=author.name.replace(",", ""),
-            pg_info=pg_info[:2],
+            page=page,
             info=self.info,
             id=self.id,
             user=user)
@@ -620,17 +658,17 @@ class WebUI(object):
             ORDER BY books.year ASC, books.last_edit ASC
             LIMIT ? OFFSET ?
             """
-        pg_info = self.pagination_params(default_size=25)
+        page = self.pagination_params(default_size=25)
         search = self.db.sql.generic(
                     self.db.connection,
                     query,
-                    params=[tag.id,] + list(pg_info[1:]))
+                    params=[tag.id,] + list(page[1:]))
         return template(
             "series",
             books=(self.db.getbook(row[0]) \
                    for row in self.db.sql.iterate(search)),
             title=tag.name,
-            pg_info=pg_info[:2],
+            page=page,
             info=self.info,
             id=self.id,
             user=user)
@@ -640,23 +678,25 @@ class WebUI(object):
         if not series.saved: abort(404)
         query = """
             SELECT book_id
-            FROM (
-               SELECT book_id FROM book_series WHERE series_id = ?
-            ) as conn LEFT JOIN books ON conn.book_id = books.id
-            ORDER BY books.year ASC, books.last_edit ASC
+            FROM
+                (SELECT book_id, book_number FROM book_series WHERE series_id = ?) as conn
+                LEFT JOIN
+                books
+                ON conn.book_id = books.id
+            ORDER BY conn.book_number ASC, books.year ASC, books.last_edit ASC
             LIMIT ? OFFSET ?
             """
-        pg_info = self.pagination_params(default_size=25)
+        page = self.pagination_params(default_size=25)
         search = self.db.sql.generic(
                     self.db.connection,
                     query,
-                    params=[series.id,] + list(pg_info[1:]))
+                    params=[series.id,] + list(page[1:]))
         return template(
             "series",
             books=(self.db.getbook(row[0]) \
                    for row in self.db.sql.iterate(search)),
             title=series.name,
-            pg_info=pg_info[:2],
+            page=page,
             info=self.info,
             id=self.id,
             user=user)
@@ -757,6 +797,11 @@ class WebUI(object):
         elif request.method == "POST":
             pass
 
+    _clbk_review_by_book = mvc.review.view_by_book
+    _clbk_review_edit = mvc.review.controller
+    _clbk_review_list = mvc.review.view_list
+    _clbk_review_show = mvc.review.view_single
+
     def _clbk_search_simple(self, user=None):
         params = request.query.decode()
         query = params.get("q")
@@ -768,7 +813,7 @@ class WebUI(object):
             "book_list",
             books=books,
             title="Результаты поиска",
-            pg_info=page[:2],
+            page=page,
             info=self.info,
             id=self.id,
             user=user)
@@ -955,6 +1000,26 @@ class WebUI(object):
             return book
         else:
             abort(404, "Invalid book id: %s" % hexid)
+
+    def item(self, cls, hexid):
+        """Get TableEntityWithID item by hexid"""
+        scramble_keys = {
+            Book: "book",
+            Thumbnail: "thumb",
+            BookFile: "file",
+            User: "user",
+            BookReview: "review",
+            Author: "author",
+            Series: "series",
+        }
+        if hexid is None:
+            item_id = None
+        else:
+            try:
+                item_id = getattr(self.id, scramble_keys[cls]).decode(hexid)
+            except:
+                item_id = None
+        return cls(self.db, item_id)
 
     @property
     def db(self):

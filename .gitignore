@@ -6,3 +6,7 @@ MANIFEST
 dist/
 build/
 *.egg-info/
+
+
+# vim temp files
+*.swp
