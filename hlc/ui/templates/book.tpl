@@ -202,7 +202,7 @@
 <a href="{{ info['url'].path }}/add_review" class="edit">[написать отзыв]</a>
 <%
 from hlc.web import Page
-reviews = book.getconnected(BookReview)
+reviews = book.getconnected(BookReview, order='date desc')
 show_top_reviews = 10
 count = include(
     'review_list',
