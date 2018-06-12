@@ -132,6 +132,7 @@ class WebUI(object):
             ("/", self._clbk_frontpage),
             ("/authors/<hexid>", self._clbk_books_author),
             ("/books", self._clbk_books_all),
+            ("/books/<book_hexid>/reviews", self._clbk_review_by_book),
             ("/books/<hexid>", self._clbk_book),
             ("/reviews", self._clbk_review_list),
             ("/reviews/<hexid>", self._clbk_review_show),
@@ -142,7 +143,6 @@ class WebUI(object):
         )
         routes_user = (
             ("/books/<book_hexid>/add_review", self._clbk_review_edit, ["GET", "POST"]),
-            ("/books/<book_hexid>/reviews", self._clbk_review_by_book),
             ("/file/<hexid>", self._clbk_user_file),
             ("/logout", self._clbk_logout),
             ("/reviews/<review_hexid>/edit", self._clbk_review_edit, ["GET", "POST"]),
