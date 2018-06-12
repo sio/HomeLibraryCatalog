@@ -2,7 +2,7 @@
 from urllib.parse import urlencode, parse_qs
 params = {k:v[0] for k,v in parse_qs(info["url"][3]).items()}
 last = params.pop('last', False)
-if (not count) and page.num:
+if (not count) and page.num and not last:
     from bottle import redirect
     params['p'] = page.num - 1
     params['last'] = 1
