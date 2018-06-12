@@ -375,6 +375,7 @@ ul.items li {
     font-size:100%;
     text-decoration:none;
 }
+h1,
 h1 * {
     color:#000000;
     font-weight:bold;
@@ -383,6 +384,7 @@ h1 {
     font-size:125%;
     margin-bottom:0.5em;
 }
+h2,
 h2 * {
     color:#000000;
     font-weight:bold;
