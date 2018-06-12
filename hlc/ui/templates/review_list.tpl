@@ -1,12 +1,17 @@
 <%
 from hlc.items import Book, User, Author
+hide = get('hide', {})
 count = 0
 for review in reviews:
     count += 1
+    if count == page.size:
+        break
+    end
     book = next(review.getconnected(Book))
     review_author = next(review.getconnected(User))
 %>
 <div class="review_short">
+<% if 'header' not in hide: %>
     <h2>
     <a href="/books/{{ id.book.encode(book.id) }}">{{ book.name }}</a>
     <span class="authors">
@@ -31,6 +36,7 @@ for review in reviews:
         %>
     </span>
     </h2>
+<% end %>
     <span class="info_line">
     <a href="/reviews/{{id.review.encode(review.id) }}">
     {{ review_author.fullname or review_author.name }},
