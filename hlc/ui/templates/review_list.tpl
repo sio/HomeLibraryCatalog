@@ -1,6 +1,13 @@
 <%
 from hlc.items import Book, User, Author
-hide = get('hide', {})
+hide = get('hide', set())
+one_book = bool(get('book', False))
+if one_book:
+    hide.add('header')
+    if 'book' not in hide:
+        include('book_preview', **locals())
+    end
+end
 count = 0
 for review in reviews:
     count += 1

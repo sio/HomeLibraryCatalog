@@ -123,7 +123,7 @@ def view_by_book(webui, book_hexid, user=None):
     return reviews_page(**locals())
 
 
-def reviews_page(webui, query, params=None, title=None, user=None, **ka):
+def reviews_page(webui, query, params=None, title=None, user=None, book=None, **ka):
     '''
     Generate reviews page from SQL query that returns their ids
 
@@ -150,6 +150,5 @@ def reviews_page(webui, query, params=None, title=None, user=None, **ka):
         'review_all',
         info=webui.info,
         id=webui.id,
-        **ka,
         **locals()
     )

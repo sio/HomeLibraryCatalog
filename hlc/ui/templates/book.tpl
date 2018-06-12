@@ -206,7 +206,7 @@ reviews = book.getconnected(BookReview, order='date desc')
 show_top_reviews = 10
 count = include(
     'review_list',
-    hide={'header'},
+    hide={'header', 'book'},
     page=Page(size=show_top_reviews, num=0, offset=0),
     **locals()
 )['count']
