@@ -33,12 +33,12 @@ for review in reviews:
         %>
     </span>
     </h2>
-    <a href="/reviews/{{id.review.encode(review.id) }}">
     <span class="info_line">
+    <a href="/reviews/{{id.review.encode(review.id) }}">
     {{ review_author.fullname or review_author.name }},
     {{ review.date.strftime(info['date_format']) }}
-    </span>
     </a>
+    </span>
     <% include('stars', stars=review.rating) %>
     <div class="review_text">{{! review.html }}</div>
 </div>
