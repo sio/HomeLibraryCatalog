@@ -137,7 +137,7 @@ def reviews_page(webui, query, params=None, title=None, user=None):
     )
     reviews = (BookReview(webui.db, row[0]) for row in select)
     return template(
-        'review_list',
+        'review_all',
         info=webui.info,
         id=webui.id,
         **locals()

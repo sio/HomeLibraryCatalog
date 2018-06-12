@@ -1,10 +1,8 @@
 <%
-# TODO: add pagination!
-rebase('main')
-
 from hlc.items import Book, User, Author
-
+count = 0
 for review in reviews:
+    count += 1
     book = next(review.getconnected(Book))
     review_author = next(review.getconnected(User))
 %>
