@@ -423,6 +423,9 @@ a:hover {
 form[name="review"] > .field > label {
     display:none;
 }
+.review_container {
+    position:relative;
+}
 .review_container .info_line {
     margin-top:0.75em;
 }
