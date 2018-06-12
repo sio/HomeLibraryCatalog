@@ -113,7 +113,17 @@ def view_list(webui, user=None):
     return reviews_page(**locals())
 
 
-def reviews_page(webui, query, params=None, title=None, user=None):
+def view_by_book(webui, book_hexid, user=None):
+    '''Show reviews related to the specific book'''
+    book = webui.item(Book, book_hexid)
+    if not book.saved:
+        abort(404)
+    query = 'SELECT id FROM book_reviews WHERE book_id=? ORDER BY date DESC'
+    params = (book.id,)
+    return reviews_page(**locals())
+
+
+def reviews_page(webui, query, params=None, title=None, user=None, **ka):
     '''
     Generate reviews page from SQL query that returns their ids
 
@@ -140,5 +150,6 @@ def reviews_page(webui, query, params=None, title=None, user=None):
         'review_all',
         info=webui.info,
         id=webui.id,
+        **ka,
         **locals()
     )
