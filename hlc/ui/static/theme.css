@@ -5,21 +5,18 @@
 }
 body {
     margin:1em auto;
-    padding:0;
-    min-width:20em;
-    max-width:50em
+    padding:0 0.2em;
+    width:calc(100% - 2*0.2em);
+    max-width:50em;
 }
 .widewrapper {
     clear:both;
-    min-width:100%;
 }
 #middle {
     float:left;
     min-width:100%;
 }
 #page {
-    margin-left:10em; /* #menu width */
-    padding-left:1em;
     position:relative;
 }
 #footer {
@@ -31,34 +28,55 @@ body {
 #header {
     position: relative;
 }
-#quick_search {
-    position: absolute;
-    top: 0;
-    right: 0;
-}
 
-/* MENU SIDEBAR */
-#menu {
-    float:left;
-    width:10em;
+
+/* RESPONSIVE LAYOUT */
+@media only screen and (max-width: 600px) {
+    #header h1, #quick_search {
+        display: inline-block;
+    }
+    #quick_search {
+        float:right;
+    }
+    #menu {
+        padding: 1em 0;
+        text-align: center;
+    }
+    #menu ul li {
+        display: inline-block;
+    }
+    #menu ul li + li:before {
+        content: "| "
+    }
 }
-#menu ul {
-    list-style-type:none;
-    margin-left:0.5em;
-}
-#menu ul a {
-    display:block;
-    padding:0.4em;
-}
-#menu ul a:hover, .catalogue tr:hover * {
-    color:navy;
-    background-color:#eef;
-}
-#menu li.with_separator {
-    margin-top:1em;
-}
-#quick_search input {
-    padding:0.3em;
+@media only screen and (min-width: 600px) {
+    #menu {
+        float:left;
+        width:10em;
+    }
+    #page {
+        margin-left:calc(10em + 1em); /* #menu width + 1em */
+    }
+    #quick_search {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+    #menu ul {
+        list-style-type:none;
+        margin-left:0.5em;
+    }
+    #menu ul a {
+        display:block;
+        padding:0.4em;
+    }
+    #menu ul a:hover, .catalogue tr:hover * {
+        color:navy;
+        background-color:#eef;
+    }
+    #menu li.with_separator {
+        margin-top:1em;
+    }
 }
 
 /* BOOK PAGE */
@@ -214,6 +232,7 @@ ul.items li {
     border: #999999 solid 1px;
     background-color:white;
     color:#333333;
+    padding:0.3em;
 }
 .user_input textarea {
     height:10em;
