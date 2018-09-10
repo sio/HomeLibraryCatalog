@@ -1,3 +1,4 @@
+% import itertools
 % from hlc.items import Series, Author, Tag
 % book_url = "/books/%s" % id.book.encode(book.id)
 <div class="book_preview clearfix">
@@ -6,11 +7,15 @@
 <h2>{{book.name}}
 % authors = book.getconnected(Author)
 % if authors:
-(\\
-% for num, author in enumerate(authors):
-{{num and ", " or ""}}{{author.name.replace(",","")}}\\
-% end
-)\\
+%   max_authors = 3
+%   names = [ author.name.replace(",","") for author in itertools.islice(authors,max_authors+1) ]
+%   if len(names) > max_authors:
+%       names.pop()
+%       names_suffix = " и др."
+%   else:
+%       names_suffix = ""
+%   end
+{{  '(' + ', '.join(names) + names_suffix + ')' }}
 % end
 </h2>
 </a>
