@@ -199,7 +199,9 @@
         Отзывы на эту книгу
     </a>
 </h2>
+% if full:
 <a href="{{ info['url'].path }}/add_review" class="edit">[написать отзыв]</a>
+% end
 <%
 from hlc.web import Page
 reviews = book.getconnected(BookReview, order='date desc')
