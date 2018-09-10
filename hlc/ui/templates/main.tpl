@@ -15,8 +15,8 @@ end
     <title>{{"%s [%s]" % (title, app_name)}}</title>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" type="text/css" href="/static/theme.css?v1"/>
-    <script src="/static/theme.js?v1"></script>
+    <link rel="stylesheet" type="text/css" href="/static/theme.css?v20180910"/>
+    <script src="/static/theme.js?v20180910"></script>
 </head>
 <body onload="{{get('onload') or ''}}">
 <div id="header" class="widewrapper no_print">
