@@ -32,6 +32,9 @@ body {
 
 /* RESPONSIVE LAYOUT */
 @media only screen and (max-width: 600px) {
+    html {
+        font-size: 12pt; /* Base font size for mobile browsers */
+    }
     #header h1, #quick_search {
         display: inline-block;
     }
