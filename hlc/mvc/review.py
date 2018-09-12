@@ -98,6 +98,7 @@ def view_single(webui, hexid, user=None):
         abort(404)
     book = next(review.getconnected(Book))
     reviewer = next(review.getconnected(User))
+    full = user == reviewer
     return template(
         'review_single',
         title='Отзыв на книгу',
