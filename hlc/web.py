@@ -127,6 +127,7 @@ class WebUI(object):
         routes_no_acl = (
             ("/login", self._clbk_login, ["GET", "POST"]),
             ("/static/<filename:path>", self._clbk_static),
+            ("/<path:path>/", self._clbk_trailing_slash),
         )
         routes_after_init = (
             ("/", self._clbk_frontpage),
@@ -849,6 +850,9 @@ class WebUI(object):
         response.set_header("Cache-Control", "public,max-age=%d" % (60*60*24*30))
         response.content_type = "image/jpeg"
         return thumb.image
+
+    def _clbk_trailing_slash(self, path, user=None):
+        redirect("/" + path)
 
     def _clbk_user_file(self, hexid, user=None):
         id = self.id.file.decode(hexid)
