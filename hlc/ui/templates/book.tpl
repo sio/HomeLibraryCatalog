@@ -199,7 +199,7 @@
         Отзывы на эту книгу
     </a>
 </h2>
-% if full:
+% if not user is None:
 <a href="{{ info['url'].path }}/add_review" class="edit">[написать отзыв]</a>
 % end
 <%
