@@ -7,6 +7,7 @@ import urllib.request
 import re
 import json
 import ssl
+from scrapehelper.fetch import BaseDataFetcher, DataFetcherError
 from .items import ISBN
 from .util import alphanumeric, fuzzy_str_eq, debug, random_str
 
@@ -70,16 +71,15 @@ class FetcherInvalidPageError(ValueError):
     pass
 
 
-class BookInfoFetcher(object):
+class BookInfoFetcher(BaseDataFetcher):
     """
     Base class for metadata fetchers
     Child classes have to provide get() method
     """
     USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 \
     (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36"
-    _page_encoding = "utf-8"  # default encoding for HTML pages
 
-    def get():
+    def getbook():
         """
         This method has to be provided by child classes.
 
@@ -119,38 +119,30 @@ class BookInfoFetcher(object):
         Open URL and return a file-like object if it points to html page
         Raise FetcherInvalidPageError otherwise
         """
-        req = urllib.request.Request(
-            url,
-            data=None,
-            headers={"User-Agent": self.USER_AGENT})
-        opened = None
         try:
-            opened = urllib.request.urlopen(req)
-        except urllib.request.URLError as e:
-            pass
-        if opened and opened.headers.get_content_type() == content_type:
-            return opened
+            response = self.get(url)
+        except DataFetcherError as e:
+            response = None
+        if response and response.headers.get('content_type') == content_type:
+            return response
         else:
-            if not opened:
+            if not response:
                 raise FetcherInvalidPageError("nothing was fetched from %s" % url)
             else:
-                raise FetcherInvalidPageError("fetched content is not text/html but %s" %
-                    opened.headers.get_content_type())
+                raise FetcherInvalidPageError("fetched content is not %s but %s" % (
+                            content_type,
+                            response.headers.get('content_type')
+                        ))
 
     def parse(self, url):
         """
         Open url and parse it with lxml. Returns None if parsing fails
         """
-        parser = lxml.html.HTMLParser(encoding=self._page_encoding)
-        tree = None
         try:
-            tree = lxml.html.parse(self.request(url), parser)
-        except FetcherInvalidPageError as e:
-            pass
-        if tree:
-            root = tree.getroot()
-            root.make_links_absolute(root.base_url)
-            return root
+            tree = self.parse_html(url)
+        except (FetcherInvalidPageError, DataFetcherError) as e:
+            tree = None
+        return tree
 
     def query_selector(self, node, css, one=True, attr=None):
         found = node.cssselect(css)
@@ -178,7 +170,7 @@ class BookInfoFetcher(object):
         because it does not query remote host on every access.
         """
         if self._info is None and self.isbn:
-            self._info = self.get()
+            self._info = self.getbook()
         elif not self.isbn:
             self._info = {self.isbn:{}}
         return self._info
@@ -276,7 +268,7 @@ class ChitaiGorod(BookInfoFetcher):
             data = dict()
         return data
 
-    def get(self):
+    def getbook(self):
         result = dict()
         book = result[self.isbn] = dict()
 
@@ -343,7 +335,7 @@ class OpenLibrary(BookInfoFetcher):
     """
     _url_pattern = "https://openlibrary.org/api/books?bibkeys=ISBN:%s&format=json&jscmd=data"
 
-    def get(self):
+    def getbook(self):
         result = dict()
         book = result[self.isbn] = dict()
         try:
@@ -402,7 +394,7 @@ class Livelib(BookInfoFetcher):
 
     _url_pattern = "https://www.livelib.ru/find/books/%s"
 
-    def get(self):
+    def getbook(self):
         result = dict()
         book = result[self.isbn] = dict()
         root = self.parse(self.url)
@@ -476,7 +468,7 @@ class LivelibThumb(Livelib):
     """
     A shortcut to image url on Livelib
     """
-    def get(self):
+    def getbook(self):
         result = dict()
         book = result[self.isbn] = dict()
         root = self.parse(self.url)
@@ -507,7 +499,7 @@ class Fantlab(BookInfoFetcher):
     """
     _url_pattern = "http://fantlab.ru/searchmain?searchstr=%s"
 
-    def get(self):
+    def getbook(self):
         """Scrape website for information about the book"""
         result = dict()
         book = result[self.isbn] = dict()
@@ -580,7 +572,7 @@ class Fantlab(BookInfoFetcher):
 
 class FantlabThumb(Fantlab):
     """Fetch only thumbnail from Fantlab (less http requests)"""
-    def get(self):
+    def getbook(self):
         result = dict()
         book = result[self.isbn] = dict()
 
@@ -610,7 +602,7 @@ class AmazonThumb(BookInfoFetcher):
         newname = re.sub(r"\.[^\.]*(\.[^\.]*$)", r"\1", filename)
         return url[:url.rfind(filename)] + newname
 
-    def get(self):
+    def getbook(self):
         result = dict()
         book = result[self.isbn] = dict()
 

@@ -28,6 +28,7 @@ setup(
         "bottle>=0.12.13",
         "Pillow>=4.0.0",
         "wtforms",
+        "scrapehelper @ https://github.com/sio/scrapehelper/tarball/master",
     ],
     python_requires=">=3.3",
     zip_safe=False,
