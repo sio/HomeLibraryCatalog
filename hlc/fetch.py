@@ -138,6 +138,7 @@ class BookInfoFetcher(BaseDataFetcher):
         """
         Open url and parse it with lxml. Returns None if parsing fails
         """
+        # TODO: Fantlab encoding is messed up
         try:
             tree = self.parse_html(url)
         except (FetcherInvalidPageError, DataFetcherError) as e:
