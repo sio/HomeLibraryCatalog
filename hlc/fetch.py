@@ -116,7 +116,7 @@ class BookInfoFetcher(BaseDataFetcher):
 
     def request(self, url, content_type="text/html"):
         """
-        Open URL and return a file-like object if it points to html page
+        Open URL and return a response object if it points to html page
         Raise FetcherInvalidPageError otherwise
         """
         try:
