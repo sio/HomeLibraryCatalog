@@ -261,7 +261,8 @@ class ChitaiGorod(BookInfoFetcher):
         except AttributeError:
             # Older Python versions do not check SSL certificates by default
             pass
-        opened = urllib.request.urlopen(api, **kwargs)
+        with self.rate_limit:
+            opened = urllib.request.urlopen(api, **kwargs)
         if opened:
             data = json.loads(opened.read().decode("utf-8"))
         else:
