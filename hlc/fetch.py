@@ -123,7 +123,7 @@ class BookInfoFetcher(BaseDataFetcher):
             response = self.get(url)
         except DataFetcherError as e:
             response = None
-        if response and response.headers.get('content_type') == content_type:
+        if response and response.headers.get('content-type') == content_type:
             return response
         else:
             if not response:
@@ -336,7 +336,7 @@ class OpenLibrary(BookInfoFetcher):
             reply = None
         if reply is not None:
             try:
-                reply = json.loads(reply.read().decode("utf-8"))
+                reply = reply.json()
             except Exception:
                 reply = dict()
             if reply: reply = reply.popitem()[1]
@@ -358,8 +358,9 @@ class OpenLibrary(BookInfoFetcher):
             if publisher: publisher = publisher[0].get("name")
             if publisher: book["publisher"] = publisher
 
-            year = reply.get("publish_date")
-            if year: book["year"] = year
+            year = reply.get("publish_date", '')
+            year = re.findall(r'\d{4}', year)
+            if year: book["year"] = year[0]
 
             thumbnail = None
             for path in [
