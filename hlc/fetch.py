@@ -524,7 +524,7 @@ class Fantlab(BookInfoFetcher):
                 book["title"] = title_nodes[0].text_content()
 
             authors = list()
-            for a in root.cssselect('*[itemprop="author"] a'):
+            for a in root.cssselect('*[itemprop="author"]'):
                 authors.append(self.reverse_name(a.text_content()))
             if authors: book["authors"] = authors
 
