@@ -601,7 +601,7 @@ class AmazonThumb(BookInfoFetcher):
 
         root = self.parse(self.url)
         if root is not None:
-            img = root.cssselect(".s-item-container img.s-access-image")
+            img = root.cssselect("img.s-image")
             if img is not None:
                 try:
                     img_url = img[0].get("src")
