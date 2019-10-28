@@ -17,7 +17,6 @@ setup(
     packages=[
         "hlc",
         "hlc.mvc",
-        "hlc.test",
     ],
     scripts=["HomeLibraryCatalog.py"],
     package_data={"hlc": ["ui/static/*", "ui/templates/*"]},

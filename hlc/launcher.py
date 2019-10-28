@@ -73,12 +73,6 @@ def wsgi_app(json_file, run=False):
         return ui
 
 
-def test():
-    """Run all unit tests for HomeLibraryCatalog"""
-    import hlc.test
-    hlc.test.run()
-
-
 def main(argv):
     """
     Command-line interface for HomeLibraryCatalog
