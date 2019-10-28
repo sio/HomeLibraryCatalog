@@ -9,6 +9,7 @@ build/
 .venv
 
 /Makefile.venv
+/env.sh
 
 # vim temp files
 *.swp
