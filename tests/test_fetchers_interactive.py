@@ -3,7 +3,7 @@ Interactively test book info fetchers
 '''
 
 
-from pprint import pprint
+import json
 import hlc.fetch
 
 
@@ -12,13 +12,21 @@ TEST_BOOKS = (
     '978-504-094-785-0',
     '978-538-909-894-7',
     '587-198-004-X',
+    '978-504-097-209-8', # two authors
 )
 
 
 def run_tests(fetcher_class, filename=None):
+    output = list()
     for isbn in TEST_BOOKS:
         f = fetcher_class(isbn)
-        pprint({'isbn': isbn, 'full': f.isfull(), 'info': f.info})
+        output.append({'isbn': isbn, 'full': f.isfull(), 'info': f.info})
+    pretty = json.dumps(output, indent=2, sort_keys=True, ensure_ascii=False)
+    if filename:
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(pretty)
+    else:
+        print(pretty)
 
 
 def main():
@@ -30,7 +38,12 @@ def main():
             fetcher = getattr(hlc.fetch, fetcher_name)
         except Exception:
             pass
-    run_tests(fetcher)
+    use_file = input('Save output to file instead of stdout? [y/N]: ')
+    if use_file and use_file.lower().startswith('y'):
+        filename = 'book_fetcher_test.log'
+    else:
+        filename = None
+    run_tests(fetcher, filename)
 
 
 if __name__ == '__main__':
