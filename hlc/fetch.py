@@ -222,9 +222,9 @@ class ChitaiGorod(BookInfoFetcher):
     """
     _url_pattern = "https://www.chitai-gorod.ru/search/result.php?q=%s"
     _url_frontpage = "https://www.chitai-gorod.ru"
-    _api_url = "https://search.chitai-gorod.ru/catalog/_search?size=20&from=0"
-    _api_host = "search.chitai-gorod.ru"
-    _img_url = "https://img-gorod.ru/upload"
+    _api_url = "https://www.chitai-gorod.ru/search.php"
+    _api_host = "www.chitai-gorod.ru"
+    _img_url = "https://img-gorod.ru"
 
     def api_get_isbn(self, isbn=None):
         if isbn is None: isbn = self.isbn
@@ -232,17 +232,7 @@ class ChitaiGorod(BookInfoFetcher):
         # API payload copied from Chrome Developer Tools.
         # Don't know what this payload means, don't need to know:
         # we need just one query after all.
-        payload = """
-            {"query":{"function_score":{"boost_mode":"sum","query":{"bool":
-            {"should":[{"filtered":{"query":{"dis_max":{"queries":[
-            {"match":{"isbn":{"query":"__ISBN__"}}},{"match":
-            {"isbn":{"query":"__ISBN__"}}}],"tie_breaker":0.9}}}}]}}}},
-            "aggs":{"sect":{"terms":{"field":"ibl_sec_id","size":500}},
-            "author":{"terms":{"field":"author.raw","size":50}},"author_b":
-            {"terms":{"field":"author_b","size":50}},"author_t":{"terms":
-            {"field":"author_t.raw","size":50}}},"sort":[{"_score":{"order":
-            "desc"}}],"min_score":1.15}
-            """
+        payload = "index=goods&query=__ISBN__&type=common&per_page=18&get_count=false"
 
         api = urllib.request.Request(
                 url=self._api_url,
@@ -251,6 +241,8 @@ class ChitaiGorod(BookInfoFetcher):
                     "Origin": self._url_frontpage,
                     "User-Agent": self.USER_AGENT,
                     "Referrer": self.url,
+                    "X-Requested-With": 'XMLHttpRequest',
+                    "DNT": 1,
                 },
                 data=payload.replace("__ISBN__", self.isbn).encode("utf-8"),
                 origin_req_host=self._url_frontpage,
@@ -292,6 +284,12 @@ class ChitaiGorod(BookInfoFetcher):
             if authors_line:
                 authors = [self.reverse_name(a) \
                            for a in self.split_names(authors_line)]
+            elif 'author_detail' in api_data:
+                authors_num = len(api_data.get('author', '').split(','))
+                authors = [
+                    name.replace(' ', ', ', 1)
+                    for name in api_data['author_detail'][authors_num:authors_num*2]
+                ]
             else:
                 authors_line = api_data.get("author")
                 if authors_line:
@@ -309,20 +307,13 @@ class ChitaiGorod(BookInfoFetcher):
             if series: book["series"] = [("цикл", series)]
 
             thumbnails = list()
-            for path_key, name_key in [
-                    ("d_pic_path", "d_pic_name"),
-                    ("p_pic_path", "p_pic_name"),
-                    ]:
-                path, name = api_data.get(path_key), api_data.get(name_key)
-                if path and name:
-                    thumbnails.append("/".join([
-                        self._img_url,
-                        path,
-                        name,
-                        ]))
+            if 'preview' in api_data:
+                url = api_data['preview']
+                for suffix in (url, url.replace('preview.jpg', 'detail.jpg')):
+                    thumbnails.append('/'.join((self._img_url, suffix)))
             if thumbnails: book["thumbnail"] = thumbnails
 
-            annotation = api_data.get("content")
+            annotation = api_data.get("detail_text", '').strip('"')
             if annotation: book["annotation"] = annotation
 
         return result
