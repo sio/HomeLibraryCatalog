@@ -226,14 +226,24 @@ class ChitaiGorod(BookInfoFetcher):
     _api_host = "www.chitai-gorod.ru"
     _img_url = "https://img-gorod.ru"
 
+    RATELIMIT_CALLS = 5
+
     def api_get_isbn(self, isbn=None):
         if isbn is None: isbn = self.isbn
 
         # API payload copied from Chrome Developer Tools.
         # Don't know what this payload means, don't need to know:
         # we need just one query after all.
+        # This payload and POST target were discovered by pasting ISBN into
+        # search box and looking for autosuggest events in Developer tools.
         payload = "index=goods&query=__ISBN__&type=common&per_page=18&get_count=false"
 
+        # Changing this into self.post() call triggers scrape detection on the
+        # remote.
+        # Possible cause is that `requests` does not provide a way to specify
+        # origin_req_host (one that I know of).
+        # Another possible cause might be persisting cookies: maybe the remote
+        # allows the first API request without cookies, but no subsequent ones.
         api = urllib.request.Request(
                 url=self._api_url,
                 headers={
