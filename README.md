@@ -1,9 +1,12 @@
 # HomeLibraryCatalog
+
 Web application for cataloging home books collection
 
 
-# Installation and usage
+## Installation and usage
+
 Installation:
+
 * `pip install git+git://github.com/sio/HomeLibraryCatalog.git` to install
 directly from GitHub *or*
 * download release archive, and install with `pip install <archive.tar.gz>` *or*
@@ -21,7 +24,8 @@ deployment with wsgiref and/or other WSGI compatible web servers.
 [2]: docs/deployment.md
 
 
-# Requirements
+## Requirements
+
 * **python3** with following packages (available via `pip install`)
     * **bottle** - micro web framework with built-in simple web server
     * **pillow** - image manipulation library
@@ -29,7 +33,8 @@ deployment with wsgiref and/or other WSGI compatible web servers.
     * **wtforms** - web forms generator
 
 
-# Localization status
+## Localization status
+
 As of now all user interaction happens in Russian
 
 Localization is not planned in the foreseable future due to the lack of human
@@ -38,13 +43,16 @@ resources
 Proper localizations tools and techniques (gettext et al) are not yet supported
 
 
-# Contributing
+## Contributing
+
 All contributions are welcome!
 Please check [CONTRIBUTING.md](CONTRIBUTING.md) for details
 
 
-# License and copyright
+## License and copyright
+
 Copyright © 2016-2017 Vitaly Potyarkin
+
 ```
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -61,8 +69,10 @@ Copyright © 2016-2017 Vitaly Potyarkin
 ```
 
 
-# Todo list
+## Todo list
+
 #### WebUI:
+
 - [ ] Barcode queue:
     - [ ] fetch related information in background, store to title field
     - [ ] style /queue page with CSS
@@ -105,6 +115,7 @@ Copyright © 2016-2017 Vitaly Potyarkin
 - [ ] garbage collector for ThreadItemPool
 
 #### Auto fetcher:
+
 - [ ] more sources:
     - [ ] Wordcat
     - [ ] Ozon
@@ -112,4 +123,5 @@ Copyright © 2016-2017 Vitaly Potyarkin
     - [ ] Google Books?
 
 #### Database:
+
 - [ ] add garbage collector method (delete orphaned thumbnails, authors, etc.)
