@@ -13,6 +13,7 @@ TEST_BOOKS = (
     '978-538-909-894-7',
     '587-198-004-X',
     '978-504-097-209-8', # two authors
+    '978-5-699-59223-4', # two authors (more distinct)
     '978-076-531-985-2', # English-first publication
 )
 
