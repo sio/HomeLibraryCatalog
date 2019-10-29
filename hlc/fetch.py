@@ -472,6 +472,18 @@ class Livelib(BookInfoFetcher):
     #
 
     _url_pattern = "https://www.livelib.ru/find/books/%s"
+    HOME = "https://www.livelib.ru"
+    title_pattern = re.compile(r'^.*«(.*)».*$')
+
+    def parse(self, url):
+        try:
+            return self.parse_html(
+                        url,
+                        headers={'Referer': self.HOME},
+                        force_encoding='utf-8',
+            )
+        except (FetcherInvalidPageError, DataFetcherError):
+            return None
 
     def getbook(self):
         result = dict()
@@ -491,7 +503,7 @@ class Livelib(BookInfoFetcher):
             root = self.parse(true_url + "-" + random_str(10, 20))
         if root is not None:
             title = self.query_selector(root, "#book-title")
-            if title: book["title"] = title
+            if title: book["title"] = self.title_pattern.sub(r'\1', title)
 
             authors = self.query_selector(root, ".author-name")
             if authors:
@@ -503,27 +515,29 @@ class Livelib(BookInfoFetcher):
                 publisher = re.sub(r"\s+", " ", publisher).strip()
             if publisher: book["publisher"] = publisher
 
-            year_node = root.xpath('//span[@itemprop="isbn"]/following-sibling::b[1]/following-sibling::text()[1]')
+            year_node = root.xpath('//td[b[text()="Год издания:"]]/following-sibling::td//text()[1]')
             for year in year_node:
                 try:
                     year = int(year.strip())
                 except Exception as e:
-                    year = None
-                if year: book["year"] = str(year)
+                    continue
+                book["year"] = str(year)
+                break
 
             series = list()
-            publ_series = self.query_selector(root, "#book-series a", one=False)
+            edition = root.cssselect('.edition-data')[0]
+            publ_series = edition.xpath('//a[contains(@href, "/pubseries/")]//text()')
             for name in publ_series:
                 if name.strip():
                     series.append((
                         "издательская серия",
                         name.strip()))
-            author_series = self.query_selector(root, "#work-cycle a", one=False)
+            author_series = edition.xpath('//a[contains(@href, "/series/")]//text()')
             for name in author_series:
                 if name.strip():
                     series.append((
                         "цикл",
-                        name.strip()))
+                        *name.strip().split(', книга №')))
             if series: book["series"] = series
 
             thumbnail = self.query_selector(root, "#main-image-book", attr="src")
