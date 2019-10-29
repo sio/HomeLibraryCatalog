@@ -216,6 +216,82 @@ class BookInfoFetcher(BaseDataFetcher):
         return [name.strip() for name in names.split(separator)]
 
 
+class Libex(BookInfoFetcher):
+    """
+    Online marketplace for new and used books based in Russia
+    """
+    _url_pattern = 'https://www.libex.ru/search/result/?pattern=isbn%3A{}'
+    HOME = 'https://www.libex.ru'
+    year_pattern = re.compile(r'(\d{4})\s*г\.', re.IGNORECASE)
+
+    @property
+    def url(self):
+        return self._url_pattern.format(self.isbn)
+
+    def parse(self, url):
+        try:
+            return self.parse_html(url, headers={'Referer': self.HOME})
+        except (FetcherInvalidPageError, DataFetcherError):
+            return None
+
+    def getbook(self):
+        result = dict()
+        book = result[self.isbn] = dict()
+
+        search = self.parse(self.url)
+        if search is None:
+            return result
+
+        match = search.cssselect('table big a')
+        if not match:
+            return result
+
+        book_page = self.parse(match[0].get('href'))
+        if book_page is None:
+            return result
+
+        book_card = book_page.xpath(
+                    '(//table[@cellspacing=2][@cellpadding=0][//h3[@class="nomargin"]])'
+                    '[1]/..'
+        )
+        if not book_card:
+            return result
+        book_card = book_card[0]
+
+        title = book_card.xpath('//h1[@class="nomargin"][1]//text()')
+        if title:
+            book['title'] = title
+
+        authors = book_card.xpath('//h3[@class="nomargin"][1]/a//text()')
+        if authors:
+            book['authors'] = authors
+
+        publisher = book_card.xpath('//td[contains(text(), "Издательство:")]//text()')
+        if publisher:
+            publisher = publisher[0]
+            parts = publisher.split(';')
+            for part in parts:
+                if 'Издательство:' in part:
+                    book['publisher'] = part.split(':')[-1].strip()
+                    break
+
+        year = book_card.xpath('//td[a[contains(text(), "Переплет")]]//text()')
+        if year:
+            found = self.year_pattern.search(' '.join(year))
+            if found:
+                book['year'] = found.group(1)
+
+        img = book_card.xpath('//img[@title][@width=60]/@src')
+        if img:
+            book['thumbnail'] = img
+
+        about = book_card.xpath('//h3[text()="Аннотация"]/following-sibling::p/text()')
+        if about:
+            book['annotation'] = ''.join(about)
+
+        return result
+
+
 class ChitaiGorod(BookInfoFetcher):
     """
     Russian online book store, offers both fiction and non-fiction books
@@ -624,5 +700,5 @@ class AmazonThumb(BookInfoFetcher):
 
 
 # Public API for changing priority of fetchers
-INFO_FETCHERS = [Fantlab, ChitaiGorod, OpenLibrary]
-THUMB_FETCHERS = [FantlabThumb, ChitaiGorod, AmazonThumb, OpenLibrary]
+INFO_FETCHERS = [Fantlab, Libex, ChitaiGorod, OpenLibrary]
+THUMB_FETCHERS = [FantlabThumb, ChitaiGorod, Libex, AmazonThumb, OpenLibrary]
