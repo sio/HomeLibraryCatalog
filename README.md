@@ -7,7 +7,7 @@ Web application for cataloging home books collection
 
 Installation:
 
-* `pip install git+git://github.com/sio/HomeLibraryCatalog.git` to install
+* `pip install https://github.com/sio/HomeLibraryCatalog.git` to install
 directly from GitHub *or*
 * download release archive, and install with `pip install <archive.tar.gz>` *or*
 * download release archive, unpack it and start `HomeLibraryCatalog.py`
@@ -20,8 +20,11 @@ To launch HomeLibraryCatalog with wsgiref web server run
 Check [this article][2] for further information on HomeLibraryCatalog
 deployment with wsgiref and/or other WSGI compatible web servers.
 
+Step-by-step deployment instructions are described in this [Ansible playbook].
+
 [1]: docs/configuration.md
 [2]: docs/deployment.md
+[Ansible playbook]: https://gitlab.com/sio/server_common/tree/master/ansible/roles/morebooks
 
 
 ## Requirements
@@ -51,7 +54,7 @@ Please check [CONTRIBUTING.md](CONTRIBUTING.md) for details
 
 ## License and copyright
 
-Copyright © 2016-2017 Vitaly Potyarkin
+Copyright © 2016-2019 Vitaly Potyarkin
 
 ```
     This program is free software: you can redistribute it and/or modify
@@ -75,29 +78,22 @@ Copyright © 2016-2017 Vitaly Potyarkin
 
 - [ ] Barcode queue:
     - [ ] fetch related information in background, store to title field
-    - [ ] style /queue page with CSS
-    - [x] do not queue books already in the library
     - [ ] show title and user on /queue page
 - [ ] Forms:
     - [ ] for registered users
-        - [ ] book review
         - [ ] author rating
         - [ ] book not in library anymore
         - [ ] password change: force if expired
     - [ ] for administrators
         - [ ] edit groups
     - [ ] for all visitors
-        - [x] search box
         - [ ] advanced search: single field searches
     - [ ] start page: greetings/newest books/thumbnail gallery?
 - [ ] Pages:
     - [ ] annotated list with previews
-        - [x] all books
         - [ ] available books
-        - [x] search results
         - [ ] future books (to buy)
         - [ ] recent books with thumbnails (last month, prev-next links)
-    - [x] plain table: title, authors, series, - in series, year
     - [ ] one book
         - [ ] external links
         - [ ] more information?
@@ -119,7 +115,6 @@ Copyright © 2016-2017 Vitaly Potyarkin
 - [ ] more sources:
     - [ ] Wordcat
     - [ ] Ozon
-    - [ ] Amazon
     - [ ] Google Books?
 
 #### Database:
