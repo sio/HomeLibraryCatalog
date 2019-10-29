@@ -7,7 +7,7 @@ Web application for cataloging home books collection
 
 Installation:
 
-* `pip install https://github.com/sio/HomeLibraryCatalog.git` to install
+* `pip install https://github.com/sio/HomeLibraryCatalog/tarball/master` to install
 directly from GitHub *or*
 * download release archive, and install with `pip install <archive.tar.gz>` *or*
 * download release archive, unpack it and start `HomeLibraryCatalog.py`
