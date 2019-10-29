@@ -6,28 +6,45 @@ import lxml.html
 import urllib.request
 import re
 import json
+import logging
 import ssl
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from scrapehelper.fetch import BaseDataFetcher, DataFetcherError
 from .fetcher_cache import CachedObject
 from .items import ISBN
 from .util import alphanumeric, fuzzy_str_eq, debug, random_str
 
 
+threads = ThreadPoolExecutor()
+log = logging.getLogger(__name__)
+
+
+def _execute(fetcher):
+    '''Worker for concurrent execution'''
+    fetcher.info
+    return fetcher
+
+
 def book_info(isbn):
     """
     Try all available fetchers until full information about book is fetched
     """
-    result = dict()
+    jobs = set()
     for fetcher in INFO_FETCHERS:
-        f = fetcher(isbn)
+        jobs.add(threads.submit(_execute, fetcher(isbn)))
+
+    result = dict()
+    for job in as_completed(jobs):
+        fetcher = job.result()
         if not result:
-            result = f.info
+            result = fetcher.info
         else:
-            old, new = result[f.isbn], f.info[f.isbn]
+            old, new = result[fetcher.isbn], fetcher.info[fetcher.isbn]
             for k in new.keys():
                 if k not in old:
                     old[k] = new[k]
-        if f.isfull(result): break
+        if fetcher.isfull(result):
+            break
     return result
 
 
@@ -39,17 +56,23 @@ def book_thumbs(isbn):
     Those fetchers' results will be stripped of all extra information except
     for thumbnail urls
     """
-    result = {ISBN(isbn).number:{}}
+    jobs = set()
     for fetcher in THUMB_FETCHERS:
-        f = fetcher(isbn)
-        old, new = result[f.isbn], f.info[f.isbn]
-        key = "thumbnail"
-        if key not in old \
-        and key in new:
+        jobs.add(threads.submit(_execute, fetcher(isbn)))
+
+    result = dict()
+    key = 'thumbnail'
+    for job in as_completed(jobs):
+        fetcher = job.result()
+        if not result:
+            result = {fetcher.isbn: {}}
+        old, new = result[fetcher.isbn], fetcher.info[fetcher.isbn]
+        if key not in old and key in new:
             old[key] = new[key]
         elif isinstance(new.get(key), list) \
         and isinstance(old.get(key), list):
             old[key] += new[key]
+    old[key] = list(set(old[key]))  # Remove duplicates if any
     return result
 
 
@@ -178,7 +201,10 @@ class BookInfoFetcher(BaseDataFetcher, CachedObject, metaclass=_UnionMeta):
         because it does not query remote host on every access.
         """
         if self._info is None and self.isbn:
+            debug_info = dict(isbn=self.isbn, fetcher=self.__class__.__name__)
+            log.debug('Requesting {isbn} with {fetcher}'.format(**debug_info))
             self._info = self.getbook()
+            log.debug('>> Fetched {isbn} with {fetcher}'.format(**debug_info))
         elif not self.isbn:
             self._info = {self.isbn:{}}
         return self._info

@@ -4,6 +4,7 @@ Interactively test book info fetchers
 
 
 import json
+import random
 import hlc.fetch
 
 
@@ -18,12 +19,42 @@ TEST_BOOKS = (
 )
 
 
-def run_tests(fetcher_class, filename=None):
+def run_tests(fetcher_class):
     output = list()
     for isbn in TEST_BOOKS:
         f = fetcher_class(isbn)
         output.append({'isbn': isbn, 'full': f.isfull(), 'info': f.info})
-    pretty = json.dumps(output, indent=2, sort_keys=True, ensure_ascii=False)
+    return output
+
+
+def single_fetcher():
+    '''Test single fetcher with predefined set of ISBNs'''
+    fetcher = None
+    while not fetcher:
+        fetcher_name = input('Type the fetcher class name to test: ')
+        try:
+            fetcher = getattr(hlc.fetch, fetcher_name)
+        except Exception:
+            pass
+    output(run_tests(fetcher))
+
+
+def single_book():
+    '''Test single book with all fetchers asyncronously'''
+    isbn = input('Type ISBN to test (empty to use predefined): ')
+    if not isbn:
+        isbn = random.choice(TEST_BOOKS)
+    output(hlc.fetch.book_info(isbn))
+
+
+def output(data):
+    '''Print or save output to file. Select interactively'''
+    pretty = json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False)
+    use_file = input('Save output to file instead of stdout? [y/N]: ')
+    if use_file and use_file.lower().startswith('y'):
+        filename = 'book_fetcher_test.log'
+    else:
+        filename = None
     if filename:
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(pretty)
@@ -32,20 +63,21 @@ def run_tests(fetcher_class, filename=None):
 
 
 def main():
-    '''Interactive test interface'''
-    fetcher = None
-    while not fetcher:
-        fetcher_name = input('Type the fetcher class name to test: ')
-        try:
-            fetcher = getattr(hlc.fetch, fetcher_name)
-        except Exception:
-            pass
-    use_file = input('Save output to file instead of stdout? [y/N]: ')
-    if use_file and use_file.lower().startswith('y'):
-        filename = 'book_fetcher_test.log'
-    else:
-        filename = None
-    run_tests(fetcher, filename)
+    '''Main menu for manual testing'''
+    selected = ''
+    options = {
+        'f': single_fetcher,
+        'b': single_book,
+    }
+    greeting = 'Which manual test to execute?\n'
+    prompt = [greeting] + [
+        ' [{key}]: {explained}\n'.format(key=key, explained=value.__doc__)
+        for key, value in sorted(options.items())
+    ]
+    while selected not in options:
+        selected = input(''.join(prompt))
+        selected = selected.lower()[:1]
+    options[selected]()
 
 
 if __name__ == '__main__':
