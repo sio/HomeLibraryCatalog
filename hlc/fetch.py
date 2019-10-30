@@ -591,33 +591,6 @@ class Livelib(BookInfoFetcher):
         return url
 
 
-class LivelibThumb(Livelib):
-    """
-    A shortcut to image url on Livelib
-    """
-    def getbook(self):
-        result = dict()
-        book = result[self.isbn] = dict()
-        root = self.parse(self.url)
-
-        true_url = ""
-        if root is not None:
-            for anchor in root.cssselect("#objects-block .object-edition a.title"):
-                url = anchor.get("href")
-                if "book" in url:
-                    true_url = url
-                    break
-
-        root = None
-        if true_url:
-            root = self.parse(true_url + "-" + random_str(10, 20))
-        if root is not None:
-            thumbnail = self.query_selector(root, "#main-image-book", attr="src")
-            if thumbnail:
-                book["thumbnail"] = [thumbnail, self.fix_thumb_url(thumbnail)]
-        return result
-
-
 class Fantlab(BookInfoFetcher):
     """
     Fantlab offers a vast collection of science fiction books metadata, mostly
@@ -750,5 +723,5 @@ class AmazonThumb(BookInfoFetcher):
 # Lists of enabled data fetchers. Order does not matter.
 # INFO_FETCHERS: data from the fastest source gets shown to user.
 # THUMB_FETCHERS: all data sources are queried for wider selection.
-INFO_FETCHERS = [Fantlab, Libex, ChitaiGorod, OpenLibrary]
-THUMB_FETCHERS = [FantlabThumb, ChitaiGorod, Libex, AmazonThumb, OpenLibrary]
+INFO_FETCHERS = [Fantlab, Libex, ChitaiGorod, OpenLibrary, Livelib]
+THUMB_FETCHERS = INFO_FETCHERS + [AmazonThumb]
