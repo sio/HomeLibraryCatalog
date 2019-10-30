@@ -747,6 +747,8 @@ class AmazonThumb(BookInfoFetcher):
         return result
 
 
-# Public API for changing priority of fetchers
+# Lists of enabled data fetchers. Order does not matter.
+# INFO_FETCHERS: data from the fastest source gets shown to user.
+# THUMB_FETCHERS: all data sources are queried for wider selection.
 INFO_FETCHERS = [Fantlab, Libex, ChitaiGorod, OpenLibrary]
 THUMB_FETCHERS = [FantlabThumb, ChitaiGorod, Libex, AmazonThumb, OpenLibrary]
