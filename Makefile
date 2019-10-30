@@ -3,6 +3,11 @@ test: venv
 	$(VENV)/python -m unittest
 
 
+.PHONY: test-verbose
+test-verbose: venv
+	$(VENV)/python -m unittest -v
+
+
 .PHONY: test-interactive
 test-interactive: venv
 	$(VENV)/python tests/test_fetchers_interactive.py
