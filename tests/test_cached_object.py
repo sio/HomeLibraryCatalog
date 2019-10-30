@@ -38,6 +38,9 @@ class TestCachedObjects(TestCase):
         self.assertIsNot(a, b)
         self.assertIsNot(a, c)
         self.assertIs(a, a1)
+        self.assertIsNot(a._objects, b._objects)
+        self.assertIs(a._objects, a1._objects)
+        self.assertIs(A._objects, a1._objects)
 
     def test_cache_maxsize(self):
         for cls in (A, B, C):

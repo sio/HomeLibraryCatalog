@@ -8,6 +8,7 @@ import re
 import json
 import ssl
 from scrapehelper.fetch import BaseDataFetcher, DataFetcherError
+from .fetcher_cache import CachedObject
 from .items import ISBN
 from .util import alphanumeric, fuzzy_str_eq, debug, random_str
 
@@ -71,7 +72,14 @@ class FetcherInvalidPageError(ValueError):
     pass
 
 
-class BookInfoFetcher(BaseDataFetcher):
+class _UnionMeta(type(BaseDataFetcher), type(CachedObject)):
+    '''Joined metaclass for BookInfoFetcher'''
+    def __init__(cls, *a, **ka):
+        type(BaseDataFetcher).__init__(cls, *a, **ka)
+        type(CachedObject).__init__(cls, *a, **ka)
+
+
+class BookInfoFetcher(BaseDataFetcher, CachedObject, metaclass=_UnionMeta):
     """
     Base class for metadata fetchers
     Child classes have to provide get() method
