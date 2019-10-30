@@ -4,6 +4,7 @@ Caching mechanism for info fetchers
 
 
 from collections import deque
+from weakref import WeakValueDictionary
 
 
 class StrongCache:
@@ -40,6 +41,44 @@ class StrongCache:
 
     def __len__(self):
         return len(self._cache)
+
+    def __repr__(self):
+        return '{cls}(maxsize={maxsize}'.format(
+            cls=self.__class__.__name__,
+            maxsize=self.maxsize
+        )
+
+
+class WeakAndStrongCache:
+    '''
+    Dict-like object with a limit on number of strongly references values
+
+    When limit is reached the oldest values are dropped from the strong-ref
+    cache (FIFO). Unlimited number of  weak references is kept while the
+    corresponding objects exist.
+    '''
+
+    def __init__(self, maxsize):
+        self.maxsize = maxsize
+        self._weak = WeakValueDictionary()
+        self._strong = StrongCache(maxsize)
+
+    def __setitem__(self, key, value):
+        self._weak[key] = value
+        self._strong[key] = value
+
+    def __getitem__(self, key):
+        return self._weak[key]
+
+    def __delitem__(self, key):
+        del self._weak[key]
+        del self._strong[key]
+
+    def __contains__(self, key):
+        return key in self._weak
+
+    def __len__(self):
+        return len(self._weak)
 
     def __repr__(self):
         return '{cls}(maxsize={maxsize}'.format(
