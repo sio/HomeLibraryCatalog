@@ -82,3 +82,30 @@ class WeakAndStrongCache:
         return len(self._weak)
 
     __repr__ = StrongCache.__repr__
+
+
+class CachedObjectMeta(type):
+    '''
+    Metaclass that enables caching instance creation for each of child classes
+    '''
+
+    def __init__(cls, name, bases, dct):
+        cls._objects = WeakAndStrongCache(cls._CACHE_SIZE)
+
+    def __call__(cls, *a, **ka):
+        cache_key = (a, tuple(ka))
+        if cache_key in cls._objects:
+            old = cls._objects[cache_key]
+            return old  # skip cls.__init__()
+        else:
+            new = super().__call__(*a, **ka)  # run both __new__() and __init__()
+            cls._objects[cache_key] = new
+            return new
+
+
+class CachedObject(metaclass=CachedObjectMeta):
+    '''
+    An object that will cache previous instances and return them when
+    initialized with the same arguments
+    '''
+    _CACHE_SIZE = 25
