@@ -43,8 +43,9 @@ class StrongCache:
         return len(self._cache)
 
     def __repr__(self):
-        return '{cls}(maxsize={maxsize}'.format(
+        return '<{cls} maxsize={maxsize} at {id}>'.format(
             cls=self.__class__.__name__,
+            id=hex(id(self)),
             maxsize=self.maxsize
         )
 
@@ -80,8 +81,4 @@ class WeakAndStrongCache:
     def __len__(self):
         return len(self._weak)
 
-    def __repr__(self):
-        return '{cls}(maxsize={maxsize}'.format(
-            cls=self.__class__.__name__,
-            maxsize=self.maxsize
-        )
+    __repr__ = StrongCache.__repr__
