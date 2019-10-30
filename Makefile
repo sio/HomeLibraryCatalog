@@ -40,7 +40,7 @@ test-interactive: venv
 	$(VENV)/python tests/test_fetchers_interactive.py
 
 
-.PHONY:
+.PHONY: clean
 clean:
 	rm -r $(CONFIG) $(dir $(CONFIG))/data
 
