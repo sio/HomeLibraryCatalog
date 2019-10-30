@@ -1,3 +1,21 @@
+CONFIG?=$(WORKDIR)/hlc.json
+PORT?=8000
+
+
+define DEFAULT_CONFIG
+{
+	"app": {
+		"title": "Test instance [HomeLibraryCatalog]",
+		"verbosity": 9
+	},
+	"webui": {
+		"port": $(PORT)
+	}
+}
+endef
+export DEFAULT_CONFIG
+
+
 .PHONY: test
 test: venv
 	$(VENV)/python -m unittest
@@ -8,9 +26,23 @@ test-verbose: venv
 	$(VENV)/python -m unittest -v
 
 
+.PHONY: devserver
+devserver: venv $(CONFIG)
+	$(VENV)/python HomeLibraryCatalog.py $(CONFIG)
+
+
+$(CONFIG):
+	echo "$$DEFAULT_CONFIG" > $(CONFIG)
+
+
 .PHONY: test-interactive
 test-interactive: venv
 	$(VENV)/python tests/test_fetchers_interactive.py
+
+
+.PHONY:
+clean:
+	rm -r $(CONFIG) $(dir $(CONFIG))/data
 
 
 include Makefile.venv
