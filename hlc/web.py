@@ -6,8 +6,6 @@ import sqlite3
 import os
 import json
 import re
-import sys
-import webbrowser
 import urllib.parse
 import urllib.request
 from collections import namedtuple
@@ -836,7 +834,6 @@ class WebUI(object):
 
     def _clbk_thumb(self, hexid, user=None):
         """Show thumbnail based on encrypted `hexid`"""
-        picture = None
         try:
             id = self.id.thumb.decode(hexid)
             thumb = Thumbnail(self.db, id)

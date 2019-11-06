@@ -84,9 +84,7 @@ def main(argv):
     -t, --tests
         Run unit tests
     """
-    if set(("--tests", "-t")).intersection(set(argv)):
-        test()
-    elif len(argv) in {1, 2}:
+    if len(argv) in {1, 2}:
         try:
             file = argv[1]
         except IndexError:

@@ -63,7 +63,7 @@ def controller(webui, user, book_hexid=None, review_hexid=None):
     else:
         book = webui.item(Book, book_hexid)
         if not book.saved:
-            abort(404, 'Invalid book id: %s' % hexid)
+            abort(404, 'Invalid book id: %s' % book_hexid)
 
     if request.method == 'POST':  # create or update
         form = ReviewForm(request.forms.decode())

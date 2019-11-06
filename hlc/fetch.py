@@ -2,7 +2,6 @@
 Tools for fetching book info by ISBN
 """
 
-import lxml.html
 import urllib.request
 import re
 import json
@@ -12,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from scrapehelper.fetch import BaseDataFetcher, DataFetcherError
 from .fetcher_cache import CachedObject
 from .items import ISBN
-from .util import alphanumeric, fuzzy_str_eq, debug, random_str
+from .util import alphanumeric, fuzzy_str_eq, random_str
 
 
 threads = ThreadPoolExecutor()

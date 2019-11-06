@@ -4,7 +4,6 @@ Functions for handling JSON files with settings
 
 import json
 import os.path
-import json
 
 
 class Configuration(object):
