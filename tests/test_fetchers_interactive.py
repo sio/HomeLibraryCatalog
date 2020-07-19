@@ -39,6 +39,21 @@ def single_fetcher():
     output(run_tests(fetcher))
 
 
+def single_fetcher_custom():
+    '''Test custom ISBN with single fetcher'''
+    fetcher = None
+    while not fetcher:
+        fetcher_name = input('Type the fetcher class name to test: ')
+        try:
+            fetcher = getattr(hlc.fetch, fetcher_name)
+        except Exception:
+            pass
+    isbn = input('Type ISBN to test (empty to use predefined): ')
+    if not isbn:
+        isbn = random.choice(TEST_BOOKS)
+    output(fetcher(isbn).info)
+
+
 def single_book():
     '''Test single book with all fetchers asyncronously'''
     isbn = input('Type ISBN to test (empty to use predefined): ')
@@ -68,6 +83,7 @@ def main():
     options = {
         'f': single_fetcher,
         'b': single_book,
+        'c': single_fetcher_custom,
     }
     greeting = 'Which manual test to execute?\n'
     prompt = [greeting] + [
