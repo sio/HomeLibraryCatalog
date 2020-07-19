@@ -557,22 +557,6 @@ class Livelib(BookInfoFetcher):
                 book["year"] = str(year)
                 break
 
-            series = list()
-            edition = root.cssselect('.edition-data')[0]
-            publ_series = edition.xpath('//a[contains(@href, "/pubseries/")]//text()')
-            for name in publ_series:
-                if name.strip():
-                    series.append((
-                        "издательская серия",
-                        name.strip()))
-            author_series = edition.xpath('//a[contains(@href, "/series/")]//text()')
-            for name in author_series:
-                if name.strip():
-                    series.append((
-                        "цикл",
-                        *name.strip().split(', книга №')))
-            if series: book["series"] = series
-
             thumbnail = self.query_selector(root, "#main-image-book", attr="src")
             if thumbnail:
                 book["thumbnail"] = [thumbnail, self.fix_thumb_url(thumbnail)]
@@ -580,6 +564,23 @@ class Livelib(BookInfoFetcher):
             annotation = self.query_selector(root, "#full-description")
             if annotation: annotation = annotation.strip()
             if annotation: book["annotation"] = annotation
+
+            series = list()
+            edition = self.query_selector(root, '.edition-data')
+            if edition and hasattr(edition, 'xpath'):
+                publ_series = edition.xpath('//a[contains(@href, "/pubseries/")]//text()')
+                for name in publ_series:
+                    if name.strip():
+                        series.append((
+                            "издательская серия",
+                            name.strip()))
+                author_series = edition.xpath('//a[contains(@href, "/series/")]//text()')
+                for name in author_series:
+                    if name.strip():
+                        series.append((
+                            "цикл",
+                            *name.strip().split(', книга №')))
+                if series: book["series"] = series
 
         return result
 
