@@ -54,6 +54,14 @@ def single_fetcher_custom():
     output(fetcher(isbn).info)
 
 
+def single_book_thumbs():
+    '''Test single book with all thumbnail fetchers asyncronously'''
+    isbn = input('Type ISBN to test (empty to use predefined): ')
+    if not isbn:
+        isbn = random.choice(TEST_BOOKS)
+    output(hlc.fetch.book_thumbs(isbn))
+
+
 def single_book():
     '''Test single book with all fetchers asyncronously'''
     isbn = input('Type ISBN to test (empty to use predefined): ')
@@ -84,6 +92,7 @@ def main():
         'f': single_fetcher,
         'b': single_book,
         'c': single_fetcher_custom,
+        'i': single_book_thumbs,
     }
     greeting = 'Which manual test to execute?\n'
     prompt = [greeting] + [
