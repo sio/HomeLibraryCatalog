@@ -1,4 +1,4 @@
-__version__ = "0.1.1-git"
+__version__ = "1.0.0"
 __author__ = "Vitaly Potyarkin"
 
 VERBOSITY = [9]
